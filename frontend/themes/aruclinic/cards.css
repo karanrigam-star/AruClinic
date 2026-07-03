@@ -1,0 +1,75 @@
+/* ==========================================================================
+   CARDS PORTAL STYLES (AruClinic Premium UI)
+   ========================================================================== */
+
+/* Micro-animations for Dashboard Cards */
+.aruclinic-dashboard-stat-card, .aruclinic-card, .practo-card, .dashboard-card {
+    transition: all var(--aruclinic-transition-normal) !important;
+    border: 1px solid var(--aruclinic-border) !important;
+}
+
+.aruclinic-dashboard-stat-card:hover, .aruclinic-card:hover, .dashboard-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--aruclinic-shadow-lg) !important;
+    border-color: var(--aruclinic-primary-light) !important;
+}
+
+/* Stat Card Icon Hover effects */
+.aruclinic-dashboard-stat-card:hover .stat-icon {
+    transform: scale(1.1) rotate(2deg);
+    transition: transform var(--aruclinic-transition-fast);
+}
+
+.stat-icon {
+    transition: transform var(--aruclinic-transition-fast);
+}
+
+/* Specific Cards (Profile, Medical, Appointment, Billing) */
+.profile-card, .appointment-card, .medical-record-card, .billing-card {
+    background: var(--aruclinic-card-bg);
+    border-radius: var(--aruclinic-radius-md);
+    border: 1px solid var(--aruclinic-border);
+    padding: var(--aruclinic-spacing-lg);
+    box-shadow: var(--aruclinic-shadow-sm);
+    transition: all var(--aruclinic-transition-normal);
+}
+
+.profile-card:hover, .appointment-card:hover, .medical-record-card:hover, .billing-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--aruclinic-shadow-md);
+    border-color: var(--aruclinic-primary-light);
+}
+
+/* Fluent Hover Reveal Glow Card */
+.fluent-reveal-card {
+    position: relative;
+    border-radius: var(--aruclinic-radius-md);
+    background: var(--aruclinic-card-bg);
+    border: 1px solid var(--aruclinic-border);
+    transition: transform 0.2s cubic-bezier(0.1, 0.9, 0.2, 1), 
+                box-shadow 0.2s cubic-bezier(0.1, 0.9, 0.2, 1), 
+                border-color 0.2s cubic-bezier(0.1, 0.9, 0.2, 1) !important;
+    overflow: hidden;
+}
+
+.fluent-reveal-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--aruclinic-primary-light), var(--aruclinic-warning));
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.fluent-reveal-card:hover {
+    transform: translateY(-2px) scale(1.005);
+    box-shadow: var(--aruclinic-shadow-lg) !important;
+    border-color: rgba(44, 183, 223, 0.4) !important;
+}
+
+.fluent-reveal-card:hover::before {
+    opacity: 1;
+}

@@ -1,0 +1,710 @@
+/* AruClinic Common Styles */
+/* Shared styles used across all views */
+
+/* ============================================
+   Page Layout
+   ============================================ */
+
+.aruclinic-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--aruclinic-background);
+}
+
+.aruclinic-page-content {
+    flex: 1;
+    padding: var(--aruclinic-spacing-lg);
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* ============================================
+   Main Layout with Sidebar
+   ============================================ */
+
+.aruclinic-main-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--aruclinic-background);
+}
+
+.aruclinic-main-layout .sidebar-container {
+    flex: 0 0 auto;
+}
+
+.aruclinic-main-layout .content-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.aruclinic-main-layout .header-container {
+    flex: 0 0 auto;
+}
+
+.aruclinic-main-layout .page-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--aruclinic-spacing-lg);
+}
+
+/* ============================================
+   View Container
+   ============================================ */
+
+.aruclinic-view {
+    padding: var(--aruclinic-spacing-lg);
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.aruclinic-view-title {
+    font-size: var(--aruclinic-font-size-3xl);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+    margin-bottom: var(--aruclinic-spacing-xl);
+    padding-bottom: var(--aruclinic-spacing-md);
+    border-bottom: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-view-subtitle {
+    font-size: var(--aruclinic-font-size-lg);
+    color: var(--aruclinic-text-secondary);
+    margin-bottom: var(--aruclinic-spacing-lg);
+}
+
+/* ============================================
+   Section Styles
+   ============================================ */
+
+.aruclinic-section {
+    margin-bottom: var(--aruclinic-spacing-2xl);
+}
+
+.aruclinic-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--aruclinic-spacing-lg);
+    flex-wrap: wrap;
+    gap: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-section-title {
+    font-size: var(--aruclinic-font-size-2xl);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+}
+
+.aruclinic-section-actions {
+    display: flex;
+    gap: var(--aruclinic-spacing-sm);
+    flex-wrap: wrap;
+}
+
+/* ============================================
+   Grid Layout
+   ============================================ */
+
+.aruclinic-grid {
+    display: grid;
+    gap: var(--aruclinic-spacing-lg);
+}
+
+.aruclinic-grid-2 {
+    grid-template-columns: repeat(1, 1fr);
+}
+
+.aruclinic-grid-3 {
+    grid-template-columns: repeat(1, 1fr);
+}
+
+.aruclinic-grid-4 {
+    grid-template-columns: repeat(1, 1fr);
+}
+
+@media (min-width: 768px) {
+    .aruclinic-grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .aruclinic-grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .aruclinic-grid-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* ============================================
+   Stat Cards
+   ============================================ */
+
+.aruclinic-stat-card {
+    background: var(--aruclinic-card-bg);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-lg);
+    box-shadow: var(--aruclinic-shadow-md);
+    border: 1px solid var(--aruclinic-border);
+    transition: all var(--aruclinic-transition-normal);
+}
+
+.aruclinic-stat-card:hover {
+    box-shadow: var(--aruclinic-shadow-lg);
+    transform: translateY(-2px);
+}
+
+.aruclinic-stat-card .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--aruclinic-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--aruclinic-font-size-2xl);
+    margin-bottom: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-stat-card .stat-icon.primary {
+    background-color: rgba(15, 108, 189, 0.1);
+    color: var(--aruclinic-primary);
+}
+
+.aruclinic-stat-card .stat-icon.success {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: var(--aruclinic-success);
+}
+
+.aruclinic-stat-card .stat-icon.danger {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--aruclinic-danger);
+}
+
+.aruclinic-stat-card .stat-icon.warning {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: var(--aruclinic-warning);
+}
+
+.aruclinic-stat-card .stat-value {
+    font-size: var(--aruclinic-font-size-3xl);
+    font-weight: 700;
+    color: var(--aruclinic-text-primary);
+    margin-bottom: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-stat-card .stat-label {
+    font-size: var(--aruclinic-font-size-sm);
+    color: var(--aruclinic-text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+
+.aruclinic-empty-state {
+    text-align: center;
+    padding: var(--aruclinic-spacing-2xl);
+    background: var(--aruclinic-card-bg);
+    border-radius: var(--aruclinic-radius-md);
+    border: 1px dashed var(--aruclinic-border);
+}
+
+.aruclinic-empty-state-icon {
+    font-size: var(--aruclinic-font-size-3xl);
+    color: var(--aruclinic-text-muted);
+    margin-bottom: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-empty-state-title {
+    font-size: var(--aruclinic-font-size-xl);
+    color: var(--aruclinic-text-secondary);
+    margin-bottom: var(--aruclinic-spacing-sm);
+}
+
+.aruclinic-empty-state-text {
+    font-size: var(--aruclinic-font-size-md);
+    color: var(--aruclinic-text-muted);
+    margin-bottom: var(--aruclinic-spacing-lg);
+}
+
+/* ============================================
+   Divider
+   ============================================ */
+
+.aruclinic-divider {
+    height: 1px;
+    background-color: var(--aruclinic-border);
+    margin: var(--aruclinic-spacing-lg) 0;
+}
+
+.aruclinic-divider-vertical {
+    width: 1px;
+    height: 100%;
+    background-color: var(--aruclinic-border);
+    margin: 0 var(--aruclinic-spacing-lg);
+}
+
+/* ============================================
+   Avatar
+   ============================================ */
+
+.aruclinic-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--aruclinic-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: var(--aruclinic-font-size-md);
+    flex-shrink: 0;
+}
+
+.aruclinic-avatar.sm {
+    width: 32px;
+    height: 32px;
+    font-size: var(--aruclinic-font-size-sm);
+}
+
+.aruclinic-avatar.lg {
+    width: 48px;
+    height: 48px;
+    font-size: var(--aruclinic-font-size-lg);
+}
+
+.aruclinic-avatar.xl {
+    width: 64px;
+    height: 64px;
+    font-size: var(--aruclinic-font-size-xl);
+}
+
+.aruclinic-avatar.success {
+    background-color: var(--aruclinic-success);
+}
+
+.aruclinic-avatar.danger {
+    background-color: var(--aruclinic-danger);
+}
+
+.aruclinic-avatar.warning {
+    background-color: var(--aruclinic-warning);
+}
+
+/* ============================================
+   Tooltip
+   ============================================ */
+
+.aruclinic-tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.aruclinic-tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: var(--aruclinic-spacing-xs) var(--aruclinic-spacing-sm);
+    background-color: var(--aruclinic-text-primary);
+    color: white;
+    font-size: var(--aruclinic-font-size-xs);
+    border-radius: var(--aruclinic-radius-sm);
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--aruclinic-transition-fast);
+    z-index: 1000;
+    margin-bottom: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-tooltip:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ============================================
+   Progress Bar
+   ============================================ */
+
+.aruclinic-progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: var(--aruclinic-background);
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.aruclinic-progress-bar-fill {
+    height: 100%;
+    background-color: var(--aruclinic-primary);
+    border-radius: 9999px;
+    transition: width var(--aruclinic-transition-normal);
+}
+
+.aruclinic-progress-bar.success .aruclinic-progress-bar-fill {
+    background-color: var(--aruclinic-success);
+}
+
+.aruclinic-progress-bar.danger .aruclinic-progress-bar-fill {
+    background-color: var(--aruclinic-danger);
+}
+
+.aruclinic-progress-bar.warning .aruclinic-progress-bar-fill {
+    background-color: var(--aruclinic-warning);
+}
+
+/* ============================================
+   Modal/Dialog
+   ============================================ */
+
+.aruclinic-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    animation: aruclinic-fadeIn 0.2s ease-out;
+}
+
+.aruclinic-modal {
+    background: var(--aruclinic-card-bg);
+    border-radius: var(--aruclinic-radius-md);
+    box-shadow: var(--aruclinic-shadow-lg);
+    padding: var(--aruclinic-spacing-xl);
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: aruclinic-slideUp 0.3s ease-out;
+}
+
+.aruclinic-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--aruclinic-spacing-lg);
+    padding-bottom: var(--aruclinic-spacing-md);
+    border-bottom: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-modal-title {
+    font-size: var(--aruclinic-font-size-2xl);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+    margin: 0;
+}
+
+.aruclinic-modal-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--aruclinic-spacing-xs);
+    color: var(--aruclinic-text-muted);
+    transition: color var(--aruclinic-transition-fast);
+}
+
+.aruclinic-modal-close:hover {
+    color: var(--aruclinic-text-primary);
+}
+
+.aruclinic-modal-body {
+    padding: var(--aruclinic-spacing-md) 0;
+}
+
+.aruclinic-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--aruclinic-spacing-sm);
+    margin-top: var(--aruclinic-spacing-lg);
+    padding-top: var(--aruclinic-spacing-md);
+    border-top: 1px solid var(--aruclinic-border);
+}
+
+@keyframes aruclinic-fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes aruclinic-slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   Tabs
+   ============================================ */
+
+.aruclinic-tabs {
+    display: flex;
+    gap: var(--aruclinic-spacing-xs);
+    border-bottom: 1px solid var(--aruclinic-border);
+    margin-bottom: var(--aruclinic-spacing-lg);
+    overflow-x: auto;
+    padding-bottom: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-tab {
+    padding: var(--aruclinic-spacing-sm) var(--aruclinic-spacing-md);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: var(--aruclinic-font-size-md);
+    font-weight: 500;
+    color: var(--aruclinic-text-secondary);
+    border-bottom: 2px solid transparent;
+    transition: all var(--aruclinic-transition-fast);
+    white-space: nowrap;
+}
+
+.aruclinic-tab:hover {
+    color: var(--aruclinic-primary);
+}
+
+.aruclinic-tab.active {
+    color: var(--aruclinic-primary);
+    border-bottom-color: var(--aruclinic-primary);
+}
+
+.aruclinic-tab-panel {
+    display: none;
+}
+
+.aruclinic-tab-panel.active {
+    display: block;
+}
+
+/* ============================================
+   Accordion
+   ============================================ */
+
+.aruclinic-accordion {
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    overflow: hidden;
+    background: var(--aruclinic-card-bg);
+}
+
+.aruclinic-accordion-header {
+    padding: var(--aruclinic-spacing-md) var(--aruclinic-spacing-lg);
+    background: var(--aruclinic-background);
+    border-bottom: 1px solid var(--aruclinic-border);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color var(--aruclinic-transition-fast);
+}
+
+.aruclinic-accordion-header:hover {
+    background: var(--aruclinic-border);
+}
+
+.aruclinic-accordion-header .accordion-title {
+    font-weight: 500;
+    color: var(--aruclinic-text-primary);
+}
+
+.aruclinic-accordion-header .accordion-icon {
+    transition: transform var(--aruclinic-transition-fast);
+}
+
+.aruclinic-accordion-header.open .accordion-icon {
+    transform: rotate(180deg);
+}
+
+.aruclinic-accordion-content {
+    padding: var(--aruclinic-spacing-lg);
+    display: none;
+}
+
+.aruclinic-accordion-content.open {
+    display: block;
+}
+
+/* ============================================
+   Pagination
+   ============================================ */
+
+.aruclinic-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--aruclinic-spacing-xs);
+    margin-top: var(--aruclinic-spacing-lg);
+    flex-wrap: wrap;
+}
+
+.aruclinic-pagination button {
+    padding: var(--aruclinic-spacing-sm) var(--aruclinic-spacing-md);
+    border: 1px solid var(--aruclinic-border);
+    background: var(--aruclinic-card-bg);
+    color: var(--aruclinic-text-primary);
+    border-radius: var(--aruclinic-radius-sm);
+    cursor: pointer;
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.aruclinic-pagination button:hover:not(:disabled) {
+    background: var(--aruclinic-background);
+    border-color: var(--aruclinic-primary);
+    color: var(--aruclinic-primary);
+}
+
+.aruclinic-pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.aruclinic-pagination button.active {
+    background: var(--aruclinic-primary);
+    border-color: var(--aruclinic-primary);
+    color: white;
+}
+
+.aruclinic-pagination .page-info {
+    color: var(--aruclinic-text-secondary);
+    font-size: var(--aruclinic-font-size-sm);
+}
+
+/* ============================================
+   Search Input
+   ============================================ */
+
+.aruclinic-search {
+    position: relative;
+    margin-bottom: var(--aruclinic-spacing-lg);
+}
+
+.aruclinic-search input {
+    width: 100%;
+    padding: var(--aruclinic-spacing-sm) var(--aruclinic-spacing-md);
+    padding-left: 40px;
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    font-size: var(--aruclinic-font-size-md);
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.aruclinic-search input:focus {
+    outline: none;
+    border-color: var(--aruclinic-primary);
+    box-shadow: 0 0 0 3px rgba(15, 108, 189, 0.1);
+}
+
+.aruclinic-search vaadin-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--aruclinic-text-muted);
+}
+
+/* ============================================
+   Filter Bar
+   ============================================ */
+
+.aruclinic-filter-bar {
+    background: var(--aruclinic-card-bg);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-lg);
+    margin-bottom: var(--aruclinic-spacing-lg);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--aruclinic-spacing-md);
+    align-items: center;
+}
+
+.aruclinic-filter-bar .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-filter-bar .filter-group label {
+    font-size: var(--aruclinic-font-size-xs);
+    font-weight: 600;
+    color: var(--aruclinic-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.aruclinic-filter-bar .filter-actions {
+    margin-left: auto;
+    display: flex;
+    gap: var(--aruclinic-spacing-sm);
+}
+
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+
+@media (max-width: 767px) {
+    .aruclinic-view {
+        padding: var(--aruclinic-spacing-md);
+    }
+
+    .aruclinic-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .aruclinic-section-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .aruclinic-filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .aruclinic-filter-bar .filter-actions {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .aruclinic-stat-card .stat-value {
+        font-size: var(--aruclinic-font-size-2xl);
+    }
+}
+
+@media (min-width: 768px) {
+    .aruclinic-grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .aruclinic-grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .aruclinic-grid-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}

@@ -1,0 +1,98 @@
+/* AruClinic Global Styles */
+@import url('login.css');
+@import url('dashboard.css');
+@import url('admin.css');
+
+:root {
+    --lumo-primary-color: #2196B3;
+    --lumo-primary-contrast-color: #FFFFFF;
+    --lumo-error-color: #D32F2F;
+    --lumo-success-color: #388E3C;
+    --lumo-warning-color: #FFA000;
+    --lumo-background-base-color: #F5F7FA;
+    --lumo-shade-a: #E6ECF2;
+}
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(33, 150, 179, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    background: white;
+}
+
+.medical-card {
+    border-left: 4px solid #2196B3;
+}
+
+.success-card {
+    border-left: 4px solid #388E3C;
+}
+
+.warning-card {
+    border-left: 4px solid #FFA000;
+}
+
+.error-card {
+    border-left: 4px solid #D32F2F;
+}
+
+/* Header styles */
+.header {
+    background-color: #2196B3;
+    color: white;
+    padding: 16px;
+    border-radius: 8px;
+}
+
+/* Sidebar styles */
+.sidebar {
+    background-color: #1565C0;
+    color: white;
+    min-height: 100vh;
+}
+
+.sidebar-link {
+    color: white;
+    text-decoration: none;
+    padding: 12px 16px;
+    display: block;
+    transition: background 0.3s;
+}
+
+.sidebar-link:hover {
+    background-color: #0D47A1;
+}
+
+/* Button styles */
+.action-button {
+    background-color: #2196B3 !important;
+    color: white !important;
+    border-radius: 8px !important;
+}
+
+.action-button:hover {
+    background-color: #1976D2 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        min-height: auto;
+    }
+}

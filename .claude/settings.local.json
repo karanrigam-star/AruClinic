@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"src/main/java/com/aruclinic/frontend\" -Recurse 2>$null | ForEach-Object { $_.FullName } | Select-Object -First 50)",
+      "PowerShell(find C:\\\\Users\\\\David Rigam\\\\.claude\\\\projects\\\\Test2\\\\src\\\\main\\\\java\\\\com\\\\aruclinic\\\\frontend -type d)",
+      "PowerShell(mvn clean *)",
+      "WebSearch",
+      "PowerShell(Stop-Process *)",
+      "PowerShell(javap *)",
+      "PowerShell(mvn spring-boot:run *)",
+      "PowerShell(java *)",
+      "PowerShell(tail *)"
+    ]
+  }
+}

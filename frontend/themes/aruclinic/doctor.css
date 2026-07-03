@@ -1,0 +1,40 @@
+/* ==========================================================================
+   DOCTOR PORTAL SPECIFIC STYLES (AruClinic Premium UI)
+   ========================================================================== */
+
+/* Doctor Dashboard Schedule Card */
+.doctor-schedule-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aruclinic-spacing-md);
+}
+
+.doctor-schedule-item {
+    background: var(--aruclinic-card-bg);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.doctor-schedule-item:hover {
+    border-color: var(--aruclinic-primary-light);
+    transform: translateX(2px);
+}
+
+/* Patient Prescription Form layouts */
+.prescription-entry-form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--aruclinic-spacing-md);
+    margin-top: var(--aruclinic-spacing-lg);
+}
+
+@media (min-width: 768px) {
+    .prescription-entry-form {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

@@ -1,0 +1,17 @@
+{
+  "frontendFolder": "C:/Users/David Rigam/.claude/projects/Test2/./frontend",
+  "themeFolder": "themes",
+  "themeResourceFolder": "C:/Users/David Rigam/.claude/projects/Test2/./frontend/generated/jar-resources",
+  "staticOutput": "C:/Users/David Rigam/.claude/projects/Test2/target/classes/META-INF/VAADIN/webapp/VAADIN/static",
+  "generatedFolder": "generated",
+  "statsOutput": "C:\\Users\\David Rigam\\.claude\\projects\\Test2\\target\\classes\\META-INF\\VAADIN\\config",
+  "frontendBundleOutput": "C:\\Users\\David Rigam\\.claude\\projects\\Test2\\target\\classes\\META-INF\\VAADIN\\webapp",
+  "devBundleOutput": "C:/Users/David Rigam/.claude/projects/Test2/src/main/dev-bundle/webapp",
+  "devBundleStatsOutput": "C:/Users/David Rigam/.claude/projects/Test2/src/main/dev-bundle/config",
+  "jarResourcesFolder": "C:/Users/David Rigam/.claude/projects/Test2/./frontend/generated/jar-resources",
+  "themeName": "aruclinic",
+  "clientServiceWorkerSource": "C:\\Users\\David Rigam\\.claude\\projects\\Test2\\target\\sw.ts",
+  "pwaEnabled": false,
+  "offlineEnabled": false,
+  "offlinePath": "'offline.html'"
+}

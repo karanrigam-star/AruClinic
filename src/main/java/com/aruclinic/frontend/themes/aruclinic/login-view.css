@@ -1,0 +1,546 @@
+/* AruClinic Login View Styles */
+
+/* ============================================
+   Login Page Container
+   ============================================ */
+
+.aruclinic-login-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, var(--aruclinic-primary) 0%, var(--aruclinic-primary-dark) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.aruclinic-login-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+/* ============================================
+   Login Card
+   ============================================ */
+
+.aruclinic-login-card {
+    background: var(--aruclinic-card-bg);
+    border-radius: var(--aruclinic-radius-lg);
+    box-shadow: var(--aruclinic-shadow-lg);
+    padding: var(--aruclinic-spacing-2xl);
+    max-width: 480px;
+    width: 90%;
+    margin: auto;
+    position: relative;
+    z-index: 10;
+    animation: aruclinic-login-card-animate 0.5s ease-out;
+}
+
+@keyframes aruclinic-login-card-animate {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ============================================
+   Login Header
+   ============================================ */
+
+.aruclinic-login-header {
+    text-align: center;
+    margin-bottom: var(--aruclinic-spacing-xl);
+}
+
+.aruclinic-login-logo {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--aruclinic-primary), var(--aruclinic-primary-dark));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--aruclinic-spacing-lg);
+    box-shadow: var(--aruclinic-shadow-md);
+}
+
+.aruclinic-login-logo vaadin-icon {
+    color: white;
+    font-size: 40px;
+}
+
+.aruclinic-login-title {
+    font-size: var(--aruclinic-font-size-3xl);
+    font-weight: 700;
+    color: var(--aruclinic-text-primary);
+    margin-bottom: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-login-subtitle {
+    font-size: var(--aruclinic-font-size-md);
+    color: var(--aruclinic-text-secondary);
+    font-weight: 400;
+}
+
+/* ============================================
+   Login Form
+   ============================================ */
+
+.aruclinic-login-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-login-input-group {
+    position: relative;
+}
+
+.aruclinic-login-input-group vaadin-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--aruclinic-text-muted);
+    pointer-events: none;
+}
+
+.aruclinic-login-input {
+    width: 100%;
+    padding: 14px 14px 14px 44px;
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-sm);
+    font-size: var(--aruclinic-font-size-md);
+    transition: all var(--aruclinic-transition-fast);
+    background-color: var(--aruclinic-card-bg);
+}
+
+.aruclinic-login-input:focus {
+    outline: none;
+    border-color: var(--aruclinic-primary);
+    box-shadow: 0 0 0 3px rgba(15, 108, 189, 0.15);
+}
+
+.aruclinic-login-input::placeholder {
+    color: var(--aruclinic-text-muted);
+}
+
+/* ============================================
+   Password Visibility Toggle
+   ============================================ */
+
+.aruclinic-password-toggle {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--aruclinic-text-muted);
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color var(--aruclinic-transition-fast);
+}
+
+.aruclinic-password-toggle:hover {
+    color: var(--aruclinic-primary);
+}
+
+/* ============================================
+   Remember Me & Forgot Password
+   ============================================ */
+
+.aruclinic-login-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--aruclinic-spacing-sm);
+}
+
+.aruclinic-remember-me {
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-xs);
+    cursor: pointer;
+}
+
+.aruclinic-remember-me input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--aruclinic-primary);
+    cursor: pointer;
+}
+
+.aruclinic-remember-me span {
+    font-size: var(--aruclinic-font-size-sm);
+    color: var(--aruclinic-text-secondary);
+}
+
+.aruclinic-forgot-password {
+    font-size: var(--aruclinic-font-size-sm);
+    color: var(--aruclinic-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color var(--aruclinic-transition-fast);
+}
+
+.aruclinic-forgot-password:hover {
+    color: var(--aruclinic-primary-dark);
+    text-decoration: underline;
+}
+
+/* ============================================
+   Login Button
+   ============================================ */
+
+.aruclinic-login-button {
+    width: 100%;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, var(--aruclinic-primary), var(--aruclinic-primary-dark));
+    color: white;
+    border: none;
+    border-radius: var(--aruclinic-radius-md);
+    font-size: var(--aruclinic-font-size-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--aruclinic-transition-fast);
+    box-shadow: 0 2px 4px rgba(15, 108, 189, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-login-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(15, 108, 189, 0.3);
+}
+
+.aruclinic-login-button:active {
+    transform: translateY(0);
+}
+
+.aruclinic-login-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.aruclinic-login-button vaadin-icon {
+    color: inherit;
+}
+
+/* ============================================
+   Login Loading State
+   ============================================ */
+
+.aruclinic-login-button.loading {
+    pointer-events: none;
+    position: relative;
+    color: transparent;
+}
+
+.aruclinic-login-button.loading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: aruclinic-spin 0.8s linear infinite;
+}
+
+@keyframes aruclinic-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   Divider
+   ============================================ */
+
+.aruclinic-login-divider {
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-md);
+    margin: var(--aruclinic-spacing-lg) 0;
+}
+
+.aruclinic-login-divider::before,
+.aruclinic-login-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--aruclinic-border);
+}
+
+.aruclinic-login-divider span {
+    font-size: var(--aruclinic-font-size-sm);
+    color: var(--aruclinic-text-muted);
+    white-space: nowrap;
+}
+
+/* ============================================
+   Social Login Buttons
+   ============================================ */
+
+.aruclinic-social-login {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aruclinic-spacing-sm);
+}
+
+.aruclinic-social-btn {
+    width: 100%;
+    padding: 12px 20px;
+    background: var(--aruclinic-card-bg);
+    color: var(--aruclinic-text-primary);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    font-size: var(--aruclinic-font-size-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--aruclinic-transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--aruclinic-spacing-sm);
+}
+
+.aruclinic-social-btn:hover {
+    background: var(--aruclinic-background);
+    border-color: var(--aruclinic-primary);
+}
+
+.aruclinic-social-btn google {
+    border-color: #EA4335;
+    color: #EA4335;
+}
+
+.aruclinic-social-btn google:hover {
+    background: #F5F5F5;
+}
+
+.aruclinic-social-btn facebook {
+    border-color: #1877F2;
+    color: #1877F2;
+}
+
+.aruclinic-social-btn facebook:hover {
+    background: #F0F7FF;
+}
+
+/* ============================================
+   Sign Up Link
+   ============================================ */
+
+.aruclinic-signup-link {
+    text-align: center;
+    margin-top: var(--aruclinic-spacing-lg);
+    padding-top: var(--aruclinic-spacing-lg);
+    border-top: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-signup-link span {
+    font-size: var(--aruclinic-font-size-md);
+    color: var(--aruclinic-text-secondary);
+}
+
+.aruclinic-signup-link a {
+    color: var(--aruclinic-primary);
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: var(--aruclinic-spacing-xs);
+    transition: color var(--aruclinic-transition-fast);
+}
+
+.aruclinic-signup-link a:hover {
+    color: var(--aruclinic-primary-dark);
+    text-decoration: underline;
+}
+
+/* ============================================
+   Login Footer
+   ============================================ */
+
+.aruclinic-login-footer {
+    text-align: center;
+    margin-top: var(--aruclinic-spacing-xl);
+    padding-top: var(--aruclinic-spacing-lg);
+    border-top: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-login-footer p {
+    font-size: var(--aruclinic-font-size-xs);
+    color: var(--aruclinic-text-muted);
+    margin: 0;
+}
+
+.aruclinic-login-footer a {
+    color: var(--aruclinic-primary);
+    text-decoration: none;
+}
+
+.aruclinic-login-footer a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================
+   Error Message
+   ============================================ */
+
+.aruclinic-login-error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: var(--aruclinic-radius-sm);
+    padding: var(--aruclinic-spacing-sm) var(--aruclinic-spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-sm);
+    color: var(--aruclinic-danger);
+    font-size: var(--aruclinic-font-size-sm);
+    margin-bottom: var(--aruclinic-spacing-md);
+    animation: aruclinic-shake 0.4s ease-out;
+}
+
+@keyframes aruclinic-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.aruclinic-login-error vaadin-icon {
+    color: var(--aruclinic-danger);
+    flex-shrink: 0;
+}
+
+/* ============================================
+   Success Message
+   ============================================ */
+
+.aruclinic-login-success {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: var(--aruclinic-radius-sm);
+    padding: var(--aruclinic-spacing-sm) var(--aruclinic-spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-sm);
+    color: var(--aruclinic-success);
+    font-size: var(--aruclinic-font-size-sm);
+    margin-bottom: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-login-success vaadin-icon {
+    color: var(--aruclinic-success);
+    flex-shrink: 0;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 480px) {
+    .aruclinic-login-card {
+        padding: var(--aruclinic-spacing-lg);
+        margin: var(--aruclinic-spacing-md);
+    }
+
+    .aruclinic-login-logo {
+        width: 64px;
+        height: 64px;
+    }
+
+    .aruclinic-login-logo vaadin-icon {
+        font-size: 32px;
+    }
+
+    .aruclinic-login-title {
+        font-size: var(--aruclinic-font-size-2xl);
+    }
+
+    .aruclinic-login-options {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .aruclinic-login-divider {
+        margin: var(--aruclinic-spacing-md) 0;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 767px) {
+    .aruclinic-login-card {
+        padding: var(--aruclinic-spacing-xl);
+    }
+}
+
+@media (min-width: 768px) {
+    .aruclinic-login-page {
+        flex-direction: row;
+    }
+
+    .aruclinic-login-card {
+        margin-right: auto;
+        margin-left: 8%;
+    }
+
+    /* Login illustration/branding section */
+    .aruclinic-login-branding {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: var(--aruclinic-spacing-2xl);
+        color: white;
+    }
+
+    .aruclinic-login-branding h2 {
+        font-size: var(--aruclinic-font-size-3xl);
+        margin-bottom: var(--aruclinic-spacing-md);
+        text-align: center;
+    }
+
+    .aruclinic-login-branding p {
+        font-size: var(--aruclinic-font-size-lg);
+        opacity: 0.9;
+        text-align: center;
+        max-width: 400px;
+    }
+
+    .aruclinic-login-branding .features {
+        margin-top: var(--aruclinic-spacing-xl);
+        display: flex;
+        flex-direction: column;
+        gap: var(--aruclinic-spacing-md);
+    }
+
+    .aruclinic-login-branding .feature {
+        display: flex;
+        align-items: center;
+        gap: var(--aruclinic-spacing-sm);
+    }
+
+    .aruclinic-login-branding .feature vaadin-icon {
+        color: white;
+    }
+
+    .aruclinic-login-branding .feature span {
+        font-size: var(--aruclinic-font-size-md);
+    }
+}

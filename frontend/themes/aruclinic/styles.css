@@ -1,0 +1,1474 @@
+/* AruClinic Global Styles - Design System (Practo-Inspired Theme) */
+/* Primary: #263077 (Practo Indigo), Secondary: #2cb7df (Practo Turquoise), Saffron Accent: #ff9800 */
+/* Background: #F8FAFC, Cards: White, Border Radius: 12px */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* AruClinic Color Palette - Reverted to requested core hex values */
+    --aruclinic-primary: #0F6CBD;
+    --aruclinic-primary-light: #3B82F6;
+    --aruclinic-primary-dark: #0D5A9A;
+
+    --aruclinic-success: #22C55E;
+    --aruclinic-success-light: #4ADE80;
+    --aruclinic-success-dark: #16A34A;
+
+    --aruclinic-danger: #EF4444;
+    --aruclinic-danger-light: #F87171;
+    --aruclinic-danger-dark: #DC2626;
+
+    --aruclinic-warning: #F59E0B;
+    --aruclinic-warning-light: #FBBF24;
+    --aruclinic-warning-dark: #D97706;
+
+    /* Requested Neutral / Surface / Text system */
+    --aruclinic-background: #F8FAFC;
+    --aruclinic-card-bg: #FFFFFF;
+    --aruclinic-text-primary: #111827;
+    --aruclinic-text-secondary: #6B7280;
+    --aruclinic-text-muted: #9CA3AF;
+    --aruclinic-border: #E5E7EB;
+    --aruclinic-border-dark: #D1D5DB;
+
+    /* Spacing System */
+    --aruclinic-spacing-xs: 8px;
+    --aruclinic-spacing-sm: 12px;
+    --aruclinic-spacing-md: 16px;
+    --aruclinic-spacing-lg: 24px;
+    --aruclinic-spacing-xl: 32px;
+    --aruclinic-spacing-2xl: 48px;
+
+    /* Border Radius */
+    --aruclinic-radius-sm: 6px;
+    --aruclinic-radius-md: 12px;
+    --aruclinic-radius-lg: 16px;
+
+    /* Shadows - Practo Soft Navy Shadows */
+    --aruclinic-shadow-sm: 0 1px 3px rgba(38, 48, 119, 0.04);
+    --aruclinic-shadow-md: 0 8px 24px -4px rgba(38, 48, 119, 0.08), 0 2px 8px -2px rgba(38, 48, 119, 0.04);
+    --aruclinic-shadow-lg: 0 20px 40px -8px rgba(38, 48, 119, 0.12), 0 4px 16px -4px rgba(38, 48, 119, 0.06);
+
+    /* Typography */
+    --aruclinic-font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --aruclinic-font-size-xs: 12px;
+    --aruclinic-font-size-sm: 14px;
+    --aruclinic-font-size-md: 16px;
+    --aruclinic-font-size-lg: 18px;
+    --aruclinic-font-size-xl: 20px;
+    --aruclinic-font-size-2xl: 24px;
+    --aruclinic-font-size-3xl: 30px;
+
+    /* Transitions */
+    --aruclinic-transition-fast: 150ms ease;
+    --aruclinic-transition-normal: 250ms ease;
+    --aruclinic-transition-slow: 350ms ease;
+}
+
+/* Import modular CSS files */
+@import url('common.css');
+@import url('login-view.css');
+@import url('dashboard.css');
+@import url('patient.css');
+@import url('doctor.css');
+@import url('appointment.css');
+@import url('billing.css');
+@import url('prescription.css');
+@import url('forms.css');
+@import url('cards.css');
+
+/* ============================================
+   Vaadin Theme Overrides
+   ============================================ */
+
+/* Primary color overrides */
+:root {
+    --lumo-primary-color: var(--aruclinic-primary);
+    --lumo-primary-color-50: #EFF6FF;
+    --lumo-primary-color-10: #DBEAFE;
+    --lumo-primary-text-color: var(--aruclinic-primary);
+    --lumo-primary-contrast-color: #FFFFFF;
+
+    --lumo-error-color: var(--aruclinic-danger);
+    --lumo-error-text-color: var(--aruclinic-danger);
+    --lumo-error-contrast-color: #FFFFFF;
+
+    --lumo-success-color: var(--aruclinic-success);
+    --lumo-success-text-color: var(--aruclinic-success);
+
+    --lumo-warning-color: var(--aruclinic-warning);
+    --lumo-warning-text-color: var(--aruclinic-warning);
+
+    /* Background colors */
+    --lumo-background-base-color: var(--aruclinic-background);
+    --lumo-background-contrast-color: var(--aruclinic-text-primary);
+    --lumo-base-color: var(--aruclinic-card-bg);
+
+    /* Text colors */
+    --lumo-body-text-color: var(--aruclinic-text-primary);
+    --lumo-secondary-text-color: var(--aruclinic-text-secondary);
+    --lumo-tertiary-text-color: var(--aruclinic-text-muted);
+
+    /* Border colors */
+    --lumo-contrast-5: var(--aruclinic-border);
+    --lumo-contrast-10: var(--aruclinic-border-dark);
+
+    /* Border radius */
+    --lumo-border-radius: var(--aruclinic-radius-md);
+    --lumo-border-radius-s: var(--aruclinic-radius-sm);
+    --lumo-border-radius-m: var(--aruclinic-radius-md);
+    --lumo-border-radius-l: var(--aruclinic-radius-lg);
+
+    /* Spacing */
+    --lumo-space-xs: var(--aruclinic-spacing-xs);
+    --lumo-space-s: var(--aruclinic-spacing-sm);
+    --lumo-space-m: var(--aruclinic-spacing-md);
+    --lumo-space-l: var(--aruclinic-spacing-lg);
+    --lumo-space-xl: var(--aruclinic-spacing-xl);
+
+    /* Shadows */
+    --lumo-box-shadow-s: var(--aruclinic-shadow-sm);
+    --lumo-box-shadow-m: var(--aruclinic-shadow-md);
+    --lumo-box-shadow-l: var(--aruclinic-shadow-lg);
+}
+
+/* ============================================
+   Global Utility Classes
+   ============================================ */
+
+/* Flex utilities */
+.flex {
+    display: flex;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flex-start {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.flex-end {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* Size utilities */
+.full-width {
+    width: 100%;
+}
+
+.full-height {
+    height: 100%;
+}
+
+.full-size {
+    width: 100%;
+    height: 100%;
+}
+
+/* Text utilities */
+.text-primary {
+    color: var(--aruclinic-text-primary);
+}
+
+.text-secondary {
+    color: var(--aruclinic-text-secondary);
+}
+
+.text-muted {
+    color: var(--aruclinic-text-muted);
+}
+
+.text-success {
+    color: var(--aruclinic-success);
+}
+
+.text-danger {
+    color: var(--aruclinic-danger);
+}
+
+.text-warning {
+    color: var(--aruclinic-warning);
+}
+
+.text-white {
+    color: #FFFFFF;
+}
+
+/* Background utilities */
+.bg-primary {
+    background-color: var(--aruclinic-primary);
+}
+
+.bg-success {
+    background-color: var(--aruclinic-success);
+}
+
+.bg-danger {
+    background-color: var(--aruclinic-danger);
+}
+
+.bg-warning {
+    background-color: var(--aruclinic-warning);
+}
+
+.bg-background {
+    background-color: var(--aruclinic-background);
+}
+
+.bg-card {
+    background-color: var(--aruclinic-card-bg);
+}
+
+/* Spacing utilities */
+.m-0 { margin: 0; }
+.m-xs { margin: var(--aruclinic-spacing-xs); }
+.m-sm { margin: var(--aruclinic-spacing-sm); }
+.m-md { margin: var(--aruclinic-spacing-md); }
+.m-lg { margin: var(--aruclinic-spacing-lg); }
+.m-xl { margin: var(--aruclinic-spacing-xl); }
+
+.mt-xs { margin-top: var(--aruclinic-spacing-xs); }
+.mt-sm { margin-top: var(--aruclinic-spacing-sm); }
+.mt-md { margin-top: var(--aruclinic-spacing-md); }
+.mt-lg { margin-top: var(--aruclinic-spacing-lg); }
+.mt-xl { margin-top: var(--aruclinic-spacing-xl); }
+
+.mb-xs { margin-bottom: var(--aruclinic-spacing-xs); }
+.mb-sm { margin-bottom: var(--aruclinic-spacing-sm); }
+.mb-md { margin-bottom: var(--aruclinic-spacing-md); }
+.mb-lg { margin-bottom: var(--aruclinic-spacing-lg); }
+.mb-xl { margin-bottom: var(--aruclinic-spacing-xl); }
+
+.p-0 { padding: 0; }
+.p-xs { padding: var(--aruclinic-spacing-xs); }
+.p-sm { padding: var(--aruclinic-spacing-sm); }
+.p-md { padding: var(--aruclinic-spacing-md); }
+.p-lg { padding: var(--aruclinic-spacing-lg); }
+.p-xl { padding: var(--aruclinic-spacing-xl); }
+
+/* Border utilities */
+.border-none { border: none; }
+.border-solid { border-style: solid; }
+.border-1 { border-width: 1px; }
+.border-2 { border-width: 2px; }
+
+.border-primary { border-color: var(--aruclinic-primary); }
+.border-success { border-color: var(--aruclinic-success); }
+.border-danger { border-color: var(--aruclinic-danger); }
+.border-warning { border-color: var(--aruclinic-warning); }
+.border-muted { border-color: var(--aruclinic-border); }
+
+.radius-sm { border-radius: var(--aruclinic-radius-sm); }
+.radius-md { border-radius: var(--aruclinic-radius-md); }
+.radius-lg { border-radius: var(--aruclinic-radius-lg); }
+
+/* Shadow utilities */
+.shadow-sm { box-shadow: var(--aruclinic-shadow-sm); }
+.shadow-md { box-shadow: var(--aruclinic-shadow-md); }
+.shadow-lg { box-shadow: var(--aruclinic-shadow-lg); }
+
+/* Font utilities */
+.font-xs { font-size: var(--aruclinic-font-size-xs); }
+.font-sm { font-size: var(--aruclinic-font-size-sm); }
+.font-md { font-size: var(--aruclinic-font-size-md); }
+.font-lg { font-size: var(--aruclinic-font-size-lg); }
+.font-xl { font-size: var(--aruclinic-font-size-xl); }
+.font-2xl { font-size: var(--aruclinic-font-size-2xl); }
+.font-3xl { font-size: var(--aruclinic-font-size-3xl); }
+
+.font-bold { font-weight: 600; }
+.font-semibold { font-weight: 500; }
+.font-normal { font-weight: 400; }
+
+/* ============================================
+   AruClinic Card Component
+   ============================================ */
+
+.aruclinic-card {
+    background: var(--aruclinic-card-bg);
+    border-radius: var(--aruclinic-radius-md);
+    box-shadow: var(--aruclinic-shadow-md);
+    padding: var(--aruclinic-spacing-lg);
+    margin-bottom: var(--aruclinic-spacing-md);
+    border: 1px solid var(--aruclinic-border);
+    transition: box-shadow var(--aruclinic-transition-normal), transform var(--aruclinic-transition-normal);
+}
+
+.aruclinic-card:hover {
+    box-shadow: var(--aruclinic-shadow-lg);
+    transform: translateY(-2px);
+}
+
+.aruclinic-card.primary {
+    border-left: 4px solid var(--aruclinic-primary);
+}
+
+.aruclinic-card.success {
+    border-left: 4px solid var(--aruclinic-success);
+}
+
+.aruclinic-card.danger {
+    border-left: 4px solid var(--aruclinic-danger);
+}
+
+.aruclinic-card.warning {
+    border-left: 4px solid var(--aruclinic-warning);
+}
+
+/* ============================================
+   AruClinic Button Styles
+   ============================================ */
+
+.aruclinic-btn {
+    border-radius: var(--aruclinic-radius-sm);
+    padding: var(--aruclinic-spacing-sm) var(--aruclinic-spacing-lg);
+    font-weight: 500;
+    transition: all var(--aruclinic-transition-fast);
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-btn-primary {
+    background-color: var(--aruclinic-primary);
+    color: white;
+}
+
+.aruclinic-btn-primary:hover {
+    background-color: var(--aruclinic-primary-dark);
+}
+
+.aruclinic-btn-secondary {
+    background-color: var(--aruclinic-background);
+    color: var(--aruclinic-text-primary);
+    border: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-btn-secondary:hover {
+    background-color: var(--aruclinic-border);
+}
+
+.aruclinic-btn-success {
+    background-color: var(--aruclinic-success);
+    color: white;
+}
+
+.aruclinic-btn-success:hover {
+    background-color: var(--aruclinic-success-dark);
+}
+
+.aruclinic-btn-danger {
+    background-color: var(--aruclinic-danger);
+    color: white;
+}
+
+.aruclinic-btn-danger:hover {
+    background-color: var(--aruclinic-danger-dark);
+}
+
+.aruclinic-btn-outline {
+    background-color: transparent;
+    color: var(--aruclinic-primary);
+    border: 1px solid var(--aruclinic-primary);
+}
+
+.aruclinic-btn-outline:hover {
+    background-color: var(--aruclinic-primary);
+    color: white;
+}
+
+.aruclinic-btn-sm {
+    padding: var(--aruclinic-spacing-xs) var(--aruclinic-spacing-md);
+    font-size: var(--aruclinic-font-size-sm);
+}
+
+.aruclinic-btn-lg {
+    padding: var(--aruclinic-spacing-md) var(--aruclinic-spacing-xl);
+    font-size: var(--aruclinic-font-size-lg);
+}
+
+/* ============================================
+   Form Styles
+   ============================================ */
+
+.aruclinic-form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: var(--aruclinic-spacing-xl);
+}
+
+.aruclinic-form-field {
+    margin-bottom: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-form-label {
+    display: block;
+    margin-bottom: var(--aruclinic-spacing-xs);
+    color: var(--aruclinic-text-primary);
+    font-weight: 500;
+    font-size: var(--aruclinic-font-size-sm);
+}
+
+.aruclinic-form-input {
+    width: 100%;
+    padding: var(--aruclinic-spacing-sm) var(--aruclinic-spacing-md);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-sm);
+    font-size: var(--aruclinic-font-size-md);
+    transition: border-color var(--aruclinic-transition-fast), box-shadow var(--aruclinic-transition-fast);
+}
+
+.aruclinic-form-input:focus {
+    outline: none;
+    border-color: var(--aruclinic-primary);
+    box-shadow: 0 0 0 3px rgba(15, 108, 189, 0.1);
+}
+
+.aruclinic-form-input.error {
+    border-color: var(--aruclinic-danger);
+}
+
+.aruclinic-form-error {
+    color: var(--aruclinic-danger);
+    font-size: var(--aruclinic-font-size-xs);
+    margin-top: var(--aruclinic-spacing-xs);
+}
+
+/* ============================================
+   Header Styles
+   ============================================ */
+
+.aruclinic-header {
+    background-color: var(--aruclinic-primary);
+    color: white;
+    padding: var(--aruclinic-spacing-md) var(--aruclinic-spacing-lg);
+    border-radius: 0 0 var(--aruclinic-radius-md) var(--aruclinic-radius-md);
+    box-shadow: var(--aruclinic-shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.aruclinic-header h1,
+.aruclinic-header h2,
+.aruclinic-header h3 {
+    color: white;
+    margin: 0;
+}
+
+/* ============================================
+   Sidebar Styles
+   ============================================ */
+
+.aruclinic-sidebar {
+    background-color: var(--aruclinic-primary-dark);
+    color: white;
+    min-height: 100vh;
+    width: 250px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    overflow-y: auto;
+    transition: transform var(--aruclinic-transition-normal);
+}
+
+.aruclinic-sidebar-link {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    padding: var(--aruclinic-spacing-sm) var(--aruclinic-spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-sm);
+    transition: all var(--aruclinic-transition-fast);
+    border-radius: var(--aruclinic-radius-sm);
+    margin: var(--aruclinic-spacing-xs) var(--aruclinic-spacing-sm);
+}
+
+.aruclinic-sidebar-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.aruclinic-sidebar-link.active {
+    background-color: var(--aruclinic-primary);
+    color: white;
+}
+
+.aruclinic-sidebar-link vaadin-icon {
+    color: inherit;
+}
+
+/* ============================================
+   Badge Styles
+   ============================================ */
+
+.aruclinic-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--aruclinic-spacing-xs) var(--aruclinic-spacing-sm);
+    border-radius: 9999px;
+    font-size: var(--aruclinic-font-size-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.aruclinic-badge.primary {
+    background-color: var(--aruclinic-primary);
+    color: white;
+}
+
+.aruclinic-badge.success {
+    background-color: var(--aruclinic-success);
+    color: white;
+}
+
+.aruclinic-badge.danger {
+    background-color: var(--aruclinic-danger);
+    color: white;
+}
+
+.aruclinic-badge.warning {
+    background-color: var(--aruclinic-warning);
+    color: white;
+}
+
+.aruclinic-badge.info {
+    background-color: var(--aruclinic-background);
+    color: var(--aruclinic-text-primary);
+    border: 1px solid var(--aruclinic-border);
+}
+
+/* ============================================
+   Table/Grid Styles
+   ============================================ */
+
+.aruclinic-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--aruclinic-card-bg);
+    border-radius: var(--aruclinic-radius-md);
+    overflow: hidden;
+    box-shadow: var(--aruclinic-shadow-sm);
+}
+
+.aruclinic-table-header {
+    background-color: var(--aruclinic-background);
+    padding: var(--aruclinic-spacing-md);
+    text-align: left;
+    font-weight: 600;
+    color: var(--aruclinic-text-secondary);
+    font-size: var(--aruclinic-font-size-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-table-row {
+    border-bottom: 1px solid var(--aruclinic-border);
+    transition: background-color var(--aruclinic-transition-fast);
+}
+
+.aruclinic-table-row:hover {
+    background-color: var(--aruclinic-background);
+}
+
+.aruclinic-table-cell {
+    padding: var(--aruclinic-spacing-md);
+    color: var(--aruclinic-text-primary);
+    font-size: var(--aruclinic-font-size-md);
+}
+
+/* ============================================
+   Loading States
+   ============================================ */
+
+.aruclinic-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.aruclinic-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 32px;
+    height: 32px;
+    margin: -16px 0 0 -16px;
+    border: 3px solid var(--aruclinic-border);
+    border-top-color: var(--aruclinic-primary);
+    border-radius: 50%;
+    animation: aruclinic-spin 0.8s linear infinite;
+}
+
+@keyframes aruclinic-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   Notification Styles
+   ============================================ */
+
+.aruclinic-notification {
+    padding: var(--aruclinic-spacing-md) var(--aruclinic-spacing-lg);
+    border-radius: var(--aruclinic-radius-sm);
+    box-shadow: var(--aruclinic-shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-sm);
+    animation: aruclinic-slideIn 0.3s ease-out;
+}
+
+.aruclinic-notification.success {
+    background-color: var(--aruclinic-success);
+    color: white;
+}
+
+.aruclinic-notification.error {
+    background-color: var(--aruclinic-danger);
+    color: white;
+}
+
+.aruclinic-notification.warning {
+    background-color: var(--aruclinic-warning);
+    color: white;
+}
+
+.aruclinic-notification.info {
+    background-color: var(--aruclinic-primary);
+    color: white;
+}
+
+@keyframes aruclinic-slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+/* Mobile-first approach */
+
+/* Extra small devices (phones, 360px and up) */
+@media (min-width: 360px) {
+    .aruclinic-mobile-only {
+        display: block !important;
+    }
+    .aruclinic-desktop-only {
+        display: none !important;
+    }
+}
+
+/* Small devices (phones, 480px and up) */
+@media (min-width: 480px) {
+    .aruclinic-card {
+        padding: var(--aruclinic-spacing-lg);
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+    .aruclinic-sidebar {
+        width: 280px;
+    }
+
+    .aruclinic-form {
+        padding: var(--aruclinic-spacing-2xl);
+    }
+}
+
+/* Large devices (desktops, 1024px and up) */
+@media (min-width: 1024px) {
+    .aruclinic-sidebar {
+        width: 300px;
+    }
+
+    .aruclinic-header {
+        padding: var(--aruclinic-spacing-md) var(--aruclinic-spacing-2xl);
+    }
+}
+
+/* Extra large devices (large desktops, 1440px and up) */
+@media (min-width: 1440px) {
+    .aruclinic-card {
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* 4K and larger screens (1920px and up) */
+@media (min-width: 1920px) {
+    .aruclinic-sidebar {
+        width: 320px;
+    }
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+
+/* Focus states */
+:focus-visible {
+    outline: 2px solid var(--aruclinic-primary);
+    outline-offset: 2px;
+}
+
+/* Skip link for keyboard navigation */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--aruclinic-primary);
+    color: white;
+    padding: var(--aruclinic-spacing-xs) var(--aruclinic-spacing-md);
+    z-index: 10000;
+    transition: top var(--aruclinic-transition-fast);
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .aruclinic-card {
+        border: 2px solid var(--aruclinic-border-dark);
+    }
+
+    .aruclinic-form-input {
+        border: 2px solid var(--aruclinic-border-dark);
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Print styles */
+@media print {
+    .aruclinic-sidebar,
+    .aruclinic-header {
+        display: none !important;
+    }
+
+    .aruclinic-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        page-break-inside: avoid;
+    }
+}
+
+/* ==========================================================================
+   PREMIUM HEALTHCARE UI ENHANCEMENTS (PRACTO-INSPIRED & MODERN UX)
+   ========================================================================== */
+
+/* Modern Font smoothing */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Glassmorphism Effect for Login Card & Containers */
+.aruclinic-login-card {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 20px 50px rgba(38, 48, 119, 0.15) !important;
+    border-radius: var(--aruclinic-radius-lg) !important;
+    transform: translateY(0);
+    transition: transform var(--aruclinic-transition-normal), box-shadow var(--aruclinic-transition-normal);
+}
+
+.aruclinic-login-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 25px 60px rgba(38, 48, 119, 0.2) !important;
+}
+
+/* Soft Glow for Primary Buttons */
+.aruclinic-btn-primary, .primary-button, .aruclinic-booking-btn.primary {
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 14px 0 rgba(38, 48, 119, 0.25) !important;
+    transition: all var(--aruclinic-transition-normal) !important;
+}
+
+.aruclinic-btn-primary:hover, .aruclinic-booking-btn.primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px 0 rgba(38, 48, 119, 0.35) !important;
+}
+
+.aruclinic-btn-primary:active, .aruclinic-booking-btn.primary:active {
+    transform: translateY(1px);
+    box-shadow: 0 3px 10px 0 rgba(38, 48, 119, 0.2) !important;
+}
+
+/* Soft Glow for Success Actions (like Book Appointment) */
+.aruclinic-btn-success, .aruclinic-booking-btn.success {
+    box-shadow: 0 4px 14px 0 rgba(15, 155, 15, 0.25) !important;
+}
+
+.aruclinic-btn-success:hover, .aruclinic-booking-btn.success:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px 0 rgba(15, 155, 15, 0.35) !important;
+}
+
+/* Micro-animations for Dashboard Cards */
+.aruclinic-dashboard-stat-card, .aruclinic-card, .practo-card, .dashboard-card {
+    transition: all var(--aruclinic-transition-normal) !important;
+    border: 1px solid var(--aruclinic-border) !important;
+}
+
+.aruclinic-dashboard-stat-card:hover, .aruclinic-card:hover, .dashboard-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--aruclinic-shadow-lg) !important;
+    border-color: var(--aruclinic-primary-light) !important;
+}
+
+/* Stat Card Icon Hover effects */
+.aruclinic-dashboard-stat-card:hover .stat-icon {
+    transform: scale(1.1) rotate(2deg);
+    transition: transform var(--aruclinic-transition-fast);
+}
+
+.stat-icon {
+    transition: transform var(--aruclinic-transition-fast);
+}
+
+/* Smooth Table Grid Styling */
+vaadin-grid {
+    border-radius: var(--aruclinic-radius-md) !important;
+    overflow: hidden;
+    border: 1px solid var(--aruclinic-border) !important;
+    box-shadow: var(--aruclinic-shadow-sm);
+    background: var(--aruclinic-card-bg) !important;
+}
+
+vaadin-grid::part(row) {
+    transition: background-color var(--aruclinic-transition-fast);
+}
+
+vaadin-grid::part(row):hover {
+    background-color: rgba(44, 183, 223, 0.04) !important; /* Soft turquoise hover tint */
+}
+
+vaadin-grid::part(header-cell) {
+    background-color: rgba(38, 48, 119, 0.03) !important; /* Soft navy header tint */
+    color: var(--aruclinic-primary) !important;
+    font-weight: 600 !important;
+    font-family: var(--aruclinic-font-family) !important;
+    border-bottom: 2px solid var(--aruclinic-border) !important;
+}
+
+/* Premium Navigation Item Active Styling */
+side-nav-item::part(link)[active] {
+    background-color: rgba(44, 183, 223, 0.15) !important;
+    color: var(--aruclinic-primary-light) !important;
+    font-weight: 600;
+    border-left: 4px solid var(--aruclinic-primary-light);
+}
+
+side-nav-item::part(link):hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Premium Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--aruclinic-background);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--aruclinic-border-dark);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--aruclinic-text-muted);
+}
+
+/* Modern Input Focus Indicator */
+vaadin-text-field:focus-within, vaadin-password-field:focus-within, vaadin-combo-box:focus-within, vaadin-date-picker:focus-within {
+    --lumo-primary-color: var(--aruclinic-primary-light);
+    box-shadow: 0 0 0 3px rgba(44, 183, 223, 0.15);
+    border-radius: var(--aruclinic-radius-sm);
+    transition: box-shadow var(--aruclinic-transition-fast);
+}
+
+/* Entrance Fade-In Animations for Pages */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.aruclinic-page-content, .aruclinic-view, .aruclinic-dashboard-content {
+    animation: fadeInUp var(--aruclinic-transition-slow) forwards;
+}
+
+/* Styled Badges (Practo-Style tags) */
+.aruclinic-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: var(--aruclinic-font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.aruclinic-badge.primary {
+    background-color: rgba(38, 48, 119, 0.1);
+    color: var(--aruclinic-primary);
+}
+
+.aruclinic-badge.success {
+    background-color: rgba(15, 155, 15, 0.1);
+    color: var(--aruclinic-success);
+}
+
+.aruclinic-badge.warning {
+    background-color: rgba(255, 152, 0, 0.1);
+    color: var(--aruclinic-warning);
+}
+
+.aruclinic-badge.danger {
+    background-color: rgba(225, 29, 72, 0.1);
+    color: var(--aruclinic-danger);
+}
+
+/* ==========================================================================
+   HEALTHCARE BRAND DESIGN UTILITIES (PRACTO, APOLLO, MYCHART, CLEVELAND, MAYO)
+   ========================================================================== */
+
+/* Color Accent Variables */
+:root {
+    --brand-practo-teal: #2cb7df;
+    --brand-practo-navy: #263077;
+    --brand-apollo-blue: #002b5c;
+    --brand-apollo-red: #c41230;
+    --brand-mychart-blue: #0e3293;
+    --brand-cleveland-green: #006633;
+    --brand-cleveland-blue: #0468cd;
+    --brand-mayo-blue: #0e3293;
+    --brand-saffron: #ff9800;
+}
+
+/* 1. Apollo 24/7 Inspired Action Badges */
+.apollo-action-card {
+    border-left: 4px solid var(--brand-apollo-red) !important;
+}
+.apollo-action-btn {
+    background-color: var(--brand-apollo-red) !important;
+    color: white !important;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(196, 18, 48, 0.2);
+}
+.apollo-action-btn:hover {
+    background-color: #a80f28 !important;
+    box-shadow: 0 6px 16px rgba(196, 18, 48, 0.3);
+}
+
+/* 2. Epic MyChart Inspired Calm Patient Tiles */
+.mychart-tile {
+    background: linear-gradient(135deg, #ffffff 0%, #f4f7fa 100%) !important;
+    border-radius: var(--aruclinic-radius-lg) !important;
+    border: 1px solid rgba(14, 50, 147, 0.08) !important;
+}
+.mychart-tile:hover {
+    border-color: rgba(14, 50, 147, 0.2) !important;
+    background: linear-gradient(135deg, #ffffff 0%, #edf2f7 100%) !important;
+}
+
+/* 3. Cleveland Clinic Inspired Health Trust Accents */
+.cleveland-trusted-border {
+    border-top: 3px solid var(--brand-cleveland-green) !important;
+}
+.cleveland-badge {
+    background-color: rgba(0, 102, 51, 0.08) !important;
+    color: var(--brand-cleveland-green) !important;
+    font-weight: 600;
+}
+
+/* 4. Mayo Clinic Calming Typography Spacing */
+.mayo-clean-header {
+    font-family: var(--aruclinic-font-family);
+    color: var(--brand-mayo-blue) !important;
+    letter-spacing: -0.2px;
+    font-weight: 700;
+}
+
+.mayo-spacious-layout {
+    gap: var(--aruclinic-spacing-xl) !important;
+    padding: var(--aruclinic-spacing-2xl) !important;
+}
+
+/* ==========================================================================
+   MICROSOFT FLUENT DESIGN & AESTHETIC INTEGRATION
+   ========================================================================== */
+
+/* Fluent Acrylic Material */
+.fluent-acrylic {
+    background: rgba(255, 255, 255, 0.72) !important;
+    backdrop-filter: saturate(125%) blur(20px) !important;
+    -webkit-backdrop-filter: saturate(125%) blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 8px 32px 0 rgba(38, 48, 119, 0.08) !important;
+}
+
+/* Fluent Hover Reveal Glow */
+.fluent-reveal-card {
+    position: relative;
+    border-radius: var(--aruclinic-radius-md);
+    background: var(--aruclinic-card-bg);
+    border: 1px solid var(--aruclinic-border);
+    transition: transform 0.2s cubic-bezier(0.1, 0.9, 0.2, 1), 
+                box-shadow 0.2s cubic-bezier(0.1, 0.9, 0.2, 1), 
+                border-color 0.2s cubic-bezier(0.1, 0.9, 0.2, 1) !important;
+    overflow: hidden;
+}
+
+.fluent-reveal-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--aruclinic-primary-light), var(--aruclinic-warning));
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.fluent-reveal-card:hover {
+    transform: translateY(-2px) scale(1.005);
+    box-shadow: var(--aruclinic-shadow-lg) !important;
+    border-color: rgba(44, 183, 223, 0.4) !important;
+}
+
+.fluent-reveal-card:hover::before {
+    opacity: 1;
+}
+
+/* Fluent Motion Transitions */
+.fluent-transition {
+    transition: all 0.25s cubic-bezier(0.1, 0.9, 0.2, 1) !important;
+}
+
+/* Commercial Healthcare Grid */
+.aruclinic-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--aruclinic-spacing-lg);
+    padding: var(--aruclinic-spacing-md) 0;
+}
+
+/* Trustworthy Clinic Info Title */
+.clinic-trust-header {
+    font-family: var(--aruclinic-font-family);
+    color: var(--aruclinic-primary);
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    border-bottom: 2px solid var(--aruclinic-primary-light);
+    display: inline-block;
+    padding-bottom: 4px;
+}
+
+/* Unique Enterprise Grid Background (Non-CRUD feel) */
+.aruclinic-page, .aruclinic-main-layout, .aruclinic-dashboard, body {
+    background-color: var(--aruclinic-background) !important;
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(44, 183, 223, 0.04) 0px, transparent 50%),
+        radial-gradient(at 50% 0%, rgba(38, 48, 119, 0.02) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(255, 152, 0, 0.01) 0px, transparent 50%),
+        linear-gradient(rgba(38, 48, 119, 0.003) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(38, 48, 119, 0.003) 1px, transparent 1px) !important;
+    background-size: 100% 100%, 100% 100%, 100% 100%, 30px 30px, 30px 30px !important;
+}
+
+/* Typography & Headings Enhancement */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--aruclinic-font-family) !important;
+    font-weight: 600 !important;
+    color: var(--aruclinic-text-primary) !important;
+    line-height: 1.25 !important;
+    margin-top: 0 !important;
+    margin-bottom: var(--aruclinic-spacing-md) !important;
+}
+
+h1 { font-size: var(--aruclinic-font-size-3xl) !important; letter-spacing: -0.5px !important; }
+h2 { font-size: var(--aruclinic-font-size-2xl) !important; letter-spacing: -0.3px !important; }
+h3 { font-size: var(--aruclinic-font-size-xl) !important; }
+h4 { font-size: var(--aruclinic-font-size-lg) !important; }
+
+p, span, div, li, td {
+    font-family: var(--aruclinic-font-family);
+    line-height: 1.6; /* Nice, comfortable reading line-height */
+}
+
+/* Balanced Whitespace for Containers & Grid Spacing */
+.aruclinic-view, .aruclinic-page-content, .aruclinic-form {
+    padding: var(--aruclinic-spacing-lg) !important;
+}
+
+@media (min-width: 768px) {
+    .aruclinic-view, .aruclinic-page-content, .aruclinic-form {
+        padding: var(--aruclinic-spacing-xl) !important; /* Spacious layout on larger viewports */
+    }
+}
+
+/* Premium Side Navigation Overrides */
+vaadin-side-nav {
+    background: #0f172a !important; /* Rich deep slate background */
+    padding: var(--aruclinic-spacing-md) var(--aruclinic-spacing-sm) !important;
+}
+
+vaadin-side-nav-item {
+    font-family: var(--aruclinic-font-family) !important;
+    margin-bottom: 4px !important;
+}
+
+vaadin-side-nav-item::part(link) {
+    border-radius: var(--aruclinic-radius-sm) !important;
+    color: rgba(255, 255, 255, 0.72) !important;
+    font-size: var(--aruclinic-font-size-sm) !important;
+    font-weight: 500 !important;
+    padding: var(--aruclinic-spacing-sm) var(--aruclinic-spacing-md) !important;
+    transition: all var(--aruclinic-transition-fast) !important;
+}
+
+vaadin-side-nav-item::part(link):hover {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.06) !important;
+    transform: translateX(2px);
+}
+
+vaadin-side-nav-item::part(link)[active] {
+    color: #ffffff !important;
+    background-color: rgba(59, 130, 246, 0.15) !important; /* Soft blue focus */
+    font-weight: 600 !important;
+    border-left: 3px solid var(--aruclinic-primary-light) !important;
+}
+
+vaadin-side-nav-item::part(children) {
+    padding-left: var(--aruclinic-spacing-md) !important;
+}
+
+/* Fluent Overrides for Form Inputs & Selection Controls */
+vaadin-checkbox::part(checkbox) {
+    border-radius: 4px !important;
+    border: 1px solid var(--aruclinic-border-dark) !important;
+    transition: all var(--aruclinic-transition-fast);
+}
+
+vaadin-checkbox[checked]::part(checkbox) {
+    background-color: var(--aruclinic-primary) !important;
+    border-color: var(--aruclinic-primary) !important;
+}
+
+vaadin-radio-button::part(radio) {
+    border: 1px solid var(--aruclinic-border-dark) !important;
+    transition: all var(--aruclinic-transition-fast);
+}
+
+vaadin-radio-button[checked]::part(radio) {
+    border-color: var(--aruclinic-primary) !important;
+}
+
+vaadin-radio-button[checked]::part(radio)::after {
+    background-color: var(--aruclinic-primary) !important;
+}
+
+/* Premium Toast Notifications (Practo-Style alerts) */
+vaadin-notification-card {
+    border-radius: var(--aruclinic-radius-md) !important;
+    box-shadow: var(--aruclinic-shadow-lg) !important;
+    border-left: 4px solid var(--aruclinic-primary) !important;
+    font-family: var(--aruclinic-font-family) !important;
+    backdrop-filter: blur(8px);
+}
+
+vaadin-notification-card[theme~="success"] {
+    border-left-color: var(--aruclinic-success) !important;
+}
+
+vaadin-notification-card[theme~="error"] {
+    border-left-color: var(--aruclinic-danger) !important;
+}
+
+vaadin-notification-card[theme~="warning"] {
+    border-left-color: var(--aruclinic-warning) !important;
+}
+
+/* Premium Tabs styling */
+vaadin-tabs {
+    border-bottom: 1px solid var(--aruclinic-border) !important;
+    background: transparent !important;
+}
+
+vaadin-tab {
+    font-family: var(--aruclinic-font-family) !important;
+    font-weight: 500 !important;
+    color: var(--aruclinic-text-secondary) !important;
+    transition: all var(--aruclinic-transition-fast) !important;
+}
+
+vaadin-tab[selected] {
+    color: var(--aruclinic-primary) !important;
+    font-weight: 600 !important;
+}
+
+/* Modern Forms & spacing */
+.aruclinic-form-layout {
+    gap: var(--aruclinic-spacing-lg) !important;
+}
+
+/* Specific Cards (Profile, Medical, Appointment, Billing) */
+.profile-card, .appointment-card, .medical-record-card, .billing-card {
+    background: var(--aruclinic-card-bg);
+    border-radius: var(--aruclinic-radius-md);
+    border: 1px solid var(--aruclinic-border);
+    padding: var(--aruclinic-spacing-lg);
+    box-shadow: var(--aruclinic-shadow-sm);
+    transition: all var(--aruclinic-transition-normal);
+}
+
+.profile-card:hover, .appointment-card:hover, .medical-record-card:hover, .billing-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--aruclinic-shadow-md);
+    border-color: var(--aruclinic-primary-light);
+}
+
+/* OTP Verification Screen Enhancement */
+.otp-container {
+    display: flex;
+    justify-content: center;
+    gap: var(--brand-saffron);
+    margin: var(--aruclinic-spacing-lg) 0;
+}
+
+.otp-input {
+    width: 48px !important;
+    height: 48px !important;
+    text-align: center !important;
+    font-size: var(--aruclinic-font-size-xl) !important;
+    font-weight: 700 !important;
+    border-radius: var(--aruclinic-radius-sm) !important;
+    border: 1px solid var(--aruclinic-border-dark) !important;
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.otp-input:focus-within {
+    border-color: var(--aruclinic-primary-light) !important;
+    box-shadow: 0 0 0 3px rgba(44, 183, 223, 0.15) !important;
+}
+
+/* Responsive Grid Helpers */
+.responsive-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--aruclinic-spacing-lg);
+}
+
+@media (min-width: 640px) {
+    .responsive-grid-2 {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .responsive-grid-3 {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+    .responsive-grid-4 {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+}
+
+/* Responsive Layout Reset & Safety Guards */
+*, *::before, *::after {
+    box-sizing: border-box !important;
+}
+
+html, body {
+    max-width: 100vw;
+    overflow-x: hidden !important; /* Strictly prevents horizontal scrollbar / overflow clipping */
+}
+
+/* Ensure all flex and grid items wrap or scroll properly on 360px / 480px viewports */
+.aruclinic-main-layout, .aruclinic-dashboard, .aruclinic-view, .aruclinic-page-content {
+    max-width: 100% !important;
+    overflow-x: hidden;
+}
+
+/* Scrollable containers where table content might overflow on mobile */
+.table-responsive, vaadin-grid {
+    max-width: 100% !important;
+    overflow-x: auto !important; /* Enables smooth touch scrolling on tables for mobile viewports */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Fluid image and control scaling */
+img, video, canvas, svg {
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+/* Accessible Keyboard Navigation & Visible Focus States */
+button:focus-visible, a:focus-visible, [role="button"]:focus-visible, 
+.aruclinic-btn-primary:focus-visible, .primary-button:focus-visible,
+vaadin-button:focus-visible, vaadin-tab:focus-visible {
+    outline: 3px solid var(--aruclinic-primary-light) !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4) !important;
+    transition: box-shadow var(--aruclinic-transition-fast) !important;
+}
+
+/* Professional Loading & Progress Bar Indicator styling */
+vaadin-progress-bar::part(value) {
+    background-color: var(--aruclinic-primary-light) !important;
+}
+
+[theme~="error"]::part(value) {
+    background-color: var(--aruclinic-danger) !important;
+}
+
+/* Vaadin Connection State loading indicator line at top of viewport */
+.v-loading-indicator {
+    background-color: var(--aruclinic-primary-light) !important;
+    height: 3px !important;
+}
+
+/* ==========================================================================
+   GLOBAL VAADIN WEB COMPONENT OVERRIDES (APOLLO 24/7 BRAND POLISH)
+   ========================================================================== */
+
+/* Global Button Styling */
+vaadin-button {
+    font-family: var(--aruclinic-font-family) !important;
+    font-weight: 600 !important;
+    border-radius: var(--aruclinic-radius-md) !important;
+    transition: all var(--aruclinic-transition-fast) !important;
+    cursor: pointer !important;
+}
+
+vaadin-button:active {
+    transform: translateY(1px) !important;
+}
+
+/* Primary Button Styling (Apollo Blue theme) */
+vaadin-button[theme~="primary"] {
+    background-color: var(--aruclinic-primary) !important;
+    color: white !important;
+    box-shadow: 0 4px 14px rgba(15, 108, 189, 0.25) !important;
+}
+
+vaadin-button[theme~="primary"]:hover {
+    background-color: var(--aruclinic-primary-dark) !important;
+    box-shadow: 0 6px 20px rgba(15, 108, 189, 0.35) !important;
+}
+
+/* Success Button Styling (Apollo Green theme) */
+vaadin-button[theme~="success"] {
+    background-color: var(--aruclinic-success) !important;
+    color: white !important;
+    box-shadow: 0 4px 14px rgba(34, 197, 94, 0.25) !important;
+}
+
+vaadin-button[theme~="success"]:hover {
+    background-color: var(--aruclinic-success-dark) !important;
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.35) !important;
+}
+
+/* Error/Danger Button Styling (Apollo Red theme) */
+vaadin-button[theme~="error"] {
+    background-color: var(--aruclinic-danger) !important;
+    color: white !important;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25) !important;
+}
+
+vaadin-button[theme~="error"]:hover {
+    background-color: var(--aruclinic-danger-dark) !important;
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35) !important;
+}
+
+/* Tertiary Button Styling (Minimal, Clean) */
+vaadin-button[theme~="tertiary"] {
+    background: transparent !important;
+    color: var(--aruclinic-primary) !important;
+}
+
+vaadin-button[theme~="tertiary"]:hover {
+    background: rgba(15, 108, 189, 0.06) !important;
+}
+
+/* Input Fields Styling (Clean, Professional Border & Focus) */
+vaadin-text-field, vaadin-password-field, vaadin-combo-box, vaadin-date-picker, vaadin-integer-field, vaadin-number-field {
+    --lumo-border-radius: var(--aruclinic-radius-sm) !important;
+}
+
+vaadin-text-field::part(input-field), vaadin-password-field::part(input-field), 
+vaadin-combo-box::part(input-field), vaadin-date-picker::part(input-field) {
+    background-color: #ffffff !important;
+    border: 1px solid var(--aruclinic-border-dark) !important;
+    border-radius: var(--aruclinic-radius-sm) !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    transition: all var(--aruclinic-transition-fast) !important;
+}
+
+vaadin-text-field:focus-within::part(input-field), vaadin-password-field:focus-within::part(input-field), 
+vaadin-combo-box:focus-within::part(input-field), vaadin-date-picker:focus-within::part(input-field) {
+    border-color: var(--aruclinic-primary-light) !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+}

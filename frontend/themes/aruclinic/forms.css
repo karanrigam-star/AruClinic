@@ -1,0 +1,65 @@
+/* ==========================================================================
+   FORMS & INPUTS PORTAL STYLES (AruClinic Premium UI)
+   ========================================================================== */
+
+/* Modern Input Focus Indicator */
+vaadin-text-field:focus-within, vaadin-password-field:focus-within, vaadin-combo-box:focus-within, vaadin-date-picker:focus-within {
+    --lumo-primary-color: var(--aruclinic-primary-light);
+    box-shadow: 0 0 0 3px rgba(44, 183, 223, 0.15);
+    border-radius: var(--aruclinic-radius-sm);
+    transition: box-shadow var(--aruclinic-transition-fast);
+}
+
+/* Fluent Overrides for Form Inputs & Selection Controls */
+vaadin-checkbox::part(checkbox) {
+    border-radius: 4px !important;
+    border: 1px solid var(--aruclinic-border-dark) !important;
+    transition: all var(--aruclinic-transition-fast);
+}
+
+vaadin-checkbox[checked]::part(checkbox) {
+    background-color: var(--aruclinic-primary) !important;
+    border-color: var(--aruclinic-primary) !important;
+}
+
+vaadin-radio-button::part(radio) {
+    border: 1px solid var(--aruclinic-border-dark) !important;
+    transition: all var(--aruclinic-transition-fast);
+}
+
+vaadin-radio-button[checked]::part(radio) {
+    border-color: var(--aruclinic-primary) !important;
+}
+
+vaadin-radio-button[checked]::part(radio)::after {
+    background-color: var(--aruclinic-primary) !important;
+}
+
+/* Modern Forms & spacing */
+.aruclinic-form-layout {
+    gap: var(--aruclinic-spacing-lg) !important;
+}
+
+/* OTP Verification Screen Enhancement */
+.otp-container {
+    display: flex;
+    justify-content: center;
+    gap: var(--brand-saffron);
+    margin: var(--aruclinic-spacing-lg) 0;
+}
+
+.otp-input {
+    width: 48px !important;
+    height: 48px !important;
+    text-align: center !important;
+    font-size: var(--aruclinic-font-size-xl) !important;
+    font-weight: 700 !important;
+    border-radius: var(--aruclinic-radius-sm) !important;
+    border: 1px solid var(--aruclinic-border-dark) !important;
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.otp-input:focus-within {
+    border-color: var(--aruclinic-primary-light) !important;
+    box-shadow: 0 0 0 3px rgba(44, 183, 223, 0.15) !important;
+}

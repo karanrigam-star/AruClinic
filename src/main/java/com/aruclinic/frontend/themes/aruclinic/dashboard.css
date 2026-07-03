@@ -1,0 +1,946 @@
+/* AruClinic Dashboard Styles */
+
+/* ============================================
+   Dashboard Layout
+   ============================================ */
+
+.aruclinic-dashboard {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--aruclinic-background);
+}
+
+.aruclinic-dashboard-sidebar {
+    width: 280px;
+    background: var(--aruclinic-primary-dark);
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: width var(--aruclinic-transition-normal);
+}
+
+.aruclinic-dashboard-sidebar.collapsed {
+    width: 80px;
+}
+
+/* ============================================
+   Sidebar Header
+   ============================================ */
+
+.aruclinic-sidebar-header {
+    padding: var(--aruclinic-spacing-lg);
+    background: var(--aruclinic-primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.aruclinic-sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-sm);
+}
+
+.aruclinic-sidebar-logo-icon {
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: var(--aruclinic-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--aruclinic-primary);
+    font-weight: 700;
+    font-size: var(--aruclinic-font-size-xl);
+    flex-shrink: 0;
+}
+
+.aruclinic-sidebar-logo-text {
+    font-size: var(--aruclinic-font-size-xl);
+    font-weight: 700;
+    white-space: nowrap;
+    transition: all var(--aruclinic-transition-normal);
+    opacity: 1;
+}
+
+.aruclinic-dashboard-sidebar.collapsed .aruclinic-sidebar-logo-text {
+    opacity: 0;
+    width: 0;
+}
+
+.aruclinic-sidebar-toggle {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: var(--aruclinic-spacing-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--aruclinic-radius-sm);
+    transition: background-color var(--aruclinic-transition-fast);
+}
+
+.aruclinic-sidebar-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   Sidebar Navigation
+   ============================================ */
+
+.aruclinic-sidebar-nav {
+    flex: 1;
+    padding: var(--aruclinic-spacing-lg) var(--aruclinic-spacing-sm);
+    overflow-y: auto;
+}
+
+.aruclinic-sidebar-nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+.aruclinic-sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.aruclinic-sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.aruclinic-nav-section {
+    margin-bottom: var(--aruclinic-spacing-xl);
+}
+
+.aruclinic-nav-section-title {
+    font-size: var(--aruclinic-font-size-xs);
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: var(--aruclinic-spacing-sm);
+    padding: 0 var(--aruclinic-spacing-sm);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.aruclinic-dashboard-sidebar.collapsed .aruclinic-nav-section-title {
+    opacity: 0;
+}
+
+.aruclinic-nav-item {
+    margin-bottom: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-nav-link {
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-sm);
+    padding: var(--aruclinic-spacing-sm) var(--aruclinic-spacing-md);
+    border-radius: var(--aruclinic-radius-sm);
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all var(--aruclinic-transition-fast);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.aruclinic-nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.aruclinic-nav-link.active {
+    background: var(--aruclinic-primary);
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.aruclinic-nav-link vaadin-icon {
+    width: 20px;
+    height: 20px;
+    color: inherit;
+    flex-shrink: 0;
+}
+
+.aruclinic-nav-link span {
+    font-size: var(--aruclinic-font-size-sm);
+    font-weight: 500;
+    transition: all var(--aruclinic-transition-normal);
+}
+
+.aruclinic-dashboard-sidebar.collapsed .aruclinic-nav-link span {
+    opacity: 0;
+    width: 0;
+}
+
+.aruclinic-nav-link .nav-badge {
+    margin-left: auto;
+    background: var(--aruclinic-danger);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+/* ============================================
+   Sidebar User Profile
+   ============================================ */
+
+.aruclinic-sidebar-user {
+    padding: var(--aruclinic-spacing-lg);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.aruclinic-user-profile {
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-sm);
+}
+
+.aruclinic-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--aruclinic-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: var(--aruclinic-font-size-md);
+    flex-shrink: 0;
+}
+
+.aruclinic-user-info {
+    flex: 1;
+    min-width: 0;
+    transition: all var(--aruclinic-transition-normal);
+}
+
+.aruclinic-dashboard-sidebar.collapsed .aruclinic-user-info {
+    opacity: 0;
+    width: 0;
+}
+
+.aruclinic-user-name {
+    font-size: var(--aruclinic-font-size-sm);
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.aruclinic-user-email {
+    font-size: var(--aruclinic-font-size-xs);
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ============================================
+   Dashboard Header
+   ============================================ */
+
+.aruclinic-dashboard-header {
+    background: var(--aruclinic-card-bg);
+    border-bottom: 1px solid var(--aruclinic-border);
+    padding: 0 var(--aruclinic-spacing-xl);
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--aruclinic-shadow-sm);
+    margin-left: 280px;
+    transition: margin-left var(--aruclinic-transition-normal);
+}
+
+.aruclinic-dashboard-sidebar.collapsed + .aruclinic-dashboard-main .aruclinic-dashboard-header {
+    margin-left: 80px;
+}
+
+.aruclinic-header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--aruclinic-spacing-xs);
+    color: var(--aruclinic-text-primary);
+}
+
+.aruclinic-header-title {
+    font-size: var(--aruclinic-font-size-xl);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+    margin: 0;
+}
+
+.aruclinic-header-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-xs);
+    font-size: var(--aruclinic-font-size-sm);
+    color: var(--aruclinic-text-secondary);
+}
+
+.aruclinic-header-breadcrumb vaadin-icon {
+    color: var(--aruclinic-text-muted);
+    font-size: 14px;
+}
+
+.aruclinic-header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-header-search {
+    position: relative;
+}
+
+.aruclinic-header-search input {
+    width: 300px;
+    padding: 10px 14px 10px 40px;
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    font-size: var(--aruclinic-font-size-sm);
+    background: var(--aruclinic-background);
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.aruclinic-header-search input:focus {
+    outline: none;
+    border-color: var(--aruclinic-primary);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(15, 108, 189, 0.1);
+}
+
+.aruclinic-header-search vaadin-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--aruclinic-text-muted);
+}
+
+.aruclinic-header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-sm);
+}
+
+.aruclinic-header-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--aruclinic-spacing-xs);
+    color: var(--aruclinic-text-secondary);
+    border-radius: var(--aruclinic-radius-sm);
+    transition: all var(--aruclinic-transition-fast);
+    position: relative;
+}
+
+.aruclinic-header-btn:hover {
+    background: var(--aruclinic-background);
+    color: var(--aruclinic-primary);
+}
+
+.aruclinic-header-btn .notification-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 18px;
+    height: 18px;
+    background: var(--aruclinic-danger);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.aruclinic-header-user {
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-sm);
+    padding: var(--aruclinic-spacing-xs) var(--aruclinic-spacing-sm);
+    border-radius: var(--aruclinic-radius-md);
+    cursor: pointer;
+    transition: background-color var(--aruclinic-transition-fast);
+}
+
+.aruclinic-header-user:hover {
+    background: var(--aruclinic-background);
+}
+
+.aruclinic-header-user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--aruclinic-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: var(--aruclinic-font-size-sm);
+}
+
+.aruclinic-header-user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.aruclinic-header-user-name {
+    font-size: var(--aruclinic-font-size-sm);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+}
+
+.aruclinic-header-user-role {
+    font-size: var(--aruclinic-font-size-xs);
+    color: var(--aruclinic-text-muted);
+}
+
+/* ============================================
+   Dashboard Main Content
+   ============================================ */
+
+.aruclinic-dashboard-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: 280px;
+    transition: margin-left var(--aruclinic-transition-normal);
+}
+
+.aruclinic-dashboard-sidebar.collapsed + .aruclinic-dashboard-main {
+    margin-left: 80px;
+}
+
+.aruclinic-dashboard-content {
+    flex: 1;
+    padding: var(--aruclinic-spacing-xl);
+    overflow-y: auto;
+}
+
+/* ============================================
+   Dashboard Welcome Section
+   ============================================ */
+
+.aruclinic-welcome-section {
+    margin-bottom: var(--aruclinic-spacing-xl);
+}
+
+.aruclinic-welcome-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--aruclinic-spacing-lg);
+    flex-wrap: wrap;
+    gap: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-welcome-title {
+    font-size: var(--aruclinic-font-size-3xl);
+    font-weight: 700;
+    color: var(--aruclinic-text-primary);
+    margin: 0;
+}
+
+.aruclinic-welcome-subtitle {
+    font-size: var(--aruclinic-font-size-md);
+    color: var(--aruclinic-text-secondary);
+    margin-top: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-welcome-actions {
+    display: flex;
+    gap: var(--aruclinic-spacing-sm);
+    flex-wrap: wrap;
+}
+
+/* ============================================
+   Dashboard Stats Grid
+   ============================================ */
+
+.aruclinic-dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--aruclinic-spacing-lg);
+    margin-bottom: var(--aruclinic-spacing-xl);
+}
+
+.aruclinic-dashboard-stat-card {
+    background: var(--aruclinic-card-bg);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-lg);
+    box-shadow: var(--aruclinic-shadow-md);
+    border: 1px solid var(--aruclinic-border);
+    transition: all var(--aruclinic-transition-normal);
+    cursor: pointer;
+}
+
+.aruclinic-dashboard-stat-card:hover {
+    box-shadow: var(--aruclinic-shadow-lg);
+    transform: translateY(-2px);
+    border-color: var(--aruclinic-primary);
+}
+
+.aruclinic-dashboard-stat-card .stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-dashboard-stat-card .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--aruclinic-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--aruclinic-font-size-2xl);
+}
+
+.aruclinic-dashboard-stat-card .stat-icon.primary {
+    background: linear-gradient(135deg, rgba(15, 108, 189, 0.1), rgba(59, 130, 246, 0.1));
+    color: var(--aruclinic-primary);
+}
+
+.aruclinic-dashboard-stat-card .stat-icon.success {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(74, 222, 128, 0.1));
+    color: var(--aruclinic-success);
+}
+
+.aruclinic-dashboard-stat-card .stat-icon.danger {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.1));
+    color: var(--aruclinic-danger);
+}
+
+.aruclinic-dashboard-stat-card .stat-icon.warning {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.1));
+    color: var(--aruclinic-warning);
+}
+
+.aruclinic-dashboard-stat-card .stat-trend {
+    background: var(--aruclinic-background);
+    padding: 4px 8px;
+    border-radius: var(--aruclinic-radius-sm);
+    font-size: var(--aruclinic-font-size-xs);
+    font-weight: 600;
+    color: var(--aruclinic-text-secondary);
+}
+
+.aruclinic-dashboard-stat-card .stat-trend.positive {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--aruclinic-success);
+}
+
+.aruclinic-dashboard-stat-card .stat-trend.negative {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--aruclinic-danger);
+}
+
+.aruclinic-dashboard-stat-card .stat-value {
+    font-size: var(--aruclinic-font-size-3xl);
+    font-weight: 700;
+    color: var(--aruclinic-text-primary);
+    margin-bottom: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-dashboard-stat-card .stat-label {
+    font-size: var(--aruclinic-font-size-sm);
+    color: var(--aruclinic-text-secondary);
+    font-weight: 500;
+}
+
+/* ============================================
+   Dashboard Charts Section
+   ============================================ */
+
+.aruclinic-dashboard-charts {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: var(--aruclinic-spacing-lg);
+    margin-bottom: var(--aruclinic-spacing-xl);
+}
+
+.aruclinic-chart-card {
+    background: var(--aruclinic-card-bg);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-lg);
+    box-shadow: var(--aruclinic-shadow-md);
+    border: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-chart-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--aruclinic-spacing-lg);
+}
+
+.aruclinic-chart-card-title {
+    font-size: var(--aruclinic-font-size-lg);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+}
+
+.aruclinic-chart-card-actions {
+    display: flex;
+    gap: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-chart-card-action {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--aruclinic-spacing-xs);
+    color: var(--aruclinic-text-muted);
+    border-radius: var(--aruclinic-radius-sm);
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.aruclinic-chart-card-action:hover {
+    background: var(--aruclinic-background);
+    color: var(--aruclinic-primary);
+}
+
+.aruclinic-chart-container {
+    height: 300px;
+    position: relative;
+}
+
+@media (min-width: 1024px) {
+    .aruclinic-dashboard-charts {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ============================================
+   Dashboard Recent Activity
+   ============================================ */
+
+.aruclinic-recent-activity {
+    background: var(--aruclinic-card-bg);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-lg);
+    box-shadow: var(--aruclinic-shadow-md);
+    border: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-activity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--aruclinic-spacing-lg);
+}
+
+.aruclinic-activity-title {
+    font-size: var(--aruclinic-font-size-lg);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+}
+
+.aruclinic-activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--aruclinic-spacing-md);
+    padding: var(--aruclinic-spacing-md);
+    border-radius: var(--aruclinic-radius-sm);
+    transition: background-color var(--aruclinic-transition-fast);
+}
+
+.aruclinic-activity-item:hover {
+    background: var(--aruclinic-background);
+}
+
+.aruclinic-activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--aruclinic-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--aruclinic-font-size-lg);
+    flex-shrink: 0;
+}
+
+.aruclinic-activity-icon.primary {
+    background: rgba(15, 108, 189, 0.1);
+    color: var(--aruclinic-primary);
+}
+
+.aruclinic-activity-icon.success {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--aruclinic-success);
+}
+
+.aruclinic-activity-icon.danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--aruclinic-danger);
+}
+
+.aruclinic-activity-icon.warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--aruclinic-warning);
+}
+
+.aruclinic-activity-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.aruclinic-activity-title {
+    font-size: var(--aruclinic-font-size-md);
+    font-weight: 500;
+    color: var(--aruclinic-text-primary);
+    margin-bottom: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-activity-description {
+    font-size: var(--aruclinic-font-size-sm);
+    color: var(--aruclinic-text-secondary);
+    margin-bottom: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-activity-time {
+    font-size: var(--aruclinic-font-size-xs);
+    color: var(--aruclinic-text-muted);
+}
+
+/* ============================================
+   Quick Actions
+   ============================================ */
+
+.aruclinic-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--aruclinic-spacing-md);
+    margin-bottom: var(--aruclinic-spacing-xl);
+}
+
+.aruclinic-quick-action {
+    background: var(--aruclinic-card-bg);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-lg);
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--aruclinic-transition-normal);
+}
+
+.aruclinic-quick-action:hover {
+    border-color: var(--aruclinic-primary);
+    box-shadow: var(--aruclinic-shadow-md);
+    transform: translateY(-2px);
+}
+
+.aruclinic-quick-action-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--aruclinic-background);
+    border-radius: var(--aruclinic-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--aruclinic-spacing-sm);
+    font-size: var(--aruclinic-font-size-2xl);
+    color: var(--aruclinic-primary);
+}
+
+.aruclinic-quick-action-title {
+    font-size: var(--aruclinic-font-size-sm);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+    margin-bottom: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-quick-action-description {
+    font-size: var(--aruclinic-font-size-xs);
+    color: var(--aruclinic-text-muted);
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 1023px) {
+    .aruclinic-dashboard-sidebar {
+        transform: translateX(-100%);
+    }
+
+    .aruclinic-dashboard-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .aruclinic-dashboard-sidebar.collapsed {
+        transform: translateX(-100%);
+    }
+
+    .aruclinic-dashboard-sidebar.collapsed.open {
+        transform: translateX(0);
+    }
+
+    .aruclinic-dashboard-main {
+        margin-left: 0;
+    }
+
+    .aruclinic-dashboard-sidebar.collapsed + .aruclinic-dashboard-main {
+        margin-left: 0;
+    }
+
+    .aruclinic-dashboard-header {
+        margin-left: 0;
+    }
+
+    .aruclinic-dashboard-sidebar.collapsed + .aruclinic-dashboard-main .aruclinic-dashboard-header {
+        margin-left: 0;
+    }
+
+    .aruclinic-menu-toggle {
+        display: flex;
+    }
+
+    .aruclinic-header-search {
+        display: none;
+    }
+
+    .aruclinic-header-title {
+        font-size: var(--aruclinic-font-size-lg);
+    }
+
+    .aruclinic-welcome-title {
+        font-size: var(--aruclinic-font-size-2xl);
+    }
+
+    .aruclinic-dashboard-charts {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .aruclinic-dashboard-stats {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
+@media (max-width: 767px) {
+    .aruclinic-dashboard-header {
+        padding: 0 var(--aruclinic-spacing-md);
+        height: 56px;
+    }
+
+    .aruclinic-header-left {
+        flex: 1;
+    }
+
+    .aruclinic-header-breadcrumb {
+        display: none;
+    }
+
+    .aruclinic-header-user-info {
+        display: none;
+    }
+
+    .aruclinic-welcome-header {
+        flex-direction: column;
+    }
+
+    .aruclinic-welcome-actions {
+        width: 100%;
+    }
+
+    .aruclinic-quick-actions {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .aruclinic-dashboard-content {
+        padding: var(--aruclinic-spacing-md);
+    }
+
+    .aruclinic-welcome-title {
+        font-size: var(--aruclinic-font-size-xl);
+    }
+
+    .aruclinic-quick-actions {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
+@media (min-width: 1440px) {
+    .aruclinic-dashboard-sidebar {
+        width: 300px;
+    }
+
+    .aruclinic-dashboard-sidebar.collapsed {
+        width: 80px;
+    }
+
+    .aruclinic-dashboard-main {
+        margin-left: 300px;
+    }
+
+    .aruclinic-dashboard-sidebar.collapsed + .aruclinic-dashboard-main {
+        margin-left: 80px;
+    }
+
+    .aruclinic-dashboard-header {
+        margin-left: 300px;
+    }
+
+    .aruclinic-dashboard-sidebar.collapsed + .aruclinic-dashboard-main .aruclinic-dashboard-header {
+        margin-left: 80px;
+    }
+}
+
+/* ============================================
+   Mobile Sidebar Overlay
+   ============================================ */
+
+.aruclinic-sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.aruclinic-sidebar-overlay.active {
+    display: block;
+}

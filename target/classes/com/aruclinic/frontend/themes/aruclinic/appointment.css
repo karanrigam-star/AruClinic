@@ -1,0 +1,806 @@
+/* AruClinic Appointment Module Styles */
+
+/* ============================================
+   Appointment Calendar View
+   ============================================ */
+
+.aruclinic-appointment-calendar {
+    background: var(--aruclinic-card-bg);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-lg);
+    box-shadow: var(--aruclinic-shadow-md);
+}
+
+.aruclinic-calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--aruclinic-spacing-lg);
+    flex-wrap: wrap;
+    gap: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-calendar-title {
+    font-size: var(--aruclinic-font-size-2xl);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+    margin: 0;
+}
+
+.aruclinic-calendar-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-sm);
+}
+
+.aruclinic-calendar-nav-btn {
+    background: none;
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-sm);
+    padding: var(--aruclinic-spacing-xs) var(--aruclinic-spacing-md);
+    cursor: pointer;
+    color: var(--aruclinic-text-primary);
+    transition: all var(--aruclinic-transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.aruclinic-calendar-nav-btn:hover {
+    background: var(--aruclinic-background);
+    border-color: var(--aruclinic-primary);
+    color: var(--aruclinic-primary);
+}
+
+.aruclinic-calendar-nav-btn.today {
+    background: var(--aruclinic-primary);
+    border-color: var(--aruclinic-primary);
+    color: white;
+}
+
+.aruclinic-calendar-nav-btn.today:hover {
+    background: var(--aruclinic-primary-dark);
+}
+
+.aruclinic-calendar-date-display {
+    font-size: var(--aruclinic-font-size-lg);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+}
+
+.aruclinic-calendar-view-toggle {
+    display: flex;
+    gap: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-calendar-view-btn {
+    background: none;
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-sm);
+    padding: var(--aruclinic-spacing-xs) var(--aruclinic-spacing-md);
+    cursor: pointer;
+    color: var(--aruclinic-text-secondary);
+    transition: all var(--aruclinic-transition-fast);
+    font-size: var(--aruclinic-font-size-sm);
+}
+
+.aruclinic-calendar-view-btn:hover {
+    background: var(--aruclinic-background);
+}
+
+.aruclinic-calendar-view-btn.active {
+    background: var(--aruclinic-primary);
+    border-color: var(--aruclinic-primary);
+    color: white;
+}
+
+/* ============================================
+   Calendar Grid
+   ============================================ */
+
+.aruclinic-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--aruclinic-spacing-xs);
+    margin-bottom: var(--aruclinic-spacing-lg);
+}
+
+.aruclinic-calendar-day-header {
+    text-align: center;
+    padding: var(--aruclinic-spacing-sm);
+    font-size: var(--aruclinic-font-size-xs);
+    font-weight: 600;
+    color: var(--aruclinic-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.aruclinic-calendar-week-row {
+    display: contents;
+}
+
+.aruclinic-calendar-day {
+    min-height: 120px;
+    padding: var(--aruclinic-spacing-sm);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-sm);
+    background: var(--aruclinic-card-bg);
+    position: relative;
+    overflow: hidden;
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.aruclinic-calendar-day:hover {
+    background: var(--aruclinic-background);
+}
+
+.aruclinic-calendar-day.other-month {
+    background: transparent;
+    border-color: transparent;
+}
+
+.aruclinic-calendar-day.today {
+    border-color: var(--aruclinic-primary);
+    background: rgba(15, 108, 189, 0.05);
+}
+
+.aruclinic-calendar-day.selected {
+    background: var(--aruclinic-primary);
+    color: white;
+}
+
+.aruclinic-calendar-day-header {
+    font-size: var(--aruclinic-font-size-xs);
+    font-weight: 600;
+    color: var(--aruclinic-text-muted);
+    margin-bottom: var(--aruclinic-spacing-xs);
+    text-align: right;
+}
+
+.aruclinic-calendar-day-empty {
+    color: var(--aruclinic-text-muted);
+    text-align: center;
+    padding: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-calendar-appointments {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aruclinic-spacing-xs);
+    margin-top: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-calendar-appointment {
+    padding: 4px 8px;
+    border-radius: var(--aruclinic-radius-sm);
+    font-size: var(--aruclinic-font-size-xs);
+    font-weight: 500;
+    color: white;
+    cursor: pointer;
+    transition: all var(--aruclinic-transition-fast);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.aruclinic-calendar-appointment:hover {
+    transform: scale(1.05);
+}
+
+.aruclinic-calendar-appointment.confirmed {
+    background: var(--aruclinic-primary);
+}
+
+.aruclinic-calendar-appointment.pending {
+    background: var(--aruclinic-warning);
+}
+
+.aruclinic-calendar-appointment.cancelled {
+    background: var(--aruclinic-danger);
+}
+
+.aruclinic-calendar-appointment.completed {
+    background: var(--aruclinic-success);
+}
+
+/* ============================================
+   Appointment List View
+   ============================================ */
+
+.aruclinic-appointment-list {
+    background: var(--aruclinic-card-bg);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-lg);
+    box-shadow: var(--aruclinic-shadow-md);
+}
+
+.aruclinic-appointment-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--aruclinic-spacing-lg);
+    flex-wrap: wrap;
+    gap: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-appointment-list-title {
+    font-size: var(--aruclinic-font-size-2xl);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+    margin: 0;
+}
+
+.aruclinic-appointment-filter {
+    background: var(--aruclinic-background);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-lg);
+    margin-bottom: var(--aruclinic-spacing-lg);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--aruclinic-spacing-md);
+    align-items: center;
+}
+
+.aruclinic-appointment-filter .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aruclinic-spacing-xs);
+    min-width: 180px;
+    flex: 1;
+}
+
+.aruclinic-appointment-filter .filter-group label {
+    font-size: var(--aruclinic-font-size-xs);
+    font-weight: 600;
+    color: var(--aruclinic-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.aruclinic-appointment-item {
+    background: var(--aruclinic-card-bg);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-lg);
+    margin-bottom: var(--aruclinic-spacing-md);
+    display: flex;
+    gap: var(--aruclinic-spacing-md);
+    cursor: pointer;
+    transition: all var(--aruclinic-transition-normal);
+}
+
+.aruclinic-appointment-item:hover {
+    box-shadow: var(--aruclinic-shadow-md);
+    border-color: var(--aruclinic-primary);
+    transform: translateX(4px);
+}
+
+.aruclinic-appointment-date-time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px;
+    padding: var(--aruclinic-spacing-sm);
+    background: var(--aruclinic-background);
+    border-radius: var(--aruclinic-radius-sm);
+}
+
+.aruclinic-appointment-date {
+    font-size: var(--aruclinic-font-size-2xl);
+    font-weight: 700;
+    color: var(--aruclinic-primary);
+    line-height: 1;
+}
+
+.aruclinic-appointment-time {
+    font-size: var(--aruclinic-font-size-xs);
+    color: var(--aruclinic-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.aruclinic-appointment-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.aruclinic-appointment-patient {
+    font-size: var(--aruclinic-font-size-lg);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+    margin-bottom: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-appointment-doctor {
+    font-size: var(--aruclinic-font-size-md);
+    color: var(--aruclinic-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-appointment-doctor vaadin-icon {
+    color: var(--aruclinic-primary);
+}
+
+.aruclinic-appointment-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aruclinic-spacing-xs);
+    margin-top: var(--aruclinic-spacing-sm);
+}
+
+.aruclinic-appointment-detail {
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-sm);
+    font-size: var(--aruclinic-font-size-sm);
+    color: var(--aruclinic-text-secondary);
+}
+
+.aruclinic-appointment-detail vaadin-icon {
+    color: var(--aruclinic-text-muted);
+    width: 16px;
+    height: 16px;
+}
+
+.aruclinic-appointment-status {
+    display: flex;
+    align-items: center;
+}
+
+.aruclinic-appointment-status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: var(--aruclinic-font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.aruclinic-appointment-status-badge.confirmed {
+    background: rgba(15, 108, 189, 0.1);
+    color: var(--aruclinic-primary);
+}
+
+.aruclinic-appointment-status-badge.pending {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--aruclinic-warning);
+}
+
+.aruclinic-appointment-status-badge.cancelled {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--aruclinic-danger);
+}
+
+.aruclinic-appointment-status-badge.completed {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--aruclinic-success);
+}
+
+/* ============================================
+   Appointment Booking Form
+   ============================================ */
+
+.aruclinic-appointment-booking {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.aruclinic-booking-header {
+    text-align: center;
+    margin-bottom: var(--aruclinic-spacing-xl);
+}
+
+.aruclinic-booking-title {
+    font-size: var(--aruclinic-font-size-3xl);
+    font-weight: 700;
+    color: var(--aruclinic-text-primary);
+    margin-bottom: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-booking-subtitle {
+    font-size: var(--aruclinic-font-size-md);
+    color: var(--aruclinic-text-secondary);
+}
+
+.aruclinic-booking-form {
+    background: var(--aruclinic-card-bg);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-xl);
+    box-shadow: var(--aruclinic-shadow-md);
+}
+
+.aruclinic-booking-step-indicator {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--aruclinic-spacing-xl);
+    gap: var(--aruclinic-spacing-sm);
+}
+
+.aruclinic-booking-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--aruclinic-spacing-xs);
+    position: relative;
+}
+
+.aruclinic-booking-step::after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background: var(--aruclinic-border);
+    z-index: 1;
+}
+
+.aruclinic-booking-step:last-child::after {
+    display: none;
+}
+
+.aruclinic-booking-step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--aruclinic-background);
+    border: 2px solid var(--aruclinic-border);
+    color: var(--aruclinic-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: var(--aruclinic-font-size-md);
+    position: relative;
+    z-index: 2;
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.aruclinic-booking-step.active .aruclinic-booking-step-number {
+    background: var(--aruclinic-primary);
+    border-color: var(--aruclinic-primary);
+    color: white;
+}
+
+.aruclinic-booking-step.completed .aruclinic-booking-step-number {
+    background: var(--aruclinic-success);
+    border-color: var(--aruclinic-success);
+    color: white;
+}
+
+.aruclinic-booking-step-label {
+    font-size: var(--aruclinic-font-size-xs);
+    color: var(--aruclinic-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.aruclinic-booking-step.active .aruclinic-booking-step-label {
+    color: var(--aruclinic-primary);
+    font-weight: 600;
+}
+
+.aruclinic-booking-step.completed .aruclinic-booking-step-label {
+    color: var(--aruclinic-success);
+}
+
+.aruclinic-booking-step-content {
+    display: none;
+}
+
+.aruclinic-booking-step-content.active {
+    display: block;
+}
+
+.aruclinic-booking-field {
+    margin-bottom: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-booking-field label {
+    display: block;
+    margin-bottom: var(--aruclinic-spacing-xs);
+    font-size: var(--aruclinic-font-size-sm);
+    font-weight: 500;
+    color: var(--aruclinic-text-primary);
+}
+
+.aruclinic-booking-field input,
+.aruclinic-booking-field vaadin-select,
+.aruclinic-booking-field vaadin-combo-box,
+.aruclinic-booking-field vaadin-date-picker,
+.aruclinic-booking-field vaadin-time-picker {
+    width: 100%;
+    padding: var(--aruclinic-spacing-sm) var(--aruclinic-spacing-md);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-sm);
+    font-size: var(--aruclinic-font-size-md);
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.aruclinic-booking-field input:focus,
+.aruclinic-booking-field vaadin-select:focus,
+.aruclinic-booking-field vaadin-combo-box:focus,
+.aruclinic-booking-field vaadin-date-picker:focus,
+.aruclinic-booking-field vaadin-time-picker:focus {
+    outline: none;
+    border-color: var(--aruclinic-primary);
+    box-shadow: 0 0 0 3px rgba(15, 108, 189, 0.1);
+}
+
+.aruclinic-booking-field.error input,
+.aruclinic-booking-field.error vaadin-select,
+.aruclinic-booking-field.error vaadin-combo-box,
+.aruclinic-booking-field.error vaadin-date-picker,
+.aruclinic-booking-field.error vaadin-time-picker {
+    border-color: var(--aruclinic-danger);
+}
+
+.aruclinic-booking-field .error-message {
+    color: var(--aruclinic-danger);
+    font-size: var(--aruclinic-font-size-xs);
+    margin-top: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-booking-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--aruclinic-spacing-sm);
+    margin-top: var(--aruclinic-spacing-xl);
+    padding-top: var(--aruclinic-spacing-lg);
+    border-top: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-booking-btn {
+    padding: var(--aruclinic-spacing-sm) var(--aruclinic-spacing-xl);
+    border-radius: var(--aruclinic-radius-md);
+    font-size: var(--aruclinic-font-size-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.aruclinic-booking-btn.primary {
+    background: var(--aruclinic-primary);
+    color: white;
+    border: none;
+}
+
+.aruclinic-booking-btn.primary:hover {
+    background: var(--aruclinic-primary-dark);
+}
+
+.aruclinic-booking-btn.secondary {
+    background: var(--aruclinic-background);
+    color: var(--aruclinic-text-primary);
+    border: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-booking-btn.secondary:hover {
+    background: var(--aruclinic-border);
+}
+
+/* ============================================
+   Doctor Schedule View
+   ============================================ */
+
+.aruclinic-doctor-schedule {
+    background: var(--aruclinic-card-bg);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-lg);
+    box-shadow: var(--aruclinic-shadow-md);
+}
+
+.aruclinic-schedule-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--aruclinic-spacing-lg);
+    flex-wrap: wrap;
+    gap: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-schedule-title {
+    font-size: var(--aruclinic-font-size-2xl);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+    margin: 0;
+}
+
+.aruclinic-schedule-doctor-selector {
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-sm);
+}
+
+.aruclinic-schedule-doctor-selector vaadin-select {
+    width: 250px;
+}
+
+.aruclinic-schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--aruclinic-spacing-lg);
+}
+
+.aruclinic-schedule-day-card {
+    background: var(--aruclinic-background);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-lg);
+    border: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-schedule-day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-schedule-day-name {
+    font-size: var(--aruclinic-font-size-lg);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+}
+
+.aruclinic-schedule-day-date {
+    font-size: var(--aruclinic-font-size-sm);
+    color: var(--aruclinic-text-muted);
+}
+
+.aruclinic-schedule-slots {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aruclinic-spacing-sm);
+}
+
+.aruclinic-schedule-slot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--aruclinic-spacing-sm) var(--aruclinic-spacing-md);
+    background: var(--aruclinic-card-bg);
+    border-radius: var(--aruclinic-radius-sm);
+    border: 1px solid var(--aruclinic-border);
+    cursor: pointer;
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.aruclinic-schedule-slot:hover {
+    border-color: var(--aruclinic-primary);
+    background: rgba(15, 108, 189, 0.05);
+}
+
+.aruclinic-schedule-slot.booked {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: var(--aruclinic-danger);
+    cursor: not-allowed;
+}
+
+.aruclinic-schedule-slot.selected {
+    background: var(--aruclinic-primary);
+    border-color: var(--aruclinic-primary);
+    color: white;
+}
+
+.aruclinic-schedule-slot-time {
+    font-size: var(--aruclinic-font-size-sm);
+    font-weight: 500;
+    color: var(--aruclinic-text-primary);
+}
+
+.aruclinic-schedule-slot.status {
+    font-size: var(--aruclinic-font-size-xs);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.aruclinic-schedule-slot.status.available {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--aruclinic-success);
+}
+
+.aruclinic-schedule-slot.status.booked {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--aruclinic-danger);
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 1023px) {
+    .aruclinic-calendar-grid {
+        display: block;
+    }
+
+    .aruclinic-calendar-week-row {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+    }
+
+    .aruclinic-appointment-item {
+        flex-direction: column;
+    }
+
+    .aruclinic-appointment-date-time {
+        align-items: flex-start;
+        min-width: auto;
+    }
+}
+
+@media (max-width: 767px) {
+    .aruclinic-calendar-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .aruclinic-calendar-nav {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .aruclinic-calendar-view-toggle {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .aruclinic-appointment-filter {
+        flex-direction: column;
+    }
+
+    .aruclinic-appointment-filter .filter-group {
+        min-width: 100%;
+    }
+
+    .aruclinic-booking-step-indicator {
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding-bottom: var(--aruclinic-spacing-md);
+    }
+
+    .aruclinic-booking-step {
+        min-width: 100px;
+    }
+
+    .aruclinic-schedule-doctor-selector {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .aruclinic-schedule-doctor-selector vaadin-select {
+        width: 100%;
+    }
+
+    .aruclinic-schedule-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .aruclinic-calendar-day {
+        min-height: 100px;
+    }
+
+    .aruclinic-appointment-list-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .aruclinic-booking-actions {
+        flex-direction: column;
+    }
+
+    .aruclinic-booking-btn {
+        width: 100%;
+    }
+}

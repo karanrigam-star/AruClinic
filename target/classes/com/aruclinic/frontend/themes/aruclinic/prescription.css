@@ -1,0 +1,985 @@
+/* AruClinic Prescription Module Styles */
+
+/* ============================================
+   Prescription List View
+   ============================================ */
+
+.aruclinic-prescription-list {
+    background: var(--aruclinic-card-bg);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-lg);
+    box-shadow: var(--aruclinic-shadow-md);
+}
+
+.aruclinic-prescription-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--aruclinic-spacing-lg);
+    flex-wrap: wrap;
+    gap: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-prescription-list-title {
+    font-size: var(--aruclinic-font-size-2xl);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+    margin: 0;
+}
+
+.aruclinic-prescription-stats {
+    display: flex;
+    gap: var(--aruclinic-spacing-lg);
+    margin-bottom: var(--aruclinic-spacing-lg);
+    flex-wrap: wrap;
+}
+
+.aruclinic-prescription-stat {
+    background: var(--aruclinic-background);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-md) var(--aruclinic-spacing-lg);
+    min-width: 150px;
+    flex: 1;
+}
+
+.aruclinic-prescription-stat-label {
+    font-size: var(--aruclinic-font-size-xs);
+    color: var(--aruclinic-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-prescription-stat-value {
+    font-size: var(--aruclinic-font-size-2xl);
+    font-weight: 700;
+    color: var(--aruclinic-text-primary);
+}
+
+/* ============================================
+   Prescription Filter Bar
+   ============================================ */
+
+.aruclinic-prescription-filter {
+    background: var(--aruclinic-background);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-lg);
+    margin-bottom: var(--aruclinic-spacing-lg);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--aruclinic-spacing-md);
+    align-items: center;
+}
+
+.aruclinic-prescription-filter .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aruclinic-spacing-xs);
+    min-width: 180px;
+    flex: 1;
+}
+
+.aruclinic-prescription-filter .filter-group label {
+    font-size: var(--aruclinic-font-size-xs);
+    font-weight: 600;
+    color: var(--aruclinic-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.aruclinic-prescription-filter .filter-actions {
+    margin-left: auto;
+    display: flex;
+    gap: var(--aruclinic-spacing-sm);
+}
+
+/* ============================================
+   Prescription Cards
+   ============================================ */
+
+.aruclinic-prescription-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: var(--aruclinic-spacing-lg);
+}
+
+.aruclinic-prescription-card {
+    background: var(--aruclinic-card-bg);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-lg);
+    cursor: pointer;
+    transition: all var(--aruclinic-transition-normal);
+}
+
+.aruclinic-prescription-card:hover {
+    box-shadow: var(--aruclinic-shadow-md);
+    border-color: var(--aruclinic-primary);
+    transform: translateY(-2px);
+}
+
+.aruclinic-prescription-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-prescription-id {
+    font-size: var(--aruclinic-font-size-lg);
+    font-weight: 700;
+    color: var(--aruclinic-primary);
+}
+
+.aruclinic-prescription-date {
+    font-size: var(--aruclinic-font-size-xs);
+    color: var(--aruclinic-text-muted);
+}
+
+.aruclinic-prescription-card-body {
+    margin-bottom: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-prescription-patient {
+    font-size: var(--aruclinic-font-size-md);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+    margin-bottom: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-prescription-doctor {
+    font-size: var(--aruclinic-font-size-sm);
+    color: var(--aruclinic-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-prescription-doctor vaadin-icon {
+    color: var(--aruclinic-primary);
+}
+
+.aruclinic-prescription-diagnosis {
+    font-size: var(--aruclinic-font-size-sm);
+    color: var(--aruclinic-text-secondary);
+    margin-top: var(--aruclinic-spacing-sm);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.aruclinic-prescription-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: var(--aruclinic-spacing-md);
+    border-top: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-prescription-status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-prescription-status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: var(--aruclinic-font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.aruclinic-prescription-status-badge.active {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--aruclinic-success);
+}
+
+.aruclinic-prescription-status-badge.expired {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--aruclinic-danger);
+}
+
+.aruclinic-prescription-status-badge.draft {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--aruclinic-warning);
+}
+
+.aruclinic-prescription-actions {
+    display: flex;
+    gap: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-prescription-action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--aruclinic-spacing-xs);
+    color: var(--aruclinic-text-muted);
+    border-radius: var(--aruclinic-radius-sm);
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.aruclinic-prescription-action-btn:hover {
+    background: var(--aruclinic-background);
+    color: var(--aruclinic-primary);
+}
+
+.aruclinic-prescription-action-btn.view {
+    color: var(--aruclinic-primary);
+}
+
+.aruclinic-prescription-action-btn.edit {
+    color: var(--aruclinic-warning);
+}
+
+.aruclinic-prescription-action-btn.delete {
+    color: var(--aruclinic-danger);
+}
+
+.aruclinic-prescription-action-btn.print {
+    color: var(--aruclinic-success);
+}
+
+/* ============================================
+   Prescription Creation Form
+   ============================================ */
+
+.aruclinic-prescription-creation {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.aruclinic-prescription-creation-header {
+    text-align: center;
+    margin-bottom: var(--aruclinic-spacing-xl);
+}
+
+.aruclinic-prescription-creation-title {
+    font-size: var(--aruclinic-font-size-3xl);
+    font-weight: 700;
+    color: var(--aruclinic-text-primary);
+    margin-bottom: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-prescription-creation-subtitle {
+    font-size: var(--aruclinic-font-size-md);
+    color: var(--aruclinic-text-secondary);
+}
+
+.aruclinic-prescription-creation-form {
+    background: var(--aruclinic-card-bg);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-xl);
+    box-shadow: var(--aruclinic-shadow-md);
+}
+
+.aruclinic-prescription-creation-step-indicator {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--aruclinic-spacing-xl);
+    gap: var(--aruclinic-spacing-sm);
+}
+
+.aruclinic-prescription-creation-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--aruclinic-spacing-xs);
+    position: relative;
+}
+
+.aruclinic-prescription-creation-step::after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background: var(--aruclinic-border);
+    z-index: 1;
+}
+
+.aruclinic-prescription-creation-step:last-child::after {
+    display: none;
+}
+
+.aruclinic-prescription-creation-step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--aruclinic-background);
+    border: 2px solid var(--aruclinic-border);
+    color: var(--aruclinic-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: var(--aruclinic-font-size-md);
+    position: relative;
+    z-index: 2;
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.aruclinic-prescription-creation-step.active .aruclinic-prescription-creation-step-number {
+    background: var(--aruclinic-primary);
+    border-color: var(--aruclinic-primary);
+    color: white;
+}
+
+.aruclinic-prescription-creation-step.completed .aruclinic-prescription-creation-step-number {
+    background: var(--aruclinic-success);
+    border-color: var(--aruclinic-success);
+    color: white;
+}
+
+.aruclinic-prescription-creation-step-label {
+    font-size: var(--aruclinic-font-size-xs);
+    color: var(--aruclinic-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.aruclinic-prescription-creation-step.active .aruclinic-prescription-creation-step-label {
+    color: var(--aruclinic-primary);
+    font-weight: 600;
+}
+
+.aruclinic-prescription-creation-step.completed .aruclinic-prescription-creation-step-label {
+    color: var(--aruclinic-success);
+}
+
+.aruclinic-prescription-creation-step-content {
+    display: none;
+}
+
+.aruclinic-prescription-creation-step-content.active {
+    display: block;
+}
+
+/* ============================================
+   Patient Information Section
+   ============================================ */
+
+.aruclinic-prescription-patient-section {
+    background: var(--aruclinic-background);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-lg);
+    margin-bottom: var(--aruclinic-spacing-xl);
+    border: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-prescription-patient-section-title {
+    font-size: var(--aruclinic-font-size-lg);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+    margin-bottom: var(--aruclinic-spacing-lg);
+}
+
+.aruclinic-prescription-patient-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--aruclinic-spacing-lg);
+}
+
+.aruclinic-prescription-patient-field {
+    margin-bottom: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-prescription-patient-field label {
+    display: block;
+    margin-bottom: var(--aruclinic-spacing-xs);
+    font-size: var(--aruclinic-font-size-sm);
+    font-weight: 500;
+    color: var(--aruclinic-text-primary);
+}
+
+.aruclinic-prescription-patient-field input,
+.aruclinic-prescription-patient-field vaadin-select,
+.aruclinic-prescription-patient-field vaadin-combo-box {
+    width: 100%;
+    padding: var(--aruclinic-spacing-sm) var(--aruclinic-spacing-md);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-sm);
+    font-size: var(--aruclinic-font-size-md);
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.aruclinic-prescription-patient-field input:focus,
+.aruclinic-prescription-patient-field vaadin-select:focus,
+.aruclinic-prescription-patient-field vaadin-combo-box:focus {
+    outline: none;
+    border-color: var(--aruclinic-primary);
+    box-shadow: 0 0 0 3px rgba(15, 108, 189, 0.1);
+}
+
+/* ============================================
+   Medication Items Section
+   ============================================ */
+
+.aruclinic-prescription-medications-section {
+    margin-bottom: var(--aruclinic-spacing-xl);
+}
+
+.aruclinic-prescription-medications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--aruclinic-spacing-lg);
+}
+
+.aruclinic-prescription-medications-title {
+    font-size: var(--aruclinic-font-size-lg);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+}
+
+.aruclinic-prescription-add-medication-btn {
+    background: var(--aruclinic-primary);
+    color: white;
+    border: none;
+    padding: var(--aruclinic-spacing-sm) var(--aruclinic-spacing-lg);
+    border-radius: var(--aruclinic-radius-md);
+    font-size: var(--aruclinic-font-size-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--aruclinic-transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-prescription-add-medication-btn:hover {
+    background: var(--aruclinic-primary-dark);
+}
+
+.aruclinic-prescription-medications-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--aruclinic-card-bg);
+    border-radius: var(--aruclinic-radius-md);
+    overflow: hidden;
+    box-shadow: var(--aruclinic-shadow-sm);
+    margin-bottom: var(--aruclinic-spacing-lg);
+}
+
+.aruclinic-prescription-medications-table-header {
+    background-color: var(--aruclinic-background);
+    padding: var(--aruclinic-spacing-md);
+    text-align: left;
+    font-weight: 600;
+    color: var(--aruclinic-text-secondary);
+    font-size: var(--aruclinic-font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-prescription-medications-table-row {
+    border-bottom: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-prescription-medications-table-row:last-child {
+    border-bottom: none;
+}
+
+.aruclinic-prescription-medications-table-cell {
+    padding: var(--aruclinic-spacing-md);
+    color: var(--aruclinic-text-primary);
+    font-size: var(--aruclinic-font-size-md);
+}
+
+.aruclinic-prescription-medications-table-cell.actions {
+    display: flex;
+    gap: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-prescription-medication-action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--aruclinic-spacing-xs);
+    color: var(--aruclinic-text-muted);
+    border-radius: var(--aruclinic-radius-sm);
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.aruclinic-prescription-medication-action-btn:hover {
+    background: var(--aruclinic-background);
+    color: var(--aruclinic-primary);
+}
+
+.aruclinic-prescription-medication-action-btn.delete {
+    color: var(--aruclinic-danger);
+}
+
+/* ============================================
+   Medication Item Form
+   ============================================ */
+
+.aruclinic-medication-form {
+    background: var(--aruclinic-card-bg);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-lg);
+    margin-bottom: var(--aruclinic-spacing-lg);
+    box-shadow: var(--aruclinic-shadow-md);
+}
+
+.aruclinic-medication-form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--aruclinic-spacing-lg);
+    padding-bottom: var(--aruclinic-spacing-md);
+    border-bottom: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-medication-form-title {
+    font-size: var(--aruclinic-font-size-lg);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+}
+
+.aruclinic-medication-form-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--aruclinic-spacing-xs);
+    color: var(--aruclinic-text-muted);
+    border-radius: var(--aruclinic-radius-sm);
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.aruclinic-medication-form-close:hover {
+    background: var(--aruclinic-background);
+    color: var(--aruclinic-danger);
+}
+
+.aruclinic-medication-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--aruclinic-spacing-lg);
+}
+
+.aruclinic-medication-form-field {
+    margin-bottom: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-medication-form-field label {
+    display: block;
+    margin-bottom: var(--aruclinic-spacing-xs);
+    font-size: var(--aruclinic-font-size-sm);
+    font-weight: 500;
+    color: var(--aruclinic-text-primary);
+}
+
+.aruclinic-medication-form-field input,
+.aruclinic-medication-form-field vaadin-select,
+.aruclinic-medication-form-field vaadin-combo-box {
+    width: 100%;
+    padding: var(--aruclinic-spacing-sm) var(--aruclinic-spacing-md);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-sm);
+    font-size: var(--aruclinic-font-size-md);
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.aruclinic-medication-form-field input:focus,
+.aruclinic-medication-form-field vaadin-select:focus,
+.aruclinic-medication-form-field vaadin-combo-box:focus {
+    outline: none;
+    border-color: var(--aruclinic-primary);
+    box-shadow: 0 0 0 3px rgba(15, 108, 189, 0.1);
+}
+
+.aruclinic-medication-form-field.error input,
+.aruclinic-medication-form-field.error vaadin-select,
+.aruclinic-medication-form-field.error vaadin-combo-box {
+    border-color: var(--aruclinic-danger);
+}
+
+.aruclinic-medication-form-field .error-message {
+    color: var(--aruclinic-danger);
+    font-size: var(--aruclinic-font-size-xs);
+    margin-top: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-medication-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--aruclinic-spacing-sm);
+    margin-top: var(--aruclinic-spacing-lg);
+    padding-top: var(--aruclinic-spacing-lg);
+    border-top: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-medication-form-btn {
+    padding: var(--aruclinic-spacing-sm) var(--aruclinic-spacing-lg);
+    border-radius: var(--aruclinic-radius-md);
+    font-size: var(--aruclinic-font-size-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.aruclinic-medication-form-btn.primary {
+    background: var(--aruclinic-primary);
+    color: white;
+    border: none;
+}
+
+.aruclinic-medication-form-btn.primary:hover {
+    background: var(--aruclinic-primary-dark);
+}
+
+.aruclinic-medication-form-btn.secondary {
+    background: var(--aruclinic-background);
+    color: var(--aruclinic-text-primary);
+    border: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-medication-form-btn.secondary:hover {
+    background: var(--aruclinic-border);
+}
+
+/* ============================================
+   Prescription Notes Section
+   ============================================ */
+
+.aruclinic-prescription-notes-section {
+    margin-bottom: var(--aruclinic-spacing-xl);
+}
+
+.aruclinic-prescription-notes-title {
+    font-size: var(--aruclinic-font-size-lg);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+    margin-bottom: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-prescription-notes-editor {
+    background: var(--aruclinic-card-bg);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-lg);
+    box-shadow: var(--aruclinic-shadow-sm);
+}
+
+.aruclinic-prescription-notes-editor textarea {
+    width: 100%;
+    min-height: 150px;
+    padding: var(--aruclinic-spacing-md);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-sm);
+    font-size: var(--aruclinic-font-size-md);
+    font-family: var(--aruclinic-font-family);
+    resize: vertical;
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.aruclinic-prescription-notes-editor textarea:focus {
+    outline: none;
+    border-color: var(--aruclinic-primary);
+    box-shadow: 0 0 0 3px rgba(15, 108, 189, 0.1);
+}
+
+/* ============================================
+   Prescription Preview
+   ============================================ */
+
+.aruclinic-prescription-preview {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.aruclinic-prescription-preview-card {
+    background: var(--aruclinic-card-bg);
+    border: 1px solid var(--aruclinic-border);
+    border-radius: var(--aruclinic-radius-md);
+    padding: var(--aruclinic-spacing-xl);
+    box-shadow: var(--aruclinic-shadow-md);
+}
+
+.aruclinic-prescription-preview-header {
+    text-align: center;
+    margin-bottom: var(--aruclinic-spacing-xl);
+    padding-bottom: var(--aruclinic-spacing-lg);
+    border-bottom: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-prescription-preview-logo {
+    font-size: var(--aruclinic-font-size-2xl);
+    font-weight: 700;
+    color: var(--aruclinic-primary);
+    margin-bottom: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-prescription-preview-title {
+    font-size: var(--aruclinic-font-size-xl);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+}
+
+.aruclinic-prescription-preview-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--aruclinic-spacing-lg);
+    flex-wrap: wrap;
+    gap: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-prescription-preview-meta-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aruclinic-spacing-xs);
+}
+
+.aruclinic-prescription-preview-meta-label {
+    font-size: var(--aruclinic-font-size-xs);
+    font-weight: 600;
+    color: var(--aruclinic-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.aruclinic-prescription-preview-meta-value {
+    font-size: var(--aruclinic-font-size-md);
+    color: var(--aruclinic-text-primary);
+}
+
+.aruclinic-prescription-preview-section {
+    margin-bottom: var(--aruclinic-spacing-lg);
+}
+
+.aruclinic-prescription-preview-section-title {
+    font-size: var(--aruclinic-font-size-lg);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+    margin-bottom: var(--aruclinic-spacing-md);
+    padding-bottom: var(--aruclinic-spacing-sm);
+    border-bottom: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-prescription-preview-diagnosis {
+    font-size: var(--aruclinic-font-size-md);
+    color: var(--aruclinic-text-secondary);
+    line-height: 1.6;
+}
+
+.aruclinic-prescription-preview-medications {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--aruclinic-spacing-lg);
+}
+
+.aruclinic-prescription-preview-medications-header {
+    background-color: var(--aruclinic-background);
+    padding: var(--aruclinic-spacing-sm);
+    text-align: left;
+    font-weight: 600;
+    color: var(--aruclinic-text-secondary);
+    font-size: var(--aruclinic-font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.aruclinic-prescription-preview-medications-row {
+    border-bottom: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-prescription-preview-medications-row:last-child {
+    border-bottom: none;
+}
+
+.aruclinic-prescription-preview-medications-cell {
+    padding: var(--aruclinic-spacing-sm);
+    color: var(--aruclinic-text-primary);
+    font-size: var(--aruclinic-font-size-sm);
+}
+
+.aruclinic-prescription-preview-notes {
+    background: var(--aruclinic-background);
+    border-radius: var(--aruclinic-radius-sm);
+    padding: var(--aruclinic-spacing-md);
+    font-size: var(--aruclinic-font-size-sm);
+    color: var(--aruclinic-text-secondary);
+    line-height: 1.6;
+}
+
+.aruclinic-prescription-preview-footer {
+    margin-top: var(--aruclinic-spacing-xl);
+    padding-top: var(--aruclinic-spacing-lg);
+    border-top: 1px solid var(--aruclinic-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--aruclinic-spacing-md);
+}
+
+.aruclinic-prescription-preview-doctor {
+    font-size: var(--aruclinic-font-size-md);
+    font-weight: 600;
+    color: var(--aruclinic-text-primary);
+}
+
+.aruclinic-prescription-preview-signature {
+    font-size: var(--aruclinic-font-size-md);
+    color: var(--aruclinic-text-secondary);
+}
+
+/* ============================================
+   Prescription Actions
+   ============================================ */
+
+.aruclinic-prescription-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--aruclinic-spacing-sm);
+    margin-top: var(--aruclinic-spacing-xl);
+    padding-top: var(--aruclinic-spacing-lg);
+    border-top: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-prescription-action-btn {
+    flex: 1;
+    padding: var(--aruclinic-spacing-md);
+    border-radius: var(--aruclinic-radius-md);
+    font-size: var(--aruclinic-font-size-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--aruclinic-transition-fast);
+}
+
+.aruclinic-prescription-action-btn.primary {
+    background: var(--aruclinic-primary);
+    color: white;
+    border: none;
+}
+
+.aruclinic-prescription-action-btn.primary:hover {
+    background: var(--aruclinic-primary-dark);
+}
+
+.aruclinic-prescription-action-btn.secondary {
+    background: var(--aruclinic-background);
+    color: var(--aruclinic-text-primary);
+    border: 1px solid var(--aruclinic-border);
+}
+
+.aruclinic-prescription-action-btn.secondary:hover {
+    background: var(--aruclinic-border);
+}
+
+.aruclinic-prescription-action-btn.danger {
+    background: var(--aruclinic-danger);
+    color: white;
+    border: none;
+}
+
+.aruclinic-prescription-action-btn.danger:hover {
+    background: var(--aruclinic-danger-dark);
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 1023px) {
+    .aruclinic-prescription-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .aruclinic-prescription-creation-step-indicator {
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding-bottom: var(--aruclinic-spacing-md);
+    }
+
+    .aruclinic-prescription-creation-step {
+        min-width: 100px;
+    }
+
+    .aruclinic-prescription-patient-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
+@media (max-width: 767px) {
+    .aruclinic-prescription-list-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .aruclinic-prescription-stats {
+        flex-direction: column;
+    }
+
+    .aruclinic-prescription-stat {
+        min-width: 100%;
+    }
+
+    .aruclinic-prescription-filter {
+        flex-direction: column;
+    }
+
+    .aruclinic-prescription-filter .filter-group {
+        min-width: 100%;
+    }
+
+    .aruclinic-prescription-filter .filter-actions {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .aruclinic-prescription-medications-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .aruclinic-prescription-medications-table-header,
+    .aruclinic-prescription-medications-table-row {
+        display: flex;
+        min-width: 600px;
+    }
+
+    .aruclinic-prescription-medications-table-cell {
+        flex: 1;
+        min-width: 100px;
+    }
+
+    .aruclinic-prescription-creation-form-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .aruclinic-prescription-actions {
+        flex-direction: column;
+    }
+
+    .aruclinic-prescription-action-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .aruclinic-prescription-card-header {
+        flex-direction: column;
+        gap: var(--aruclinic-spacing-sm);
+    }
+
+    .aruclinic-prescription-card-footer {
+        flex-direction: column;
+        gap: var(--aruclinic-spacing-sm);
+    }
+
+    .aruclinic-prescription-actions {
+        flex-direction: column;
+    }
+}
