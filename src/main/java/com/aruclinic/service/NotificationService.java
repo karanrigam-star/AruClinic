@@ -36,4 +36,24 @@ public class NotificationService {
         notification.setRead(true);
         notificationRepository.save(notification);
     }
+
+    @Transactional
+    public void clearNotificationsByUserId(Long userId) {
+        notificationRepository.deleteByUserId(userId);
+    }
+
+    @Transactional
+    public void deleteNotificationById(Long notificationId) {
+        notificationRepository.deleteById(notificationId);
+    }
+
+    @Transactional
+    public void deletePrescriptionNotification(Long userId, String prescriptionId) {
+        List<Notification> list = notificationRepository.findByUserId(userId);
+        for (Notification n : list) {
+            if (n.getTitle() != null && n.getTitle().contains(prescriptionId)) {
+                notificationRepository.delete(n);
+            }
+        }
+    }
 }

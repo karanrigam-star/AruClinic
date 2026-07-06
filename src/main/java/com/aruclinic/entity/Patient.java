@@ -112,6 +112,46 @@ public class Patient {
 		this.emergencyContact = emergencyContact;
 	}
 
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public String getDistrict() {
+		return district;
+	}
+
+	public void setDistrict(String district) {
+		this.district = district;
+	}
+
+	public String getZipCode() {
+		return zipCode;
+	}
+
+	public void setZipCode(String zipCode) {
+		this.zipCode = zipCode;
+	}
+
+	public String getEmergencyPhone() {
+		return emergencyPhone;
+	}
+
+	public void setEmergencyPhone(String emergencyPhone) {
+		this.emergencyPhone = emergencyPhone;
+	}
+
 	public String getAllergies() {
 		return allergies;
 	}
@@ -201,6 +241,21 @@ public class Patient {
 
     @Column(name = "emergency_contact", length = 20)
     private String emergencyContact;
+
+    @Column(length = 100)
+    private String city;
+
+    @Column(length = 100)
+    private String state;
+
+    @Column(length = 100)
+    private String district;
+
+    @Column(name = "zip_code", length = 20)
+    private String zipCode;
+
+    @Column(name = "emergency_phone", length = 20)
+    private String emergencyPhone;
 
     @Column(columnDefinition = "TEXT")
     private String allergies;

@@ -20,6 +20,7 @@ public class DoctorDto {
     private String about;
     private LocalTime workingHoursStart;
     private LocalTime workingHoursEnd;
+    private String status = "AVAILABLE";
 
     // Constructors
     public DoctorDto() {}
@@ -77,4 +78,7 @@ public class DoctorDto {
 
     public LocalTime getWorkingHoursEnd() { return workingHoursEnd; }
     public void setWorkingHoursEnd(LocalTime workingHoursEnd) { this.workingHoursEnd = workingHoursEnd; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }

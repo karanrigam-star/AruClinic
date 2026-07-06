@@ -31,29 +31,102 @@
 .aruclinic-prescription-stats {
     display: flex;
     gap: var(--aruclinic-spacing-lg);
-    margin-bottom: var(--aruclinic-spacing-lg);
+    margin-bottom: var(--aruclinic-spacing-xl);
+    margin-top: var(--aruclinic-spacing-md);
     flex-wrap: wrap;
+    width: 100%;
 }
 
 .aruclinic-prescription-stat {
-    background: var(--aruclinic-background);
+    background: var(--lumo-base-color);
     border-radius: var(--aruclinic-radius-md);
     padding: var(--aruclinic-spacing-md) var(--aruclinic-spacing-lg);
-    min-width: 150px;
+    min-width: 200px;
     flex: 1;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.aruclinic-prescription-stat::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    transition: width 0.2s ease;
+}
+
+.aruclinic-prescription-stat:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Primary Stat Card */
+.aruclinic-prescription-stat.primary {
+    border-left: 4px solid var(--aruclinic-primary, #0062ff);
+}
+.aruclinic-prescription-stat.primary::before {
+    background: var(--aruclinic-primary, #0062ff);
+}
+.aruclinic-prescription-stat.primary:hover {
+    border-color: var(--aruclinic-primary, #0062ff);
+    background: linear-gradient(135deg, var(--lumo-base-color) 0%, rgba(0, 98, 255, 0.03) 100%);
+}
+
+/* Warning Stat Card */
+.aruclinic-prescription-stat.warning {
+    border-left: 4px solid var(--aruclinic-warning, #ff9900);
+}
+.aruclinic-prescription-stat.warning::before {
+    background: var(--aruclinic-warning, #ff9900);
+}
+.aruclinic-prescription-stat.warning:hover {
+    border-color: var(--aruclinic-warning, #ff9900);
+    background: linear-gradient(135deg, var(--lumo-base-color) 0%, rgba(255, 153, 0, 0.03) 100%);
+}
+
+/* Success Stat Card */
+.aruclinic-prescription-stat.success {
+    border-left: 4px solid var(--aruclinic-success, #00cc66);
+}
+.aruclinic-prescription-stat.success::before {
+    background: var(--aruclinic-success, #00cc66);
+}
+.aruclinic-prescription-stat.success:hover {
+    border-color: var(--aruclinic-success, #00cc66);
+    background: linear-gradient(135deg, var(--lumo-base-color) 0%, rgba(0, 204, 102, 0.03) 100%);
+}
+
+/* Info Stat Card */
+.aruclinic-prescription-stat.info {
+    border-left: 4px solid var(--aruclinic-info, #33ccff);
+}
+.aruclinic-prescription-stat.info::before {
+    background: var(--aruclinic-info, #33ccff);
+}
+.aruclinic-prescription-stat.info:hover {
+    border-color: var(--aruclinic-info, #33ccff);
+    background: linear-gradient(135deg, var(--lumo-base-color) 0%, rgba(51, 204, 255, 0.03) 100%);
 }
 
 .aruclinic-prescription-stat-label {
     font-size: var(--aruclinic-font-size-xs);
     color: var(--aruclinic-text-muted);
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
     margin-bottom: var(--aruclinic-spacing-xs);
+    display: block;
 }
 
 .aruclinic-prescription-stat-value {
-    font-size: var(--aruclinic-font-size-2xl);
-    font-weight: 700;
+    font-size: var(--aruclinic-font-size-3xl);
+    font-weight: 800;
     color: var(--aruclinic-text-primary);
 }
 
@@ -982,4 +1055,287 @@
     .aruclinic-prescription-actions {
         flex-direction: column;
     }
+}
+
+/* ============================================
+   Enhanced Doctor Prescription List View
+   ============================================ */
+
+.aruclinic-doctor-prescription-list-view {
+    background: linear-gradient(135deg, var(--lumo-base-color) 0%, rgba(245, 247, 250, 0.5) 100%);
+    border-radius: var(--aruclinic-radius-lg);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    padding: var(--aruclinic-spacing-xl) !important;
+}
+
+.aruclinic-prescription-grid {
+    border-radius: var(--aruclinic-radius-md) !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(0, 0, 0, 0.04) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02) !important;
+    background: var(--lumo-base-color) !important;
+}
+
+.aruclinic-prescription-grid vaadin-grid-cell-content {
+    font-size: var(--aruclinic-font-size-sm);
+    padding: var(--aruclinic-spacing-md) !important;
+}
+
+/* Status badges */
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: var(--aruclinic-font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+
+.status-badge.issued {
+    background-color: rgba(0, 204, 102, 0.12);
+    color: #00994d;
+    border: 1px solid rgba(0, 204, 102, 0.2);
+}
+
+.status-badge.draft {
+    background-color: rgba(255, 153, 0, 0.12);
+    color: #cc7a00;
+    border: 1px solid rgba(255, 153, 0, 0.2);
+}
+
+.status-badge.active {
+    background-color: rgba(0, 98, 255, 0.12);
+    color: #0052cc;
+    border: 1px solid rgba(0, 98, 255, 0.2);
+}
+
+/* ============================================
+   Non-transparent Light Blue Grid Headers
+   ============================================ */
+
+vaadin-grid::part(header-cell) {
+    background-color: #e6f2ff !important;
+    color: #0044cc !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+    z-index: 3 !important;
+}
+
+vaadin-grid::part(cell) {
+    background-color: var(--lumo-base-color) !important;
+    opacity: 1 !important;
+}
+
+/* ============================================
+   Customer-Friendly Prescription Detail Sheet
+   ============================================ */
+
+.aruclinic-prescription-sheet {
+    background: #ffffff !important;
+    max-width: 850px !important;
+    margin: 30px auto !important;
+    padding: 40px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid #e0e6ed !important;
+    font-family: 'Outfit', 'Inter', sans-serif !important;
+    color: #334155 !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.prescription-brand-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    border-bottom: 2px solid #3b82f6 !important;
+    padding-bottom: 20px !important;
+    margin-bottom: 25px !important;
+}
+
+.prescription-meta-block {
+    display: flex !important;
+    justify-content: space-between !important;
+    background-color: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    padding: 15px 20px !important;
+    border-radius: 8px !important;
+    margin-bottom: 30px !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+}
+
+.prescription-meta-block div span:first-child {
+    color: #64748b !important;
+    font-weight: 600 !important;
+}
+
+.prescription-info-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 40px !important;
+    margin-bottom: 30px !important;
+    padding-bottom: 20px !important;
+    border-bottom: 1px dashed #e2e8f0 !important;
+}
+
+.prescription-info-grid h4 {
+    font-size: 0.85rem !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    margin-bottom: 12px !important;
+    color: #1e3a8a !important;
+    font-weight: 700 !important;
+}
+
+.prescription-info-grid div div {
+    margin-bottom: 8px !important;
+    font-size: 0.95rem !important;
+}
+
+.prescription-info-grid div div span:first-child {
+    color: #64748b !important;
+    font-weight: 500 !important;
+    display: inline-block !important;
+    width: 100px !important;
+}
+
+.prescription-clinical-block {
+    background-color: #f0f7ff !important;
+    border-left: 4px solid #3b82f6 !important;
+    padding: 20px !important;
+    border-radius: 0 8px 8px 0 !important;
+    margin-bottom: 30px !important;
+}
+
+.prescription-clinical-block h4 {
+    font-size: 0.85rem !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    margin-top: 0 !important;
+    margin-bottom: 12px !important;
+    color: #1e3a8a !important;
+    font-weight: 700 !important;
+}
+
+.prescription-clinical-block div {
+    margin-bottom: 8px !important;
+    font-size: 0.95rem !important;
+}
+
+.prescription-clinical-block div span:first-child {
+    color: #64748b !important;
+    font-weight: 600 !important;
+    display: inline-block !important;
+    width: 100px !important;
+}
+
+.prescription-medicines-block {
+    margin-bottom: 30px !important;
+}
+
+.prescription-medicines-block h4 {
+    font-size: 0.95rem !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    margin-bottom: 15px !important;
+    color: #1e3a8a !important;
+    font-weight: 700 !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    padding-bottom: 8px !important;
+}
+
+.aruclinic-prescription-view-grid {
+    border-radius: 8px !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+.prescription-advice-block {
+    background-color: #fafaf9 !important;
+    border-left: 4px solid #78716c !important;
+    padding: 20px !important;
+    border-radius: 0 8px 8px 0 !important;
+    margin-bottom: 30px !important;
+}
+
+.prescription-advice-block h4 {
+    font-size: 0.85rem !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    margin-top: 0 !important;
+    margin-bottom: 10px !important;
+    color: #44403c !important;
+    font-weight: 700 !important;
+}
+
+.prescription-advice-block p {
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+    margin: 0 !important;
+    color: #44403c !important;
+}
+
+.prescription-followup-block {
+    background-color: #fffbeb !important;
+    border-left: 4px solid #f59e0b !important;
+    padding: 15px 20px !important;
+    border-radius: 0 8px 8px 0 !important;
+    margin-bottom: 40px !important;
+}
+
+.prescription-followup-block h4 {
+    font-size: 0.85rem !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    margin-top: 0 !important;
+    margin-bottom: 8px !important;
+    color: #b45309 !important;
+    font-weight: 700 !important;
+}
+
+.prescription-followup-block div {
+    font-size: 0.95rem !important;
+    color: #b45309 !important;
+    font-weight: 600 !important;
+}
+
+.prescription-followup-block div span:first-child {
+    font-weight: 500 !important;
+}
+
+.prescription-signature-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    margin-top: 40px !important;
+    padding-top: 20px !important;
+    border-top: 1px dashed #e2e8f0 !important;
+}
+
+.prescription-signature-row span {
+    margin-bottom: 4px !important;
+}
+
+/* Fix RadioButtonGroup horizontal wrapping and alignment */
+vaadin-radio-group {
+    width: 100% !important;
+}
+
+vaadin-radio-group [part="group-field"] {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 16px !important;
+}
+
+/* Opaque blue right border for ID, Date, Patient, Diagnosis, Status grid columns */
+.aruclinic-id-column {
+    font-weight: 700 !important;
+    color: #0052cc !important;
+}
+
+vaadin-grid::part(cell),
+vaadin-grid::part(header-cell) {
+    border-right: 1px solid rgba(0, 98, 255, 0.35) !important;
 }

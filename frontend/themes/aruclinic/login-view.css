@@ -33,13 +33,30 @@
     background: var(--aruclinic-card-bg);
     border-radius: var(--aruclinic-radius-lg);
     box-shadow: var(--aruclinic-shadow-lg);
-    padding: var(--aruclinic-spacing-2xl);
+    padding: var(--aruclinic-spacing-lg) var(--aruclinic-spacing-xl);
     max-width: 480px;
     width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
     margin: auto;
     position: relative;
     z-index: 10;
     animation: aruclinic-login-card-animate 0.5s ease-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.aruclinic-login-card::-webkit-scrollbar {
+    width: 6px;
+}
+
+.aruclinic-login-card::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.aruclinic-login-card::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
 }
 
 @keyframes aruclinic-login-card-animate {
@@ -59,35 +76,35 @@
 
 .aruclinic-login-header {
     text-align: center;
-    margin-bottom: var(--aruclinic-spacing-xl);
+    margin-bottom: var(--aruclinic-spacing-md);
 }
 
 .aruclinic-login-logo {
-    width: 80px;
-    height: 80px;
+    width: 54px;
+    height: 54px;
     background: linear-gradient(135deg, var(--aruclinic-primary), var(--aruclinic-primary-dark));
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto var(--aruclinic-spacing-lg);
+    margin: 0 auto var(--aruclinic-spacing-sm);
     box-shadow: var(--aruclinic-shadow-md);
 }
 
 .aruclinic-login-logo vaadin-icon {
     color: white;
-    font-size: 40px;
+    font-size: 26px;
 }
 
 .aruclinic-login-title {
-    font-size: var(--aruclinic-font-size-3xl);
+    font-size: var(--aruclinic-font-size-2xl);
     font-weight: 700;
     color: var(--aruclinic-text-primary);
-    margin-bottom: var(--aruclinic-spacing-xs);
+    margin-bottom: 2px;
 }
 
 .aruclinic-login-subtitle {
-    font-size: var(--aruclinic-font-size-md);
+    font-size: var(--aruclinic-font-size-sm);
     color: var(--aruclinic-text-secondary);
     font-weight: 400;
 }
@@ -276,8 +293,8 @@
 .aruclinic-login-divider {
     display: flex;
     align-items: center;
-    gap: var(--aruclinic-spacing-md);
-    margin: var(--aruclinic-spacing-lg) 0;
+    gap: var(--aruclinic-spacing-xs);
+    margin: var(--aruclinic-spacing-xs) 0;
 }
 
 .aruclinic-login-divider::before,
@@ -349,10 +366,13 @@
    ============================================ */
 
 .aruclinic-signup-link {
-    text-align: center;
-    margin-top: var(--aruclinic-spacing-lg);
-    padding-top: var(--aruclinic-spacing-lg);
-    border-top: 1px solid var(--aruclinic-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--aruclinic-spacing-xs);
+    margin-top: var(--aruclinic-spacing-xs);
+    padding-top: 0;
+    border-top: none;
 }
 
 .aruclinic-signup-link span {
@@ -360,17 +380,22 @@
     color: var(--aruclinic-text-secondary);
 }
 
-.aruclinic-signup-link a {
-    color: var(--aruclinic-primary);
-    text-decoration: none;
-    font-weight: 600;
-    margin-left: var(--aruclinic-spacing-xs);
-    transition: color var(--aruclinic-transition-fast);
+.aruclinic-signup-link vaadin-button {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    min-height: auto !important;
+    font-size: var(--aruclinic-font-size-md) !important;
+    line-height: inherit !important;
+    font-weight: 600 !important;
+    color: var(--aruclinic-primary) !important;
+    background: transparent !important;
+    cursor: pointer !important;
 }
 
-.aruclinic-signup-link a:hover {
-    color: var(--aruclinic-primary-dark);
-    text-decoration: underline;
+.aruclinic-signup-link vaadin-button:hover {
+    color: var(--aruclinic-primary-dark) !important;
+    text-decoration: underline !important;
 }
 
 /* ============================================
@@ -543,4 +568,12 @@
     .aruclinic-login-branding .feature span {
         font-size: var(--aruclinic-font-size-md);
     }
+}
+
+/* ============================================
+   Registration Card Adjustments (Wider layout for 2-column fields)
+   ============================================ */
+
+.aruclinic-registration-card {
+    max-width: 620px !important;
 }

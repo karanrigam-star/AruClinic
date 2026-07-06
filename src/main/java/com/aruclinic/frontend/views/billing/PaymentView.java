@@ -105,7 +105,7 @@ public class PaymentView extends VerticalLayout {
         cvv.setPattern("\\d{3,4}");
 
         // Amount
-        amount.setValue("$" + invoice.getAmount().toString());
+        amount.setValue("₹" + invoice.getAmount().toString());
         amount.setRequired(true);
         amount.setRequiredIndicatorVisible(true);
         amount.setWidthFull();
@@ -142,7 +142,7 @@ public class PaymentView extends VerticalLayout {
         H1 title = new H1("Payment");
         title.addClassName("aruclinic-payment-title");
 
-        Span amountSpan = new Span("$" + invoice.getAmount().toString());
+        Span amountSpan = new Span("₹" + invoice.getAmount().toString());
         amountSpan.addClassName("aruclinic-payment-amount");
 
         header.add(title, amountSpan);
@@ -283,7 +283,7 @@ public class PaymentView extends VerticalLayout {
             billingService.processPayment(invoice.getInvoiceId(), invoice.getAmount());
 
             Notification.show(
-                "Payment of $" + invoice.getAmount().toString() + " processed successfully!",
+                "Payment of ₹" + invoice.getAmount().toString() + " processed successfully!",
                 5000,
                 Notification.Position.TOP_CENTER
             ).addThemeVariants(NotificationVariant.LUMO_SUCCESS);

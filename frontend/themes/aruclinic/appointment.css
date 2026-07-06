@@ -804,3 +804,46 @@
         width: 100%;
     }
 }
+
+/* Custom overrides to reduce schedule view spaces and make it compact */
+.aruclinic-schedule-grid {
+    gap: 12px !important;
+}
+
+.aruclinic-schedule-day-card {
+    padding: 12px !important;
+    border-radius: 8px !important;
+    box-shadow: var(--aruclinic-shadow-sm, 0 1px 3px rgba(0,0,0,0.05)) !important;
+}
+
+.aruclinic-schedule-day-header {
+    margin-bottom: 8px !important;
+}
+
+.aruclinic-schedule-slots {
+    gap: 6px !important;
+}
+
+.aruclinic-schedule-slot {
+    padding: 6px 12px !important;
+    border-radius: 4px !important;
+}
+
+.aruclinic-schedule-slot-time {
+    font-size: 13px !important;
+}
+
+.aruclinic-schedule-slot-status {
+    font-size: 11px !important;
+}
+
+/* Custom styling for Doctor Appointments List Grid Column Headers (Primary Blue + White Text) */
+vaadin-grid::part(header-cell) {
+    background-color: var(--aruclinic-primary, #0062ff) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+vaadin-grid::part(cell) {
+    border-right: 1px solid rgba(0, 98, 255, 0.35) !important;
+}

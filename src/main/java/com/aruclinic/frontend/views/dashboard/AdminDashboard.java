@@ -1,8 +1,7 @@
 package com.aruclinic.frontend.views.dashboard;
 
-import com.aruclinic.service.AppointmentService;
-import com.aruclinic.service.PatientService;
-import com.aruclinic.service.UserService;
+import com.aruclinic.entity.*;
+import com.aruclinic.service.AdminService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -15,25 +14,23 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.aruclinic.frontend.views.MainLayout;
+
+import java.time.LocalDate;
 
 @PageTitle("Admin Dashboard | AruClinic")
-@Route("admin")
+@Route(value = "admin", layout = MainLayout.class)
 @CssImport("./themes/aruclinic/dashboard.css")
 public class AdminDashboard extends VerticalLayout {
 
-    private final UserService userService;
-    private final PatientService patientService;
-    private final AppointmentService appointmentService;
+    private final AdminService adminService;
 
-    public AdminDashboard(UserService userService, PatientService patientService, AppointmentService appointmentService) {
-        this.userService = userService;
-        this.patientService = patientService;
-        this.appointmentService = appointmentService;
+    public AdminDashboard(AdminService adminService) {
+        this.adminService = adminService;
 
         setSizeFull();
         setPadding(false);
@@ -48,6 +45,7 @@ public class AdminDashboard extends VerticalLayout {
         content.setSizeFull();
 
         content.add(createWelcomeSection());
+        content.add(createQuickActionsBar());
         content.add(createStatsGrid());
         content.add(createChartsSection());
         content.add(createRecentActivitySection());
@@ -56,34 +54,41 @@ public class AdminDashboard extends VerticalLayout {
     }
 
     private Component createWelcomeSection() {
+        String adminName = "Admin";
+        try {
+            org.springframework.security.core.Authentication auth = 
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated()) {
+                String email = auth.getName();
+                User user = adminService.getUserByEmail(email);
+                if (user != null) {
+                    adminName = user.getFirstName() + " " + user.getLastName();
+                }
+            }
+        } catch (Exception e) {
+            // Ignore context issues in test environments
+        }
+
         Div welcomeSection = new Div();
         welcomeSection.addClassName("aruclinic-welcome-section");
 
         Div header = new Div();
         header.addClassName("aruclinic-welcome-header");
 
-        H1 title = new H1("Admin Dashboard");
+        H1 title = new H1("Welcome Admin, " + adminName + "!");
         title.addClassName("aruclinic-welcome-title");
 
-        Span subtitle = new Span("Manage users, patients, appointments, and system settings");
+        Span subtitle = new Span("Manage users, patients, appointments, billing, and system settings");
         subtitle.addClassName("aruclinic-welcome-subtitle");
 
         Div actions = new Div();
         actions.addClassName("aruclinic-welcome-actions");
 
-        Button addUserBtn = new Button("Add User", new Icon(VaadinIcon.USER));
-        addUserBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        addUserBtn.addClassName("aruclinic-btn");
-        addUserBtn.addClassName("aruclinic-btn-primary");
-        addUserBtn.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("admin/users/add")));
-
-        Button settingsBtn = new Button("Settings", new Icon(VaadinIcon.COGS));
-        settingsBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        settingsBtn.addClassName("aruclinic-btn");
-        settingsBtn.addClassName("aruclinic-btn-secondary");
-        settingsBtn.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("admin/settings")));
-
-        actions.add(addUserBtn, settingsBtn);
+        Button logoutBtn = new Button("Logout", new Icon(VaadinIcon.SIGN_OUT));
+        logoutBtn.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        logoutBtn.addClassName("aruclinic-btn");
+        logoutBtn.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("auth/logout")));
+        actions.add(logoutBtn);
 
         header.add(title, subtitle, actions);
         welcomeSection.add(header);
@@ -91,44 +96,89 @@ public class AdminDashboard extends VerticalLayout {
         return welcomeSection;
     }
 
+    private Component createQuickActionsBar() {
+        HorizontalLayout bar = new HorizontalLayout();
+        bar.setWidthFull();
+        bar.setSpacing(true);
+        bar.setPadding(true);
+        bar.getStyle().set("background", "#F1F5F9").set("border-radius", "8px").set("margin", "16px 0");
+
+        Button addUserBtn = new Button("Add User", new Icon(VaadinIcon.USER));
+        addUserBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        addUserBtn.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("admin/users")));
+
+        Button addDocBtn = new Button("Add Doctor", new Icon(VaadinIcon.DOCTOR));
+        addDocBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        addDocBtn.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("admin/doctors")));
+
+        Button addPatientBtn = new Button("Register Patient", new Icon(VaadinIcon.HOSPITAL));
+        addPatientBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        addPatientBtn.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("admin/patients")));
+
+        Button bookApptBtn = new Button("Book Appointment", new Icon(VaadinIcon.CALENDAR));
+        bookApptBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        bookApptBtn.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("admin/appointments")));
+
+        Button reportsBtn = new Button("Reports", new Icon(VaadinIcon.CHART));
+        reportsBtn.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+        reportsBtn.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("admin/reports")));
+
+        bar.add(addUserBtn, addDocBtn, addPatientBtn, bookApptBtn, reportsBtn);
+        return bar;
+    }
+
     private Component createStatsGrid() {
         Div statsGrid = new Div();
         statsGrid.addClassName("aruclinic-dashboard-stats");
+        statsGrid.getStyle().set("display", "grid")
+                .set("grid-template-columns", "repeat(auto-fit, minmax(220px, 1fr))")
+                .set("gap", "16px")
+                .set("padding", "16px");
 
-        statsGrid.add(createStatCard("Total Users", "125", "12%", "primary", VaadinIcon.USERS));
-        statsGrid.add(createStatCard("Active Patients", "89", "8%", "success", VaadinIcon.HOSPITAL));
-        statsGrid.add(createStatCard("Today's Appointments", "24", "5%", "warning", VaadinIcon.CLOCK));
-        statsGrid.add(createStatCard("Total Revenue", "$12,540", "15%", "primary", VaadinIcon.MONEY));
+        statsGrid.add(createStatCard("Total Users", String.valueOf(adminService.getTotalUsers()), "Users", VaadinIcon.USERS));
+        statsGrid.add(createStatCard("Active Patients", String.valueOf(adminService.getTotalPatients()), "Patients", VaadinIcon.HOSPITAL));
+        statsGrid.add(createStatCard("Total Doctors", String.valueOf(adminService.getTotalDoctors()), "Doctors", VaadinIcon.DOCTOR));
+        statsGrid.add(createStatCard("Total Receptionists", String.valueOf(adminService.getTotalReceptionists()), "Staff", VaadinIcon.USERS));
+        statsGrid.add(createStatCard("Today's Appointments", String.valueOf(adminService.getTodaysAppointments()), "Schedule", VaadinIcon.CLOCK));
+        statsGrid.add(createStatCard("Waiting Patients", String.valueOf(adminService.getWaitingPatients()), "Queue", VaadinIcon.HOURGLASS));
+        statsGrid.add(createStatCard("Completed Consults", String.valueOf(adminService.getCompletedConsultations()), "Completed", VaadinIcon.CHECK_CIRCLE));
+        statsGrid.add(createStatCard("Revenue Today", "₹" + String.format("%.2f", adminService.getRevenueToday()), "Paid", VaadinIcon.MONEY));
+        statsGrid.add(createStatCard("Revenue Month", "₹" + String.format("%.2f", adminService.getRevenueThisMonth()), "Paid", VaadinIcon.MONEY));
+        statsGrid.add(createStatCard("Pending Bills", String.valueOf(adminService.getPendingBillsCount()), "Unpaid", VaadinIcon.FILE_TEXT));
+        statsGrid.add(createStatCard("New Registrations", String.valueOf(adminService.getNewRegistrationsCount()), "Last 7 Days", VaadinIcon.SIGN_IN));
 
         return statsGrid;
     }
 
-    private Component createStatCard(String label, String value, String trend, String type, VaadinIcon icon) {
+    private Component createStatCard(String label, String value, String subtitle, VaadinIcon icon) {
         Div statCard = new Div();
         statCard.addClassName("aruclinic-dashboard-stat-card");
+        statCard.getStyle().set("background", "white")
+                .set("border-radius", "12px")
+                .set("padding", "20px")
+                .set("box-shadow", "0 4px 6px -1px rgb(0 0 0 / 0.1)");
 
-        Div header = new Div();
-        header.addClassName("stat-header");
+        HorizontalLayout header = new HorizontalLayout();
+        header.setWidthFull();
+        header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
 
-        Div iconDiv = new Div();
-        iconDiv.addClassName("stat-icon");
-        iconDiv.addClassName(type);
-        iconDiv.add(new Icon(icon));
+        Div iconDiv = new Div(new Icon(icon));
+        iconDiv.getStyle().set("color", "var(--aruclinic-primary)").set("font-size", "24px");
 
-        Div trendDiv = new Div();
-        trendDiv.addClassName("stat-trend");
-        trendDiv.addClassName(trend.startsWith("-") ? "negative" : "positive");
-        trendDiv.setText(trend);
+        Span subSpan = new Span(subtitle);
+        subSpan.getStyle().set("font-size", "12px").set("color", "#64748B");
 
-        header.add(iconDiv, trendDiv);
+        header.add(iconDiv, subSpan);
 
         Div valueDiv = new Div();
         valueDiv.addClassName("stat-value");
         valueDiv.setText(value);
+        valueDiv.getStyle().set("font-size", "28px").set("font-weight", "700").set("margin", "8px 0");
 
         Div labelDiv = new Div();
         labelDiv.addClassName("stat-label");
         labelDiv.setText(label);
+        labelDiv.getStyle().set("font-size", "14px").set("color", "#475569");
 
         statCard.add(header, valueDiv, labelDiv);
         return statCard;
@@ -140,19 +190,24 @@ public class AdminDashboard extends VerticalLayout {
 
         Div registrationSection = new Div();
         registrationSection.addClassName("dashboard-section");
-        H2 registrationTitle = new H2("User Activity");
+        registrationSection.getStyle().set("background", "white").set("border-radius", "12px").set("padding", "20px");
+        
+        H2 registrationTitle = new H2("Overview Charts & Statistics");
         registrationSection.add(registrationTitle);
 
         Div statsContainer = new Div();
         statsContainer.addClassName("dashboard-stats");
 
+        long totalUsers = adminService.getTotalUsers();
+        long totalAppts = adminService.getTotalPatients(); // total patients
+
         Div regStat = new Div();
         regStat.addClassName("summary-item");
-        regStat.add(new Span("1,243 Registrations"));
+        regStat.add(new Span(totalUsers + " Registrations"));
 
         Div actStat = new Div();
         actStat.addClassName("summary-item");
-        actStat.add(new Span("892 Appointments"));
+        actStat.add(new Span(totalAppts + " Patients Recorded"));
 
         statsContainer.add(regStat, actStat);
         registrationSection.add(registrationTitle, statsContainer);
@@ -162,24 +217,19 @@ public class AdminDashboard extends VerticalLayout {
         return chartsSection;
     }
 
-    private void refreshCharts() {
-        Notification.show("Dashboard data refreshed");
-    }
-
     private Component createRecentActivitySection() {
         Div activitySection = new Div();
         activitySection.addClassName("aruclinic-recent-activity");
+        activitySection.getStyle().set("background", "white").set("border-radius", "12px").set("padding", "20px").set("margin-top", "24px");
 
         Div header = new Div();
         header.addClassName("aruclinic-activity-header");
 
-        H2 title = new H2("Recent Activity");
+        H2 title = new H2("Recent System Activity");
         title.addClassName("aruclinic-activity-title");
 
         Button viewAllBtn = new Button("View All", new Icon(VaadinIcon.ARROW_RIGHT));
         viewAllBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        viewAllBtn.addClassName("aruclinic-btn");
-        viewAllBtn.addClassName("aruclinic-btn-outline");
         viewAllBtn.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("admin/audit")));
 
         header.add(title, viewAllBtn);
@@ -187,33 +237,26 @@ public class AdminDashboard extends VerticalLayout {
         Div activityList = new Div();
         activityList.addClassName("aruclinic-activity-list");
 
-        activityList.add(createActivityItem(
-            "New user registered",
-            "admin@example.com created a new account",
-            "5 min ago",
-            "primary"
-        ));
+        java.util.List<AuditLog> recentLogs = adminService.getAuditLogs();
+        recentLogs.sort((a, b) -> b.getPerformedAt().compareTo(a.getPerformedAt()));
 
-        activityList.add(createActivityItem(
-            "Appointment booked",
-            "Patient John Doe booked an appointment with Dr. Smith",
-            "15 min ago",
-            "success"
-        ));
-
-        activityList.add(createActivityItem(
-            "Payment received",
-            "Payment of $150 received from Jane Doe",
-            "1 hour ago",
-            "success"
-        ));
-
-        activityList.add(createActivityItem(
-            "Prescription created",
-            "Dr. Smith created a new prescription for John Doe",
-            "2 hours ago",
-            "warning"
-        ));
+        if (recentLogs.isEmpty()) {
+            Div emptyMsg = new Div();
+            emptyMsg.setText("No recent system activity recorded.");
+            emptyMsg.getStyle().set("padding", "16px").set("color", "#64748B");
+            activityList.add(emptyMsg);
+        } else {
+            int limit = Math.min(5, recentLogs.size());
+            for (int i = 0; i < limit; i++) {
+                AuditLog log = recentLogs.get(i);
+                activityList.add(createActivityItem(
+                    log.getAction(),
+                    log.getDetails() != null ? log.getDetails() : (log.getEntityType() + " #" + log.getEntityId() + " modified"),
+                    log.getPerformedAt().toString().replace("T", " "),
+                    "primary"
+                ));
+            }
+        }
 
         activitySection.add(header, activityList);
         return activitySection;
@@ -225,7 +268,6 @@ public class AdminDashboard extends VerticalLayout {
 
         Div iconDiv = new Div();
         iconDiv.addClassName("aruclinic-activity-icon");
-        iconDiv.addClassName(type);
         iconDiv.add(new Icon(VaadinIcon.CLOCK));
 
         Div content = new Div();

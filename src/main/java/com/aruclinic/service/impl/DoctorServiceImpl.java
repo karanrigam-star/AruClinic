@@ -2,9 +2,11 @@ package com.aruclinic.service.impl;
 
 import com.aruclinic.dto.DoctorDto;
 import com.aruclinic.entity.Doctor;
+import com.aruclinic.entity.User;
 import com.aruclinic.exception.UserNotFoundException;
 import com.aruclinic.mapper.DoctorMapper;
 import com.aruclinic.repository.DoctorRepository;
+import com.aruclinic.repository.UserRepository;
 import com.aruclinic.service.DoctorService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,10 +21,12 @@ import java.util.stream.Collectors;
 public class DoctorServiceImpl implements DoctorService {
 
     private final DoctorRepository doctorRepository;
+    private final UserRepository userRepository;
     private final DoctorMapper doctorMapper;
 
-    public DoctorServiceImpl(DoctorRepository doctorRepository, DoctorMapper doctorMapper) {
+    public DoctorServiceImpl(DoctorRepository doctorRepository, UserRepository userRepository, DoctorMapper doctorMapper) {
         this.doctorRepository = doctorRepository;
+        this.userRepository = userRepository;
         this.doctorMapper = doctorMapper;
     }
 
@@ -48,6 +52,8 @@ public class DoctorServiceImpl implements DoctorService {
         Doctor existingDoctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Doctor not found with id: " + id));
 
+        String oldEmail = existingDoctor.getEmail();
+
         // Update fields
         if (doctorDto.getFirstName() != null) {
             existingDoctor.setName(doctorDto.getFirstName() + " " + (doctorDto.getLastName() != null ? doctorDto.getLastName() : ""));
@@ -72,6 +78,26 @@ public class DoctorServiceImpl implements DoctorService {
         }
 
         Doctor updatedDoctor = doctorRepository.save(existingDoctor);
+
+        // Sync with corresponding User entity
+        if (oldEmail != null) {
+            userRepository.findByEmail(oldEmail).ifPresent(user -> {
+                if (doctorDto.getFirstName() != null) {
+                    user.setFirstName(doctorDto.getFirstName());
+                }
+                if (doctorDto.getLastName() != null) {
+                    user.setLastName(doctorDto.getLastName());
+                }
+                if (doctorDto.getEmail() != null) {
+                    user.setEmail(doctorDto.getEmail());
+                }
+                if (doctorDto.getMobileNumber() != null) {
+                    user.setMobileNumber(doctorDto.getMobileNumber());
+                }
+                userRepository.save(user);
+            });
+        }
+
         return doctorMapper.toDoctorDto(updatedDoctor);
     }
 

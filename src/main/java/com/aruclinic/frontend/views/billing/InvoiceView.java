@@ -11,6 +11,9 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.server.StreamResource;
+import com.aruclinic.util.PdfHelper;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -215,11 +218,11 @@ public class InvoiceView extends VerticalLayout {
         quantity.addClassName("aruclinic-invoice-items-cell");
         quantity.addClassName("quantity");
 
-        Span unitPrice = new Span("$" + item.getUnitPrice().toString());
+        Span unitPrice = new Span("₹" + item.getUnitPrice().toString());
         unitPrice.addClassName("aruclinic-invoice-items-cell");
         unitPrice.addClassName("unit-price");
 
-        Span amount = new Span("$" + item.getAmount().toString());
+        Span amount = new Span("₹" + item.getAmount().toString());
         amount.addClassName("aruclinic-invoice-items-cell");
         amount.addClassName("amount");
 
@@ -257,7 +260,7 @@ public class InvoiceView extends VerticalLayout {
         Span subtotalLabel = new Span("Subtotal:");
         subtotalLabel.addClassName("aruclinic-invoice-summary-label");
 
-        Span subtotalValue = new Span("$" + invoice.getSubtotal().toString());
+        Span subtotalValue = new Span("₹" + invoice.getSubtotal().toString());
         subtotalValue.addClassName("aruclinic-invoice-summary-value");
 
         subtotalRow.add(subtotalLabel, subtotalValue);
@@ -269,7 +272,7 @@ public class InvoiceView extends VerticalLayout {
         Span taxLabel = new Span("Tax (10%):");
         taxLabel.addClassName("aruclinic-invoice-summary-label");
 
-        Span taxValue = new Span("$" + invoice.getTax().toString());
+        Span taxValue = new Span("₹" + invoice.getTax().toString());
         taxValue.addClassName("aruclinic-invoice-summary-value");
 
         taxRow.add(taxLabel, taxValue);
@@ -281,7 +284,7 @@ public class InvoiceView extends VerticalLayout {
         Span discountLabel = new Span("Discount:");
         discountLabel.addClassName("aruclinic-invoice-summary-label");
 
-        Span discountValue = new Span("-" + "$" + invoice.getDiscount().toString());
+        Span discountValue = new Span("-" + "₹" + invoice.getDiscount().toString());
         discountValue.addClassName("aruclinic-invoice-summary-value");
 
         discountRow.add(discountLabel, discountValue);
@@ -293,7 +296,7 @@ public class InvoiceView extends VerticalLayout {
         Span totalLabel = new Span("Total:");
         totalLabel.addClassName("aruclinic-invoice-summary-label");
 
-        Span totalValue = new Span("$" + invoice.getTotal().toString());
+        Span totalValue = new Span("₹" + invoice.getTotal().toString());
         totalValue.addClassName("aruclinic-invoice-summary-value");
 
         totalRow.add(totalLabel, totalValue);
@@ -328,11 +331,21 @@ public class InvoiceView extends VerticalLayout {
         printBtn.addClassName("aruclinic-btn-primary");
         printBtn.addClickListener(e -> printInvoice());
 
+        Anchor downloadAnchor = new Anchor(new StreamResource("Invoice.pdf", () -> {
+            return PdfHelper.generateInvoicePdf(
+                "INV-" + invoice.getInvoiceId(),
+                invoice.getPatientName(),
+                invoice.getDoctorName(),
+                invoice.getInvoiceDate() != null ? invoice.getInvoiceDate().toString() : "",
+                "₹" + invoice.getTotal().toString()
+            );
+        }), "");
+        downloadAnchor.getElement().setAttribute("download", true);
         Button downloadBtn = new Button("Download PDF", new Icon(VaadinIcon.DOWNLOAD));
         downloadBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         downloadBtn.addClassName("aruclinic-btn");
         downloadBtn.addClassName("aruclinic-btn-secondary");
-        downloadBtn.addClickListener(e -> downloadInvoice());
+        downloadAnchor.add(downloadBtn);
 
         Button payBtn = new Button("Pay Now", new Icon(VaadinIcon.CREDIT_CARD));
         payBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
@@ -341,7 +354,7 @@ public class InvoiceView extends VerticalLayout {
         payBtn.addClickListener(e -> payInvoice());
         payBtn.setVisible(invoice.getStatus().equals("PENDING"));
 
-        actions.add(printBtn, downloadBtn);
+        actions.add(printBtn, downloadAnchor);
         if (invoice.getStatus().equals("PENDING")) {
             actions.add(payBtn);
         }

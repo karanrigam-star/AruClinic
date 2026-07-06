@@ -708,3 +708,132 @@
         grid-template-columns: repeat(4, 1fr);
     }
 }
+
+/* ============================================
+   AruClinic Responsive Hover Collapsible Sidebar (Entirely Hidden with Floating Trigger)
+   ============================================ */
+
+/* Desktop & Tablet Mode */
+@media (min-width: 769px) {
+    /* Hide side nav offscreen by default */
+    .aruclinic-sidenav {
+        width: 280px !important;
+        background: var(--aruclinic-primary-dark) !important;
+        color: white !important;
+        min-height: calc(100vh - 64px) !important;
+        position: fixed !important;
+        left: -280px !important; /* Entirely vanished */
+        top: 64px !important;
+        z-index: 1000 !important;
+        overflow: visible !important; /* Ensure trigger tab is not clipped */
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        transition-delay: 0.1s !important;
+    }
+
+    .aruclinic-sidenav vaadin-side-nav {
+        height: 100% !important;
+        overflow-y: auto !important;
+        background: transparent !important;
+    }
+
+    /* Expand sidebar on hover to show */
+    .aruclinic-sidenav:hover {
+        left: 0 !important;
+        transition-delay: 0s !important; /* Open instantly on hover */
+        box-shadow: var(--aruclinic-shadow-lg) !important;
+    }
+
+    /* Slide back delay: wait 0.8s before returning back after mouse leaves */
+    .aruclinic-sidenav:not(:hover) {
+        transition-delay: 0.8s !important;
+    }
+
+    /* Floating trigger tab at the right edge of the hidden sidebar */
+    .aruclinic-sidenav-trigger {
+        position: absolute !important;
+        left: 100% !important; /* Pinned to right edge */
+        top: 36px !important;
+        width: 32px !important;
+        height: 48px !important;
+        background: var(--aruclinic-primary-dark) !important;
+        color: white !important;
+        border-radius: 0 12px 12px 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        box-shadow: 4px 0 8px rgba(0, 0, 0, 0.15) !important;
+        z-index: 1010 !important;
+    }
+
+    .aruclinic-sidenav-trigger vaadin-icon {
+        font-size: 20px !important;
+        transition: transform 0.3s ease !important;
+        color: white !important;
+    }
+
+    /* Rotate arrow when open */
+    .aruclinic-sidenav:hover .aruclinic-sidenav-trigger vaadin-icon {
+        transform: rotate(180deg) !important;
+    }
+
+    /* Content area occupies 100% width since menu overlays it */
+    .aruclinic-content-area {
+        margin-left: 0 !important;
+        padding: var(--aruclinic-spacing-xl) !important;
+        padding-top: var(--aruclinic-spacing-xs) !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+}
+
+/* Mobile Mode */
+@media (max-width: 768px) {
+    .aruclinic-sidenav {
+        width: 280px !important;
+        background: var(--aruclinic-primary-dark) !important;
+        color: white !important;
+        min-height: calc(100vh - 64px) !important;
+        position: fixed !important;
+        left: -280px !important; /* Completely offscreen by default */
+        top: 64px !important;
+        z-index: 1000 !important;
+        overflow: visible !important;
+        transition: left 0.3s ease !important;
+    }
+
+    .aruclinic-sidenav vaadin-side-nav {
+        height: 100% !important;
+        overflow-y: auto !important;
+        background: transparent !important;
+    }
+
+    /* Hover on trigger reveals it */
+    .aruclinic-sidenav:hover {
+        left: 0 !important;
+    }
+
+    .aruclinic-sidenav-trigger {
+        position: absolute !important;
+        left: 100% !important;
+        top: 36px !important;
+        width: 32px !important;
+        height: 48px !important;
+        background: var(--aruclinic-primary-dark) !important;
+        color: white !important;
+        border-radius: 0 12px 12px 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        z-index: 1010 !important;
+    }
+
+    /* Content area occupies full width on mobile */
+    .aruclinic-content-area {
+        margin-left: 0 !important;
+        padding: var(--aruclinic-spacing-md) !important;
+        padding-top: var(--aruclinic-spacing-xs) !important;
+        width: 100% !important;
+    }
+}

@@ -35,6 +35,7 @@ import com.vaadin.flow.router.Route;
 public class PatientRegistrationView extends VerticalLayout {
 
     private final PatientService patientService;
+    private final com.aruclinic.service.LocationService locationService;
 
     private final TextField firstName = new TextField("First Name");
     private final TextField lastName = new TextField("Last Name");
@@ -44,8 +45,9 @@ public class PatientRegistrationView extends VerticalLayout {
     private final TextField mobile = new TextField("Mobile Number");
     private final EmailField email = new EmailField("Email");
     private final TextField address = new TextField("Address");
-    private final TextField city = new TextField("City");
+    private final ComboBox<String> city = new ComboBox<>("City");
     private final TextField state = new TextField("State");
+    private final TextField district = new TextField("District");
     private final TextField zipCode = new TextField("ZIP Code");
     private final TextField emergencyContact = new TextField("Emergency Contact");
     private final TextField emergencyPhone = new TextField("Emergency Phone");
@@ -55,8 +57,9 @@ public class PatientRegistrationView extends VerticalLayout {
     private final Button saveButton = new Button("Save Patient");
     private final Button cancelButton = new Button("Cancel");
 
-    public PatientRegistrationView(PatientService patientService) {
+    public PatientRegistrationView(PatientService patientService, com.aruclinic.service.LocationService locationService) {
         this.patientService = patientService;
+        this.locationService = locationService;
         configureComponents();
         add(createRegistrationForm());
     }
@@ -111,9 +114,35 @@ public class PatientRegistrationView extends VerticalLayout {
 
         state.setClearButtonVisible(true);
         state.setWidthFull();
+        state.setValue("Arunachal Pradesh");
+        state.setReadOnly(true);
+
+        district.setClearButtonVisible(true);
+        district.setWidthFull();
 
         zipCode.setClearButtonVisible(true);
         zipCode.setWidthFull();
+        zipCode.setValueChangeMode(com.vaadin.flow.data.value.ValueChangeMode.EAGER);
+        zipCode.addValueChangeListener(event -> {
+            String val = event.getValue();
+            if (val != null && val.trim().length() == 6) {
+                com.aruclinic.service.LocationService.LocationDetails details = locationService.lookupPincode(val.trim());
+                if (details != null && details.state != null && !details.state.isEmpty()) {
+                    district.setValue(details.district);
+                    state.setValue(details.state);
+                    city.setItems(details.cities);
+                    if (!details.cities.isEmpty()) {
+                        city.setValue(details.cities.get(0));
+                    } else {
+                        city.setValue(null);
+                    }
+                }
+            } else {
+                city.setItems(java.util.Collections.emptyList());
+                city.setValue(null);
+                district.setValue("");
+            }
+        });
 
         emergencyContact.setClearButtonVisible(true);
         emergencyContact.setWidthFull();
@@ -209,8 +238,7 @@ public class PatientRegistrationView extends VerticalLayout {
         FormLayout addressLayout = new FormLayout();
         addressLayout.setWidthFull();
 
-        addressLayout.add(address, city);
-        addressLayout.add(state, zipCode);
+        addressLayout.add(address, zipCode, state, district, city);
 
         addressSection.add(addressTitle, addressLayout);
 
@@ -268,8 +296,9 @@ public class PatientRegistrationView extends VerticalLayout {
         patientDto.setMobile(mobile.getValue().trim());
         patientDto.setEmail(email.getValue().trim());
         patientDto.setAddress(address.getValue().trim());
-        patientDto.setCity(city.getValue().trim());
+        patientDto.setCity(city.getValue() != null ? city.getValue().trim() : "");
         patientDto.setState(state.getValue().trim());
+        patientDto.setDistrict(district.getValue().trim());
         patientDto.setZipCode(zipCode.getValue().trim());
         patientDto.setEmergencyContact(emergencyContact.getValue().trim());
         patientDto.setEmergencyPhone(emergencyPhone.getValue().trim());
@@ -384,6 +413,7 @@ public class PatientRegistrationView extends VerticalLayout {
         address.clear();
         city.clear();
         state.clear();
+        district.clear();
         zipCode.clear();
         emergencyContact.clear();
         emergencyPhone.clear();

@@ -13,13 +13,13 @@ injectGlobalCss($cssFromFile_2.toString(), 'CSSImport end', document);
 import $cssFromFile_3 from 'Frontend/themes/aruclinic/login-view.css?inline';
 
 injectGlobalCss($cssFromFile_3.toString(), 'CSSImport end', document);
-import $cssFromFile_4 from 'Frontend/themes/aruclinic/billing.css?inline';
+import $cssFromFile_4 from 'Frontend/themes/aruclinic/patient.css?inline';
 
 injectGlobalCss($cssFromFile_4.toString(), 'CSSImport end', document);
-import $cssFromFile_5 from 'Frontend/themes/aruclinic/dashboard.css?inline';
+import $cssFromFile_5 from 'Frontend/themes/aruclinic/billing.css?inline';
 
 injectGlobalCss($cssFromFile_5.toString(), 'CSSImport end', document);
-import $cssFromFile_6 from 'Frontend/themes/aruclinic/patient.css?inline';
+import $cssFromFile_6 from 'Frontend/themes/aruclinic/dashboard.css?inline';
 
 injectGlobalCss($cssFromFile_6.toString(), 'CSSImport end', document);
 import $cssFromFile_7 from 'Frontend/themes/aruclinic/prescription.css?inline';

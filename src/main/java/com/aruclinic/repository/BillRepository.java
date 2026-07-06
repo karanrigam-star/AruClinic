@@ -14,4 +14,7 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
     List<Bill> findByPatientIdAndStatus(Long patientId, String status);
     List<Bill> findByStatus(String status);
     Optional<Bill> findByInvoiceNumber(String invoiceNumber);
+    List<Bill> findByDoctorId(Long doctorId);
+
+    List<Bill> findTop5ByOrderByInvoiceDateDesc();
 }

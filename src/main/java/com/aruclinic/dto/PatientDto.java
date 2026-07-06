@@ -115,6 +115,7 @@ public class PatientDto {
 
     private String city;
     private String state;
+    private String district;
     private String zipCode;
     private String emergencyPhone;
 
@@ -123,6 +124,9 @@ public class PatientDto {
 
     public String getState() { return state; }
     public void setState(String state) { this.state = state; }
+
+    public String getDistrict() { return district; }
+    public void setDistrict(String district) { this.district = district; }
 
     public String getZipCode() { return zipCode; }
     public void setZipCode(String zipCode) { this.zipCode = zipCode; }

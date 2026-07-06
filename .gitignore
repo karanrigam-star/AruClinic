@@ -1,0 +1,24 @@
+# Maven
+target/
+
+# Node / Frontend
+node_modules/
+src/main/dev-bundle/
+vite.generated.ts
+package-lock.json
+
+# IDEs and Editors
+.classpath
+.project
+.settings/
+.vscode/
+.claude/
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# OS generated files
+Thumbs.db
+Desktop.ini
+.DS_Store

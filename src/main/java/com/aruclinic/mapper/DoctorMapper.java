@@ -22,6 +22,7 @@ public interface DoctorMapper {
         doctor.setDepartment(dto.getDepartment());
         doctor.setMobileNumber(dto.getMobileNumber());
         doctor.setEmail(dto.getEmail());
+        doctor.setStatus(dto.getStatus() != null ? dto.getStatus() : "AVAILABLE");
         return doctor;
     }
 
@@ -40,6 +41,7 @@ public interface DoctorMapper {
         dto.setMobileNumber(entity.getMobileNumber());
         dto.setEmail(entity.getEmail());
         dto.setExperience(entity.getExperience());
+        dto.setStatus(entity.getStatus() != null ? entity.getStatus() : "AVAILABLE");
         return dto;
     }
 }

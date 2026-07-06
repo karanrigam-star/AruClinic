@@ -13,12 +13,13 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.aruclinic.frontend.views.MainLayout;
 
 /**
  * Medical History view for displaying patient's medical records and history.
  */
 @PageTitle("Medical History | AruClinic")
-@Route("patient/medical-history")
+@Route(value = "patient/medical-history", layout = MainLayout.class)
 @CssImport("./themes/aruclinic/patient.css")
 public class MedicalHistoryView extends VerticalLayout {
 

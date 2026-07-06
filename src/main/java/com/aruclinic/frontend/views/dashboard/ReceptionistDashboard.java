@@ -13,12 +13,13 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.aruclinic.frontend.views.MainLayout;
 
 /**
  * Receptionist Dashboard view for managing patient registration and appointments.
  */
 @PageTitle("Receptionist Dashboard | AruClinic")
-@Route("receptionist")
+@Route(value = "receptionist", layout = MainLayout.class)
 @CssImport("./themes/aruclinic/dashboard.css")
 public class ReceptionistDashboard extends VerticalLayout {
 

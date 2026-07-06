@@ -32,15 +32,70 @@ public class PrescriptionItem {
     @Column(name = "medicine_name", nullable = false, length = 100)
     private String medicineName;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 255)
     private String dosage;
 
-    @Column(nullable = false)
-    private Integer duration; // number of days
-
+    @Column(name = "duration", nullable = false)
+    private Integer duration;
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Prescription getPrescription() {
+		return prescription;
+	}
+
+	public void setPrescription(Prescription prescription) {
+		this.prescription = prescription;
+	}
+
+	public String getMedicineName() {
+		return medicineName;
+	}
+
+	public void setMedicineName(String medicineName) {
+		this.medicineName = medicineName;
+	}
+
+	public String getDosage() {
+		return dosage;
+	}
+
+	public void setDosage(String dosage) {
+		this.dosage = dosage;
+	}
+
+	public Integer getDuration() {
+		return duration;
+	}
+
+	public void setDuration(Integer duration) {
+		this.duration = duration;
+	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
 }

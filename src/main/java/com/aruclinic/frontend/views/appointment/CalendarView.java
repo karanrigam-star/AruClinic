@@ -37,6 +37,8 @@ public class CalendarView extends VerticalLayout {
     private final AppointmentService appointmentService;
     private LocalDate currentDate = LocalDate.now();
     private String currentView = "month"; // month, week, day
+    private H1 calendarTitle;
+    private Div gridContainer;
 
     public CalendarView(AppointmentService appointmentService) {
         this.appointmentService = appointmentService;
@@ -44,7 +46,14 @@ public class CalendarView extends VerticalLayout {
         setPadding(true);
         setSpacing(true);
 
+        calendarTitle = new H1();
+        calendarTitle.addClassName("aruclinic-calendar-title");
+        
+        gridContainer = new Div();
+        gridContainer.setWidthFull();
+
         add(createCalendarContent());
+        refreshCalendar();
     }
 
     private Component createCalendarContent() {
@@ -56,7 +65,7 @@ public class CalendarView extends VerticalLayout {
         content.add(createCalendarHeader());
 
         // Calendar grid
-        content.add(createCalendarGrid());
+        content.add(gridContainer);
 
         return content;
     }
@@ -68,11 +77,7 @@ public class CalendarView extends VerticalLayout {
         Div leftSection = new Div();
         leftSection.addClassName("aruclinic-calendar-left");
 
-        H1 title = new H1();
-        title.addClassName("aruclinic-calendar-title");
-        updateTitle();
-
-        leftSection.add(title);
+        leftSection.add(calendarTitle);
 
         Div centerSection = new Div();
         centerSection.addClassName("aruclinic-calendar-nav");
@@ -268,8 +273,9 @@ public class CalendarView extends VerticalLayout {
                 break;
         }
 
-        // Update the title in the UI
-        getElement().executeJs("document.querySelector('.aruclinic-calendar-title').textContent = '$1'", titleText);
+        if (calendarTitle != null) {
+            calendarTitle.setText(titleText);
+        }
     }
 
     private void navigatePrevious() {
@@ -341,17 +347,8 @@ public class CalendarView extends VerticalLayout {
     }
 
     private void refreshCalendar() {
-        // Remove the old calendar grid
-        getElement().executeJs("document.querySelector('.aruclinic-calendar-grid').remove()");
-
-        // Add the new calendar grid
-        Div newGrid = new Div();
-        newGrid.addClassName("aruclinic-calendar-grid");
-        newGrid.add(createCalendarGrid());
-
-        // This is a simplified approach - in a real app, you would properly replace the component
-        add(newGrid);
-
+        gridContainer.removeAll();
+        gridContainer.add(createCalendarGrid());
         updateTitle();
     }
 }

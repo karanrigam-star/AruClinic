@@ -37,6 +37,11 @@ public interface PatientMapper {
         patient.setEmail(dto.getEmail());
         patient.setAddress(dto.getAddress());
         patient.setEmergencyContact(dto.getEmergencyContact());
+        patient.setCity(dto.getCity());
+        patient.setState(dto.getState());
+        patient.setDistrict(dto.getDistrict());
+        patient.setZipCode(dto.getZipCode());
+        patient.setEmergencyPhone(dto.getEmergencyPhone());
         patient.setAllergies(dto.getAllergies());
         patient.setMedicalHistory(dto.getMedicalHistory());
         return patient;
@@ -58,6 +63,11 @@ public interface PatientMapper {
         dto.setEmail(entity.getEmail());
         dto.setAddress(entity.getAddress());
         dto.setEmergencyContact(entity.getEmergencyContact());
+        dto.setCity(entity.getCity());
+        dto.setState(entity.getState());
+        dto.setDistrict(entity.getDistrict());
+        dto.setZipCode(entity.getZipCode());
+        dto.setEmergencyPhone(entity.getEmergencyPhone());
         dto.setAllergies(entity.getAllergies());
         dto.setMedicalHistory(entity.getMedicalHistory());
         return dto;

@@ -33,7 +33,7 @@ public class Doctor {
     @Column(nullable = false, length = 100)
     private String qualification;
 
-    @Column(nullable = false)
+    @Column(name = "experience_years", nullable = false)
     private Integer experience; // years of experience
 
     @Column(nullable = false, length = 100)
@@ -47,6 +47,10 @@ public class Doctor {
 
     @Column(nullable = false, unique = true, length = 100)
     private String email;
+
+    @Column(length = 50)
+    @Builder.Default
+    private String status = "AVAILABLE";
 
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -156,5 +160,13 @@ public class Doctor {
 
 	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 }

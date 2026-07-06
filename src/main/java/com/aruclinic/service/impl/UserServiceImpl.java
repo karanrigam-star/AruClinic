@@ -8,6 +8,7 @@ import com.aruclinic.repository.*;
 import com.aruclinic.security.util.JwtTokenProvider;
 import com.aruclinic.service.OtpService;
 import com.aruclinic.service.UserService;
+import com.aruclinic.service.AdminService;
 import com.aruclinic.util.EmailUtil;
 import com.aruclinic.util.SmsUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -36,11 +37,17 @@ public class UserServiceImpl implements UserService {
     private final EmailUtil emailUtil;
     private final SmsUtil smsUtil;
     private final OtpService otpService;
+    private final PatientRepository patientRepository;
+    private final DoctorRepository doctorRepository;
+    private final AdminService adminService;
 
     public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
                           UserMapper userMapper, BCryptPasswordEncoder bCryptPasswordEncoder,
                           JwtTokenProvider jwtTokenProvider, EmailUtil emailUtil,
-                          SmsUtil smsUtil, OtpService otpService) {
+                          SmsUtil smsUtil, OtpService otpService,
+                          PatientRepository patientRepository,
+                          DoctorRepository doctorRepository,
+                          @org.springframework.context.annotation.Lazy AdminService adminService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userMapper = userMapper;
@@ -49,6 +56,9 @@ public class UserServiceImpl implements UserService {
         this.emailUtil = emailUtil;
         this.smsUtil = smsUtil;
         this.otpService = otpService;
+        this.patientRepository = patientRepository;
+        this.doctorRepository = doctorRepository;
+        this.adminService = adminService;
     }
 
     @Override
@@ -75,6 +85,29 @@ public class UserServiceImpl implements UserService {
         user.addRole(role);
 
         userRepository.save(user);
+
+        // Automatically create corresponding Patient record
+        try {
+            Patient patient = new Patient();
+            patient.setEmail(user.getEmail());
+            patient.setFirstName(user.getFirstName());
+            patient.setLastName(user.getLastName());
+            patient.setMobileNumber(user.getMobileNumber());
+            patient.setDateOfBirth(userDto.getDateOfBirth() != null ? userDto.getDateOfBirth() : java.time.LocalDate.of(1995, 1, 1));
+            patient.setAge(userDto.getDateOfBirth() != null ? java.time.Period.between(userDto.getDateOfBirth(), java.time.LocalDate.now()).getYears() : 31);
+            patient.setGender(userDto.getGender() != null ? userDto.getGender() : "Other");
+            patient.setBloodGroup(userDto.getBloodGroup() != null ? userDto.getBloodGroup() : "O+");
+            patient.setAddress(userDto.getAddress() != null ? userDto.getAddress() : "Registered via self-signup");
+            patient.setCity(userDto.getCity());
+            patient.setState(userDto.getState());
+            patient.setZipCode(userDto.getZipCode());
+            patient.setDistrict(userDto.getDistrict());
+            patient.setEmergencyContact(userDto.getEmergencyContactName());
+            patient.setEmergencyPhone(userDto.getEmergencyPhone());
+            patientRepository.save(patient);
+        } catch (Exception e) {
+            // Ignore to make sure user registration flow doesn't block
+        }
 
         // Generate and send OTP
         String otp = String.valueOf(new Random().nextInt(899999) + 100000);
@@ -112,6 +145,10 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
+        if (!adminService.isUserEnabled(user.getId())) {
+            throw new com.aruclinic.exception.UserDisabledException("Your account is disabled");
+        }
+
         if (!bCryptPasswordEncoder.matches(password, user.getPassword())) {
             throw new AruClinicException("Invalid credentials");
         }
@@ -123,6 +160,8 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(Long id, UserDto userDto) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+
+        String oldEmail = existingUser.getEmail();
 
         if (userDto.getFirstName() != null) {
             existingUser.setFirstName(userDto.getFirstName());
@@ -141,6 +180,49 @@ public class UserServiceImpl implements UserService {
         }
 
         User updatedUser = userRepository.save(existingUser);
+
+        // Sync with linked Patient/Doctor records
+        if (oldEmail != null) {
+            patientRepository.findByEmail(oldEmail).ifPresent(patient -> {
+                if (userDto.getFirstName() != null) {
+                    patient.setFirstName(userDto.getFirstName());
+                }
+                if (userDto.getLastName() != null) {
+                    patient.setLastName(userDto.getLastName());
+                }
+                if (userDto.getEmail() != null) {
+                    patient.setEmail(userDto.getEmail());
+                }
+                if (userDto.getMobileNumber() != null) {
+                    patient.setMobileNumber(userDto.getMobileNumber());
+                }
+                patientRepository.save(patient);
+            });
+            doctorRepository.findByEmail(oldEmail).ifPresent(doctor -> {
+                if (userDto.getFirstName() != null || userDto.getLastName() != null) {
+                    String fn = userDto.getFirstName() != null ? userDto.getFirstName() : "";
+                    String ln = userDto.getLastName() != null ? userDto.getLastName() : "";
+                    if (fn.isEmpty() || ln.isEmpty()) {
+                        String[] parts = doctor.getName().split(" ", 2);
+                        if (fn.isEmpty()) {
+                            fn = parts[0];
+                        }
+                        if (ln.isEmpty() && parts.length > 1) {
+                            ln = parts[1];
+                        }
+                    }
+                    doctor.setName((fn.trim() + " " + ln.trim()).trim());
+                }
+                if (userDto.getEmail() != null) {
+                    doctor.setEmail(userDto.getEmail());
+                }
+                if (userDto.getMobileNumber() != null) {
+                    doctor.setMobileNumber(userDto.getMobileNumber());
+                }
+                doctorRepository.save(doctor);
+            });
+        }
+
         return userMapper.toUserDto(updatedUser);
     }
 

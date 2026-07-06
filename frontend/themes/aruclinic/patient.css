@@ -777,3 +777,14 @@
         justify-content: center;
     }
 }
+
+/* Custom styling for Doctor Patient List Grid Column Headers (Primary Blue + White Text) */
+vaadin-grid::part(header-cell) {
+    background-color: var(--aruclinic-primary, #0062ff) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+vaadin-grid::part(cell) {
+    border-right: 1px solid rgba(0, 98, 255, 0.35) !important;
+}

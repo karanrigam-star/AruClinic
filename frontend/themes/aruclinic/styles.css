@@ -1472,3 +1472,18 @@ vaadin-combo-box:focus-within::part(input-field), vaadin-date-picker:focus-withi
     border-color: var(--aruclinic-primary-light) !important;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
 }
+
+/* Custom styling for primary blue header grids */
+vaadin-grid.aruclinic-blue-header-grid::part(header-cell) {
+    background-color: var(--aruclinic-primary, #0F6CBD) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+vaadin-grid.aruclinic-blue-header-grid::part(header-cell) th {
+    color: #ffffff !important;
+}
+
+vaadin-grid.aruclinic-blue-header-grid::part(cell) {
+    border-right: 1px solid rgba(0, 98, 255, 0.35) !important;
+}

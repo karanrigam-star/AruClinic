@@ -19,4 +19,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
 
     boolean existsByMobileNumber(String mobileNumber);
+
+    @org.springframework.data.jpa.repository.Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = :roleName")
+    java.util.List<User> findByRoleName(@org.springframework.data.repository.query.Param("roleName") String roleName);
+
+    java.util.List<User> findTop5ByOrderByCreatedAtDesc();
 }

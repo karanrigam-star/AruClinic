@@ -16,9 +16,12 @@ import java.util.stream.Collectors;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final com.aruclinic.service.AdminService adminService;
 
-    public CustomUserDetailsService(UserRepository userRepository) {
+    public CustomUserDetailsService(UserRepository userRepository,
+                                    @org.springframework.context.annotation.Lazy com.aruclinic.service.AdminService adminService) {
         this.userRepository = userRepository;
+        this.adminService = adminService;
     }
 
     @Override
@@ -30,10 +33,13 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
                 .collect(Collectors.toList());
 
+        boolean enabled = adminService.isUserEnabled(user.getId());
+
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
                 .password(user.getPassword())
                 .authorities(authorities)
+                .disabled(!enabled)
                 .build();
     }
 }

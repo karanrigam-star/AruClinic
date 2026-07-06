@@ -5,6 +5,7 @@ import com.aruclinic.entity.Patient;
 import com.aruclinic.exception.UserNotFoundException;
 import com.aruclinic.mapper.PatientMapper;
 import com.aruclinic.repository.PatientRepository;
+import com.aruclinic.repository.UserRepository;
 import com.aruclinic.service.PatientService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,10 +22,12 @@ import java.util.stream.Collectors;
 public class PatientServiceImpl implements PatientService {
 
     private final PatientRepository patientRepository;
+    private final UserRepository userRepository;
     private final PatientMapper patientMapper;
 
-    public PatientServiceImpl(PatientRepository patientRepository, PatientMapper patientMapper) {
+    public PatientServiceImpl(PatientRepository patientRepository, UserRepository userRepository, PatientMapper patientMapper) {
         this.patientRepository = patientRepository;
+        this.userRepository = userRepository;
         this.patientMapper = patientMapper;
     }
 
@@ -56,6 +59,8 @@ public class PatientServiceImpl implements PatientService {
         Patient existingPatient = patientRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Patient not found with id: " + id));
 
+        String oldEmail = existingPatient.getEmail();
+
         // Update fields
         if (patientDto.getFirstName() != null) {
             existingPatient.setFirstName(patientDto.getFirstName());
@@ -82,8 +87,23 @@ public class PatientServiceImpl implements PatientService {
         if (patientDto.getAddress() != null) {
             existingPatient.setAddress(patientDto.getAddress());
         }
+        if (patientDto.getCity() != null) {
+            existingPatient.setCity(patientDto.getCity());
+        }
+        if (patientDto.getState() != null) {
+            existingPatient.setState(patientDto.getState());
+        }
+        if (patientDto.getDistrict() != null) {
+            existingPatient.setDistrict(patientDto.getDistrict());
+        }
+        if (patientDto.getZipCode() != null) {
+            existingPatient.setZipCode(patientDto.getZipCode());
+        }
         if (patientDto.getEmergencyContact() != null) {
             existingPatient.setEmergencyContact(patientDto.getEmergencyContact());
+        }
+        if (patientDto.getEmergencyPhone() != null) {
+            existingPatient.setEmergencyPhone(patientDto.getEmergencyPhone());
         }
         if (patientDto.getAllergies() != null) {
             existingPatient.setAllergies(patientDto.getAllergies());
@@ -93,6 +113,26 @@ public class PatientServiceImpl implements PatientService {
         }
 
         Patient updatedPatient = patientRepository.save(existingPatient);
+
+        // Sync with corresponding User entity
+        if (oldEmail != null) {
+            userRepository.findByEmail(oldEmail).ifPresent(user -> {
+                if (patientDto.getFirstName() != null) {
+                    user.setFirstName(patientDto.getFirstName());
+                }
+                if (patientDto.getLastName() != null) {
+                    user.setLastName(patientDto.getLastName());
+                }
+                if (patientDto.getEmail() != null) {
+                    user.setEmail(patientDto.getEmail());
+                }
+                if (patientDto.getMobileNumber() != null) {
+                    user.setMobileNumber(patientDto.getMobileNumber());
+                }
+                userRepository.save(user);
+            });
+        }
+
         return patientMapper.toPatientDto(updatedPatient);
     }
 

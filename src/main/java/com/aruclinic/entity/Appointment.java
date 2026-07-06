@@ -33,8 +33,14 @@ public class Appointment {
     @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
-    @Column(name = "appointment_date_time", nullable = false)
+    @Transient
     private LocalDateTime appointmentDateTime;
+
+    @Column(name = "appointment_date", nullable = false)
+    private java.time.LocalDate appointmentDate;
+
+    @Column(name = "appointment_time", nullable = false)
+    private java.time.LocalTime appointmentTime;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -47,6 +53,9 @@ public class Appointment {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "reason", length = 500)
+    private String reason;
 
 	public Long getId() {
 		return id;
@@ -73,11 +82,34 @@ public class Appointment {
 	}
 
 	public LocalDateTime getAppointmentDateTime() {
+		if (appointmentDate != null && appointmentTime != null) {
+			return LocalDateTime.of(appointmentDate, appointmentTime);
+		}
 		return appointmentDateTime;
 	}
 
 	public void setAppointmentDateTime(LocalDateTime appointmentDateTime) {
 		this.appointmentDateTime = appointmentDateTime;
+		if (appointmentDateTime != null) {
+			this.appointmentDate = appointmentDateTime.toLocalDate();
+			this.appointmentTime = appointmentDateTime.toLocalTime();
+		}
+	}
+
+	public java.time.LocalDate getAppointmentDate() {
+		return appointmentDate;
+	}
+
+	public void setAppointmentDate(java.time.LocalDate appointmentDate) {
+		this.appointmentDate = appointmentDate;
+	}
+
+	public java.time.LocalTime getAppointmentTime() {
+		return appointmentTime;
+	}
+
+	public void setAppointmentTime(java.time.LocalTime appointmentTime) {
+		this.appointmentTime = appointmentTime;
 	}
 
 	public AppointmentStatus getStatus() {
@@ -104,5 +136,11 @@ public class Appointment {
 		this.updatedAt = updatedAt;
 	}
 
-	
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
 }
