@@ -136,13 +136,23 @@ public class AdminAppointmentListView extends VerticalLayout {
         cancelBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ERROR);
         cancelBtn.addClickListener(e -> openCancelDialog(appt));
 
-        boolean active = appt.getStatus() != AppointmentStatus.COMPLETED && appt.getStatus() != AppointmentStatus.CANCELLED;
-        acceptBtn.setEnabled(active);
-        confirmBtn.setEnabled(active);
-        rescheduleBtn.setEnabled(active);
-        cancelBtn.setEnabled(active);
+        Button binBtn = new Button(new Icon(VaadinIcon.TRASH));
+        binBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ERROR);
+        binBtn.addClickListener(e -> {
+            appointmentService.deleteAppointment(appt.getId());
+            Notification.show("Appointment #" + appt.getId() + " deleted successfully!", 2000, Notification.Position.TOP_CENTER);
+            refreshGrid();
+        });
 
-        actions.add(viewBtn, statusSelect, acceptBtn, confirmBtn, rescheduleBtn, cancelBtn);
+        boolean isCompletedOrCancelled = appt.getStatus() == AppointmentStatus.COMPLETED || appt.getStatus() == AppointmentStatus.CANCELLED;
+
+        acceptBtn.setVisible(!isCompletedOrCancelled);
+        confirmBtn.setVisible(!isCompletedOrCancelled);
+        rescheduleBtn.setVisible(!isCompletedOrCancelled);
+        cancelBtn.setVisible(!isCompletedOrCancelled);
+        binBtn.setVisible(isCompletedOrCancelled);
+
+        actions.add(viewBtn, statusSelect, acceptBtn, confirmBtn, rescheduleBtn, cancelBtn, binBtn);
         return actions;
     }
 
