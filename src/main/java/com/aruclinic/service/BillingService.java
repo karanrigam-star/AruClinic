@@ -33,4 +33,10 @@ public interface BillingService {
     double getPendingPayments();
 
     void processPayment(String invoiceId, java.math.BigDecimal amount);
+
+    List<com.aruclinic.entity.Bill> getBillEntitiesByPatientId(Long patientId);
+
+    com.aruclinic.entity.Bill getBillEntityById(Long id);
+
+    List<com.aruclinic.entity.Bill> getAllBillEntities();
 }

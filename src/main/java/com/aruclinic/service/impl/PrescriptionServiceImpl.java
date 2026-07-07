@@ -314,4 +314,22 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         dto.setItems(itemDtos);
         return dto;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Prescription> getPrescriptionEntitiesByPatientId(Long patientId) {
+        return prescriptionRepository.findByPatientId(patientId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Prescription getPrescriptionEntityById(Long id) {
+        return prescriptionRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Prescription> getAllPrescriptionEntities() {
+        return prescriptionRepository.findAll();
+    }
 }

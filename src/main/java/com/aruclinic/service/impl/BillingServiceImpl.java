@@ -233,4 +233,22 @@ public class BillingServiceImpl implements BillingService {
         dto.setPaymentMethod(bill.getPaymentMethod());
         return dto;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Bill> getBillEntitiesByPatientId(Long patientId) {
+        return billRepository.findByPatientId(patientId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Bill getBillEntityById(Long id) {
+        return billRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Bill> getAllBillEntities() {
+        return billRepository.findAll();
+    }
 }

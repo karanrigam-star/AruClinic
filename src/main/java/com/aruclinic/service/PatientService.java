@@ -25,4 +25,10 @@ public interface PatientService {
     PatientDto getPatientByMobileNumber(String mobileNumber);
 
     List<PatientDto> getPatientsByDoctorId(Long doctorId);
+
+    com.aruclinic.entity.Patient getPatientEntityById(Long id);
+
+    com.aruclinic.entity.Patient getPatientEntityByEmail(String email);
+
+    List<com.aruclinic.entity.Patient> getAllPatientEntities();
 }

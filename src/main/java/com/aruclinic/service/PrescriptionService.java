@@ -27,4 +27,10 @@ public interface PrescriptionService {
     List<PrescriptionDto> getActivePrescriptionsByPatientId(Long patientId);
 
     List<PrescriptionDto> searchPrescriptions(String query);
+
+    List<com.aruclinic.entity.Prescription> getPrescriptionEntitiesByPatientId(Long patientId);
+
+    com.aruclinic.entity.Prescription getPrescriptionEntityById(Long id);
+
+    List<com.aruclinic.entity.Prescription> getAllPrescriptionEntities();
 }

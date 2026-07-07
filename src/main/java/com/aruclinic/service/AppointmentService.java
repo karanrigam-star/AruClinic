@@ -336,4 +336,17 @@ public class AppointmentService {
             }
         } catch (Exception e) {}
     }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<Appointment> getActiveAppointmentsOnDate(java.time.LocalDate date) {
+        return appointmentRepository.findAll().stream()
+            .filter(a -> a.getAppointmentDateTime() != null && a.getAppointmentDateTime().toLocalDate().isEqual(date))
+            .filter(a -> a.getStatus() != AppointmentStatus.CANCELLED)
+            .collect(java.util.stream.Collectors.toList());
+    }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<Appointment> getAppointmentsByPatientId(Long patientId) {
+        return appointmentRepository.findByPatientId(patientId);
+    }
 }

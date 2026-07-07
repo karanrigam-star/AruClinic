@@ -190,4 +190,22 @@ public class PatientServiceImpl implements PatientService {
     private int calculateAge(LocalDate dateOfBirth) {
         return Period.between(dateOfBirth, LocalDate.now()).getYears();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Patient getPatientEntityById(Long id) {
+        return patientRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Patient getPatientEntityByEmail(String email) {
+        return patientRepository.findByEmail(email).orElse(null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Patient> getAllPatientEntities() {
+        return patientRepository.findAll();
+    }
 }

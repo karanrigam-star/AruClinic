@@ -159,4 +159,16 @@ public class DoctorServiceImpl implements DoctorService {
         // In a real application, this would filter by availability
         return getAllDoctors();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Doctor getDoctorEntityById(Long id) {
+        return doctorRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Doctor> getDoctorsBySpecializationEntity(String specialization) {
+        return doctorRepository.findBySpecialization(specialization);
+    }
 }

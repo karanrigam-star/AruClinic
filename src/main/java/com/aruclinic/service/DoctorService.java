@@ -27,4 +27,8 @@ public interface DoctorService {
     DoctorDto getDoctorByEmail(String email);
 
     List<DoctorDto> getAvailableDoctors();
+
+    com.aruclinic.entity.Doctor getDoctorEntityById(Long id);
+
+    List<com.aruclinic.entity.Doctor> getDoctorsBySpecializationEntity(String specialization);
 }
