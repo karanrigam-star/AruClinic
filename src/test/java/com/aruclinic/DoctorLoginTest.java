@@ -47,16 +47,98 @@ public class DoctorLoginTest {
     private com.aruclinic.service.DoctorService doctorService;
 
     @Autowired
-    private com.aruclinic.service.UserService userService;
-
-    @Autowired
-    private com.aruclinic.service.AdminService adminService;
-
-    @Autowired
     private com.aruclinic.repository.AppointmentRepository appointmentRepository;
 
     @Autowired
     private com.aruclinic.service.AppointmentService appointmentService;
+
+    @Autowired
+    private com.aruclinic.repository.RoleRepository roleRepository;
+
+    @org.junit.jupiter.api.BeforeEach
+    public void setUp() {
+        // 1. Create Roles
+        for (com.aruclinic.entity.RoleName rn : com.aruclinic.entity.RoleName.values()) {
+            if (!roleRepository.existsByName(rn.name())) {
+                com.aruclinic.entity.Role r = new com.aruclinic.entity.Role();
+                r.setName(rn.name());
+                roleRepository.save(r);
+            }
+        }
+
+        // 2. Create doctor@example.com User & Doctor
+        if (!userRepository.existsByEmail("doctor@example.com")) {
+            User docUser = new User();
+            docUser.setEmail("doctor@example.com");
+            docUser.setFirstName("Martha");
+            docUser.setLastName("Blow");
+            docUser.setMobileNumber("0987654321");
+            docUser.setPassword(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("doctor123!"));
+            docUser.addRole(roleRepository.findByName(com.aruclinic.entity.RoleName.DOCTOR.name()).orElseThrow());
+            userRepository.save(docUser);
+        }
+
+        if (!doctorRepository.existsByEmail("doctor@example.com")) {
+            Doctor doc = new Doctor();
+            doc.setEmail("doctor@example.com");
+            doc.setName("Martha Blow");
+            doc.setSpecialization("Cardiology");
+            doc.setDepartment("Cardiology");
+            doc.setQualification("MBBS, MD");
+            doc.setExperience(8);
+            doc.setMobileNumber("0987654321");
+            doc.setStatus("AVAILABLE");
+            doctorRepository.save(doc);
+        }
+
+        // 3. Create at least one Patient and a Prescription for "David" to satisfy tests
+        if (patientRepository.findAll().isEmpty()) {
+            com.aruclinic.entity.Patient pat = new com.aruclinic.entity.Patient();
+            pat.setFirstName("David");
+            pat.setLastName("Rigam");
+            pat.setEmail("david@example.com");
+            pat.setMobileNumber("1234567890");
+            pat.setDateOfBirth(java.time.LocalDate.of(1990, 1, 1));
+            pat.setAge(36);
+            pat.setGender("Male");
+            patientRepository.save(pat);
+        }
+
+        // Ensure there is a prescription for "David"
+        boolean hasDavidPrescription = false;
+        for (com.aruclinic.entity.Prescription pr : prescriptionRepository.findAll()) {
+            if (pr.getPatient() != null && pr.getPatient().getFirstName().contains("David")) {
+                hasDavidPrescription = true;
+                break;
+            }
+        }
+        if (!hasDavidPrescription) {
+            com.aruclinic.entity.Patient davidPat = patientRepository.findAll().stream()
+                    .filter(p -> p.getFirstName().contains("David"))
+                    .findFirst()
+                    .orElseGet(() -> {
+                        com.aruclinic.entity.Patient p = new com.aruclinic.entity.Patient();
+                        p.setFirstName("David");
+                        p.setLastName("Rigam");
+                        p.setEmail("david@example.com");
+                        p.setMobileNumber("1234567890");
+                        p.setDateOfBirth(java.time.LocalDate.of(1990, 1, 1));
+                        p.setAge(36);
+                        p.setGender("Male");
+                        return patientRepository.save(p);
+                    });
+            Doctor doc = doctorRepository.findAll().get(0);
+            
+            com.aruclinic.entity.Prescription prescription = new com.aruclinic.entity.Prescription();
+            prescription.setPatient(davidPat);
+            prescription.setDoctor(doc);
+            prescription.setPrescriptionDate(java.time.LocalDate.now());
+            prescription.setStatus("ACTIVE");
+            prescription.setDiagnosis("Cold");
+            prescription.setSymptoms("Fever");
+            prescriptionRepository.save(prescription);
+        }
+    }
 
     @Test
     public void testLocationService() {

@@ -349,4 +349,19 @@ public class AppointmentService {
     public List<Appointment> getAppointmentsByPatientId(Long patientId) {
         return appointmentRepository.findByPatientId(patientId);
     }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<Appointment> findAll() {
+        return appointmentRepository.findAll();
+    }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<Long> findPatientIdsByDoctorId(Long doctorId) {
+        return appointmentRepository.findPatientIdsByDoctorId(doctorId);
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public Appointment saveAppointment(Appointment appointment) {
+        return appointmentRepository.save(appointment);
+    }
 }

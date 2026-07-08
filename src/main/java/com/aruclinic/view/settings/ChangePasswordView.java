@@ -1,5 +1,6 @@
 package com.aruclinic.view.settings;
 
+import com.aruclinic.view.MainLayout;
 import com.aruclinic.service.UserService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -23,7 +24,7 @@ import com.vaadin.flow.router.Route;
  * Change Password view for updating user password.
  */
 @PageTitle("Change Password | AruClinic")
-@Route("settings/change-password")
+@Route(value = "settings/change-password", layout = MainLayout.class)
 @CssImport("./themes/aruclinic/login-view.css")
 public class ChangePasswordView extends VerticalLayout {
 

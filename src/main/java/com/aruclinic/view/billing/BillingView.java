@@ -2,7 +2,7 @@ package com.aruclinic.view.billing;
 
 import com.aruclinic.dto.BillDto;
 import com.aruclinic.entity.Patient;
-import com.aruclinic.repository.PatientRepository;
+import com.aruclinic.service.PatientService;
 import com.aruclinic.service.BillingService;
 import com.aruclinic.view.MainLayout;
 import com.aruclinic.util.PdfHelper;
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 public class BillingView extends VerticalLayout implements BeforeEnterObserver {
 
     private final BillingService billingService;
-    private final PatientRepository patientRepository;
+    private final PatientService patientService;
     private final Grid<BillDto> billGrid = new Grid<>();
     private final List<BillDto> allBills = new ArrayList<>();
 
@@ -60,9 +60,9 @@ public class BillingView extends VerticalLayout implements BeforeEnterObserver {
     private final TextField searchField = new TextField();
     private final Select<String> statusFilter = new Select<>();
 
-    public BillingView(BillingService billingService, PatientRepository patientRepository) {
+    public BillingView(BillingService billingService, PatientService patientService) {
         this.billingService = billingService;
-        this.patientRepository = patientRepository;
+        this.patientService = patientService;
         setSizeFull();
         setPadding(true);
         setClassName("aruclinic-patient-prescription-list-view"); // Inherit prescription styling
@@ -110,12 +110,12 @@ public class BillingView extends VerticalLayout implements BeforeEnterObserver {
             }
 
             if (email != null) {
-                currentPatient = patientRepository.findByEmail(email).orElse(null);
+                currentPatient = patientService.getPatientEntityByEmail(email);
             }
 
             // Fallback for blank setups during testing
             if (currentPatient == null) {
-                List<Patient> patients = patientRepository.findAll();
+                List<Patient> patients = patientService.getAllPatientEntities();
                 if (!patients.isEmpty()) {
                     currentPatient = patients.get(0);
                 }

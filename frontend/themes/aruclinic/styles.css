@@ -679,15 +679,94 @@
    Responsive Design
    ============================================ */
 
-/* Mobile-first approach */
+/* Mobile-first approach & Viewport elements */
 
-/* Extra small devices (phones, 360px and up) */
-@media (min-width: 360px) {
+/* Mobile Viewports (max-width: 768px) */
+@media (max-width: 768px) {
     .aruclinic-mobile-only {
         display: block !important;
     }
     .aruclinic-desktop-only {
         display: none !important;
+    }
+
+    /* Stack header contents vertically on mobile, and adjust height */
+    .aruclinic-home-header {
+        flex-direction: column !important;
+        height: auto !important;
+        padding: var(--aruclinic-spacing-md) !important;
+        align-items: center !important;
+        gap: var(--aruclinic-spacing-sm) !important;
+    }
+
+    .aruclinic-home-logo-section {
+        justify-content: center !important;
+    }
+
+    /* Stack auth actions or wrap them neatly */
+    .aruclinic-home-auth-actions {
+        width: 100% !important;
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+        gap: var(--aruclinic-spacing-xs) !important;
+    }
+
+    .aruclinic-home-auth-actions span {
+        width: 100% !important;
+        text-align: center !important;
+        margin-bottom: 4px !important;
+    }
+
+    /* Scale hero heading down so it fits on phone screens */
+    .aruclinic-home-hero-title {
+        font-size: 1.8rem !important;
+        line-height: 1.3 !important;
+    }
+
+    .aruclinic-home-hero {
+        padding: var(--aruclinic-spacing-xl) var(--aruclinic-spacing-md) !important;
+    }
+
+    /* Make search mockup wrap or stack button */
+    .aruclinic-home-search-bar {
+        flex-direction: column !important;
+        border-radius: var(--aruclinic-radius-md) !important;
+        padding: var(--aruclinic-spacing-md) !important;
+        gap: var(--aruclinic-spacing-sm) !important;
+        width: 100% !important;
+    }
+
+    .aruclinic-home-search-bar span {
+        text-align: center !important;
+        margin-bottom: var(--aruclinic-spacing-xs) !important;
+    }
+
+    .aruclinic-home-search-bar button {
+        width: 100% !important;
+    }
+
+    /* Stack footer items vertically on mobile */
+    .aruclinic-home-footer {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: var(--aruclinic-spacing-md) !important;
+        text-align: center !important;
+    }
+}
+
+.aruclinic-whatsapp-btn:hover {
+    background-color: rgba(37, 211, 102, 0.22) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
+}
+
+/* Desktop Viewports (min-width: 769px) */
+@media (min-width: 769px) {
+    .aruclinic-mobile-only {
+        display: none !important;
+    }
+    .aruclinic-desktop-only {
+        display: block !important;
     }
 }
 

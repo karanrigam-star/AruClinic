@@ -1,9 +1,9 @@
 package com.aruclinic.view.doctor;
 
 import com.aruclinic.entity.Doctor;
-import com.aruclinic.repository.DoctorRepository;
-import com.aruclinic.repository.UserRepository;
-import com.aruclinic.repository.NotificationRepository;
+import com.aruclinic.service.DoctorService;
+import com.aruclinic.service.AdminService;
+import com.aruclinic.service.NotificationService;
 import com.aruclinic.view.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -40,9 +40,9 @@ import java.util.stream.Collectors;
 @CssImport("./themes/aruclinic/patient.css")
 public class DoctorProfileView extends VerticalLayout implements BeforeEnterObserver {
 
-    private final DoctorRepository doctorRepository;
-    private final UserRepository userRepository;
-    private final NotificationRepository notificationRepository;
+    private final DoctorService doctorService;
+    private final AdminService adminService;
+    private final NotificationService notificationService;
 
     private Doctor currentDoctor = null;
     private com.aruclinic.entity.User currentUser = null;
@@ -57,12 +57,12 @@ public class DoctorProfileView extends VerticalLayout implements BeforeEnterObse
     private TextField mobileField;
     private TextField emailField; // Read-only to protect login logic
 
-    public DoctorProfileView(DoctorRepository doctorRepository,
-                             UserRepository userRepository,
-                             NotificationRepository notificationRepository) {
-        this.doctorRepository = doctorRepository;
-        this.userRepository = userRepository;
-        this.notificationRepository = notificationRepository;
+    public DoctorProfileView(DoctorService doctorService,
+                             AdminService adminService,
+                             NotificationService notificationService) {
+        this.doctorService = doctorService;
+        this.adminService = adminService;
+        this.notificationService = notificationService;
 
         setSizeFull();
         setPadding(true);
@@ -109,16 +109,16 @@ public class DoctorProfileView extends VerticalLayout implements BeforeEnterObse
             }
 
             if (email != null) {
-                currentDoctor = doctorRepository.findByEmail(email).orElse(null);
-                currentUser = userRepository.findByEmail(email).orElse(null);
+                currentDoctor = doctorService.getDoctorEntityByEmail(email);
+                currentUser = adminService.getUserByEmail(email);
             }
 
             // Fallback for SUPER_ADMIN or blanks
             if (currentDoctor == null) {
-                List<Doctor> doctors = doctorRepository.findAll();
+                List<Doctor> doctors = doctorService.getAllDoctorEntities();
                 if (!doctors.isEmpty()) {
                     currentDoctor = doctors.get(0);
-                    currentUser = userRepository.findByEmail(currentDoctor.getEmail()).orElse(null);
+                    currentUser = adminService.getUserByEmail(currentDoctor.getEmail());
                 }
             }
         } catch (Exception e) {
@@ -366,13 +366,13 @@ public class DoctorProfileView extends VerticalLayout implements BeforeEnterObse
             currentDoctor.setDepartment(departmentField.getValue().trim());
             currentDoctor.setMobileNumber(mobileField.getValue().trim());
 
-            doctorRepository.save(currentDoctor);
+            adminService.saveDoctor(currentDoctor);
 
             // Update User Entity display name if username matches doctor email
             if (currentUser != null) {
                 currentUser.setFirstName(nameField.getValue().trim());
                 currentUser.setLastName(""); // Split or keep simple
-                userRepository.save(currentUser);
+                adminService.saveUser(currentUser);
 
                 // Add notification
                 com.aruclinic.entity.Notification notif = new com.aruclinic.entity.Notification();
@@ -381,7 +381,7 @@ public class DoctorProfileView extends VerticalLayout implements BeforeEnterObse
                 notif.setMessage("Your professional profile details have been successfully updated.");
                 notif.setRead(false);
                 notif.setCreatedAt(LocalDateTime.now());
-                notificationRepository.save(notif);
+                notificationService.save(notif);
             }
 
             editMode = false;

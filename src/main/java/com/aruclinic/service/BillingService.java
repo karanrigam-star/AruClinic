@@ -39,4 +39,6 @@ public interface BillingService {
     com.aruclinic.entity.Bill getBillEntityById(Long id);
 
     List<com.aruclinic.entity.Bill> getAllBillEntities();
+
+    List<com.aruclinic.entity.Bill> getBillEntitiesByDoctorId(Long doctorId);
 }

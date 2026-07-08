@@ -171,4 +171,16 @@ public class DoctorServiceImpl implements DoctorService {
     public List<Doctor> getDoctorsBySpecializationEntity(String specialization) {
         return doctorRepository.findBySpecialization(specialization);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Doctor getDoctorEntityByEmail(String email) {
+        return doctorRepository.findByEmail(email).orElse(null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Doctor> getAllDoctorEntities() {
+        return doctorRepository.findAll();
+    }
 }

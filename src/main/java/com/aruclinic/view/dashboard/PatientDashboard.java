@@ -193,11 +193,15 @@ public class PatientDashboard extends VerticalLayout implements BeforeEnterObser
                     .filter(p -> !"DRAFT".equalsIgnoreCase(p.getStatus()))
                     .count();
 
-            // 3. Medical Records (Completed Appointments + Prescriptions)
-            long completedAppts = appointmentService.getAppointmentsByPatientId(currentPatient.getId()).stream()
-                    .filter(a -> a.getStatus() == AppointmentStatus.COMPLETED)
-                    .count();
-            medicalRecords = completedAppts + prescriptions.size();
+            // 3. Medical Records (parsed from patient.getMedicalHistory())
+            String json = currentPatient.getMedicalHistory();
+            if (json != null && !json.trim().isEmpty()) {
+                try {
+                    com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                    List<?> list = mapper.readValue(json, new com.fasterxml.jackson.core.type.TypeReference<List<?>>() {});
+                    medicalRecords = list.size();
+                } catch (Exception e) {}
+            }
 
             // 4. Pending Payments
             pendingPayments = billingService.getBillEntitiesByPatientId(currentPatient.getId()).stream()

@@ -38,7 +38,8 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
     private final NotificationService notificationService;
 
     private SideNav sideNav;
-    private boolean sidebarCollapsed = false;
+    private Div sideBarContainer;
+    private boolean sidebarCollapsed = true;
     private FlexLayout mainContent;
     private Button backBtn;
     private String currentFallbackRoute = "";
@@ -81,6 +82,7 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
         leftSection.setSpacing(true);
 
         Button menuToggle = new Button(new Icon(VaadinIcon.MENU));
+        menuToggle.addClassName("aruclinic-mobile-menu-toggle");
         menuToggle.getStyle()
             .set("background", "none")
             .set("border", "none")
@@ -88,7 +90,6 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
             .set("cursor", "pointer")
             .set("padding", "var(--aruclinic-spacing-xs)");
         menuToggle.addClickListener(e -> toggleSidebar());
-        menuToggle.setVisible(false);
 
         Div logo = new Div();
         logo.getStyle()
@@ -214,8 +215,14 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
             .set("display", "flex")
             .set("overflow", "hidden");
 
-        Div sideBarContainer = new Div();
+        sideBarContainer = new Div();
         sideBarContainer.addClassName("aruclinic-sidenav");
+        // Close sidebar on click (useful for mobile navigation auto-collapse)
+        sideBarContainer.addClickListener(e -> {
+            if (!sidebarCollapsed) {
+                toggleSidebar();
+            }
+        });
 
         sideNav = new SideNav();
         sideNav.setSizeFull();
@@ -472,6 +479,7 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
                 sideNav.addItem(new SideNavItem("Appointments", "doctor/appointments"));
                 sideNav.addItem(new SideNavItem("Patients", "doctor/patients"));
                 sideNav.addItem(new SideNavItem("Prescriptions", "doctor/prescriptions"));
+                sideNav.addItem(new SideNavItem("Medical History", "doctor/medical-history"));
                 sideNav.addItem(new SideNavItem("Profile", "doctor/profile"));
                 break;
 
@@ -502,6 +510,11 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
 
     private void toggleSidebar() {
         sidebarCollapsed = !sidebarCollapsed;
+        if (sidebarCollapsed) {
+            sideBarContainer.removeClassName("expanded");
+        } else {
+            sideBarContainer.addClassName("expanded");
+        }
     }
 
     @Override

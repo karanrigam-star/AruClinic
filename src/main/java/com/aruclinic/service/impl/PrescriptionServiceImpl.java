@@ -332,4 +332,10 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     public List<Prescription> getAllPrescriptionEntities() {
         return prescriptionRepository.findAll();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> findPatientIdsByDoctorId(Long doctorId) {
+        return prescriptionRepository.findPatientIdsByDoctorId(doctorId);
+    }
 }

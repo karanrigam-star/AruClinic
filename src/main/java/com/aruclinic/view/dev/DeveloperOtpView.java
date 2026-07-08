@@ -1,5 +1,6 @@
 package com.aruclinic.view.dev;
 
+import com.aruclinic.view.MainLayout;
 import com.aruclinic.entity.OtpVerification;
 import com.aruclinic.repository.OtpVerificationRepository;
 import com.vaadin.flow.component.Component;
@@ -26,7 +27,7 @@ import java.util.List;
  * Enhanced Developer OTP Console for viewing and managing OTP records.
  */
 @PageTitle("Developer OTP Console | AruClinic")
-@Route("dev/otp")
+@Route(value = "dev/otp", layout = MainLayout.class)
 @CssImport("./themes/aruclinic/common.css")
 public class DeveloperOtpView extends VerticalLayout {
 

@@ -27,6 +27,8 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteAlias;
+import com.aruclinic.view.MainLayout;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -37,7 +39,9 @@ import java.util.List;
  * Appointment Booking view for scheduling new appointments.
  */
 @PageTitle("Book Appointment | AruClinic")
-@Route("patient/appointments/add")
+@Route(value = "patient/appointments/add", layout = MainLayout.class)
+@RouteAlias(value = "receptionist/appointments/add", layout = MainLayout.class)
+@RouteAlias(value = "doctor/appointments/add", layout = MainLayout.class)
 @CssImport("./themes/aruclinic/appointment.css")
 public class AppointmentBookingView extends VerticalLayout {
 
@@ -47,6 +51,7 @@ public class AppointmentBookingView extends VerticalLayout {
     private final UserService userService;
 
     private final ComboBox<String> doctorCombo = new ComboBox<>("Select Doctor");
+    private final Div doctorInfoPanel = new Div();
     private final DatePicker datePicker = new DatePicker("Select Date");
     private final ComboBox<String> timeSlotCombo = new ComboBox<>("Select Time Slot");
     private final ComboBox<String> appointmentTypeCombo = new ComboBox<>("Appointment Type");
@@ -130,7 +135,26 @@ public class AppointmentBookingView extends VerticalLayout {
         } else {
             doctorCombo.setItems(doctorsList);
         }
-        doctorCombo.addValueChangeListener(e -> updateAvailableSlots());
+        
+        doctorCombo.addValueChangeListener(e -> {
+            String selectedName = e.getValue();
+            doctorInfoPanel.removeAll();
+            if (selectedName != null) {
+                doctorService.getAllDoctors().stream()
+                    .filter(d -> {
+                        String formatted = "Dr. " + d.getFirstName() + " " + d.getLastName();
+                        if (d.getSpecialization() != null && !d.getSpecialization().isEmpty()) {
+                            formatted += " - " + d.getSpecialization();
+                        }
+                        return formatted.equals(selectedName);
+                    })
+                    .findFirst()
+                    .ifPresent(d -> {
+                        doctorInfoPanel.add(createDoctorDetailBadge(d));
+                    });
+            }
+            updateAvailableSlots();
+        });
 
         // Date picker
         datePicker.setRequired(true);
@@ -184,7 +208,7 @@ public class AppointmentBookingView extends VerticalLayout {
         cancelButton.addClassName("secondary");
         cancelButton.addClickListener(e -> {
             if (currentStep == 1) {
-                getUI().ifPresent(ui -> ui.navigate("patient"));
+                getUI().ifPresent(ui -> ui.navigate(determineDashboardRoute()));
             } else if (currentStep == 2) {
                 currentStep = 1;
                 updateStepUI();
@@ -253,7 +277,7 @@ public class AppointmentBookingView extends VerticalLayout {
         doctorLayout.setWidthFull();
         doctorLayout.add(doctorCombo);
 
-        step1Content.add(doctorLayout);
+        step1Content.add(doctorLayout, doctorInfoPanel);
 
         // Step 2: Select Date & Time
         step2Content = new Div();
@@ -539,7 +563,7 @@ public class AppointmentBookingView extends VerticalLayout {
                 Notification.Position.TOP_CENTER
             ).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
-            getUI().ifPresent(ui -> ui.navigate("patient"));
+            getUI().ifPresent(ui -> ui.navigate(determineDashboardRoute()));
 
         } catch (Exception e) {
             showError("Failed to book appointment: " + e.getMessage());
@@ -565,5 +589,78 @@ public class AppointmentBookingView extends VerticalLayout {
     private void showError(String message) {
         Notification notification = Notification.show(message, 5000, Notification.Position.TOP_CENTER);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+    }
+
+    private String determineDashboardRoute() {
+        try {
+            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null) {
+                com.vaadin.flow.server.VaadinSession session = com.vaadin.flow.server.VaadinSession.getCurrent();
+                if (session != null) {
+                    auth = (org.springframework.security.core.Authentication) 
+                            session.getAttribute("SPRING_SECURITY_AUTHENTICATION");
+                }
+            }
+            if (auth != null && auth.isAuthenticated()) {
+                boolean isReceptionist = auth.getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_RECEPTIONIST"));
+                if (isReceptionist) {
+                    return "receptionist";
+                }
+                boolean isDoctor = auth.getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_DOCTOR"));
+                if (isDoctor) {
+                    return "doctor";
+                }
+                boolean isAdmin = auth.getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+                if (isAdmin) {
+                    return "admin";
+                }
+            }
+        } catch (Exception e) {
+            // Ignore and fall back to patient
+        }
+        return "patient";
+    }
+
+    private Component createDoctorDetailBadge(com.aruclinic.dto.DoctorDto d) {
+        VerticalLayout card = new VerticalLayout();
+        card.getStyle()
+            .set("background-color", "rgba(0, 59, 92, 0.04)")
+            .set("border", "1px solid rgba(0, 59, 92, 0.1)")
+            .set("border-radius", "8px")
+            .set("padding", "var(--aruclinic-spacing-md)")
+            .set("margin-top", "var(--aruclinic-spacing-md)")
+            .set("width", "100%");
+
+        HorizontalLayout header = new HorizontalLayout();
+        header.setAlignItems(FlexComponent.Alignment.CENTER);
+        Icon docIcon = new Icon(VaadinIcon.DOCTOR);
+        docIcon.getStyle().set("color", "#003b5c");
+        Span nameSpan = new Span("Dr. " + d.getFirstName() + " " + d.getLastName());
+        nameSpan.getStyle().set("font-weight", "600").set("color", "#003b5c");
+        header.add(docIcon, nameSpan);
+
+        FormLayout details = new FormLayout();
+        details.setWidthFull();
+        details.setResponsiveSteps(
+            new FormLayout.ResponsiveStep("0", 1),
+            new FormLayout.ResponsiveStep("350px", 2)
+        );
+
+        Span dept = new Span("Department: " + (d.getDepartment() != null ? d.getDepartment() : "General Outpatient"));
+        Span spec = new Span("Specialization: " + (d.getSpecialization() != null ? d.getSpecialization() : "General Medicine"));
+        Span qual = new Span("Qualification: " + (d.getQualification() != null ? d.getQualification() : "MBBS"));
+        Span exp = new Span("Experience: " + (d.getExperience() != null ? d.getExperience() + " Years" : "2 Years"));
+
+        dept.getStyle().set("color", "var(--aruclinic-text-secondary)").set("font-size", "14px");
+        spec.getStyle().set("color", "var(--aruclinic-text-secondary)").set("font-size", "14px");
+        qual.getStyle().set("color", "var(--aruclinic-text-secondary)").set("font-size", "14px");
+        exp.getStyle().set("color", "var(--aruclinic-text-secondary)").set("font-size", "14px");
+
+        details.add(dept, spec, qual, exp);
+        card.add(header, details);
+        return card;
     }
 }

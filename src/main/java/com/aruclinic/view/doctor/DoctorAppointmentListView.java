@@ -177,35 +177,9 @@ public class DoctorAppointmentListView extends VerticalLayout {
             consultBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
             consultBtn.addClickListener(e -> {
                 com.vaadin.flow.server.VaadinSession.getCurrent().setAttribute("consult_navigation_active", true);
+                com.vaadin.flow.server.VaadinSession.getCurrent().setAttribute("consulting_appointment_id", appt.getId());
                 getUI().ifPresent(ui -> 
                         ui.navigate("doctor/prescriptions/form/patient-" + appt.getPatient().getId()));
-            });
-
-            Button completeBtn = new Button("Complete", new Icon(VaadinIcon.CHECK));
-            completeBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL);
-            completeBtn.addClickListener(e -> {
-                appt.setStatus(AppointmentStatus.COMPLETED);
-                appointmentRepository.save(appt);
-                Notification.show("Appointment marked as completed!", 2000, Notification.Position.TOP_CENTER);
-                refreshGrid();
-            });
-
-            Button acceptBtn = new Button("Accept", new Icon(VaadinIcon.CHECK));
-            acceptBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL);
-            acceptBtn.addClickListener(e -> {
-                appt.setStatus(AppointmentStatus.SCHEDULED);
-                appointmentRepository.save(appt);
-                Notification.show("Appointment accepted!", 2000, Notification.Position.TOP_CENTER);
-                refreshGrid();
-            });
-
-            Button confirmBtn = new Button("Confirm", new Icon(VaadinIcon.CHECK_CIRCLE));
-            confirmBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
-            confirmBtn.addClickListener(e -> {
-                appt.setStatus(AppointmentStatus.SCHEDULED);
-                appointmentRepository.save(appt);
-                Notification.show("Appointment confirmed!", 2000, Notification.Position.TOP_CENTER);
-                refreshGrid();
             });
 
             Button cancelBtn = new Button("Cancel", new Icon(VaadinIcon.CLOSE));
@@ -267,7 +241,7 @@ public class DoctorAppointmentListView extends VerticalLayout {
                 cancelDialog.open();
             });
 
-            layout.add(consultBtn, completeBtn, acceptBtn, confirmBtn, cancelBtn);
+            layout.add(consultBtn, cancelBtn);
         } else {
             Span statusLabel = new Span(appt.getStatus() == AppointmentStatus.COMPLETED ? "Completed" : "Cancelled");
             statusLabel.getStyle()

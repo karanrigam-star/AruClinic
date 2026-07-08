@@ -1,5 +1,12 @@
 package com.aruclinic.view.dashboard;
 
+import com.aruclinic.entity.Appointment;
+import com.aruclinic.entity.AppointmentStatus;
+import com.aruclinic.entity.Patient;
+import com.aruclinic.service.PatientService;
+import com.aruclinic.service.AppointmentService;
+import com.aruclinic.service.BillingService;
+import com.aruclinic.view.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -13,22 +20,46 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.aruclinic.view.MainLayout;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * Receptionist Dashboard view for managing patient registration and appointments.
+ * Receptionist Dashboard view for managing patient registration, appointments, and billing with real-time data.
  */
 @PageTitle("Receptionist Dashboard | AruClinic")
 @Route(value = "receptionist", layout = MainLayout.class)
 @CssImport("./themes/aruclinic/dashboard.css")
-public class ReceptionistDashboard extends VerticalLayout {
+public class ReceptionistDashboard extends VerticalLayout implements com.vaadin.flow.router.BeforeEnterObserver {
 
-    public ReceptionistDashboard() {
+    private final PatientService patientService;
+    private final AppointmentService appointmentService;
+    private final BillingService billingService;
+
+    private final Div statsGrid = new Div();
+    private final Div appointmentList = new Div();
+    private final Div registrationList = new Div();
+
+    public ReceptionistDashboard(PatientService patientService,
+                                 AppointmentService appointmentService,
+                                 BillingService billingService) {
+        this.patientService = patientService;
+        this.appointmentService = appointmentService;
+        this.billingService = billingService;
+
         setSizeFull();
         setPadding(false);
         setSpacing(false);
+    }
 
+    @Override
+    public void beforeEnter(com.vaadin.flow.router.BeforeEnterEvent event) {
+        removeAll();
         add(createDashboardContent());
+        refreshData();
     }
 
     private Component createDashboardContent() {
@@ -40,16 +71,17 @@ public class ReceptionistDashboard extends VerticalLayout {
         content.add(createWelcomeSection());
 
         // Stats grid
-        content.add(createStatsGrid());
+        statsGrid.addClassName("aruclinic-dashboard-stats");
+        content.add(statsGrid);
 
         // Quick actions
         content.add(createQuickActions());
 
         // Today's appointments
-        content.add(createTodaysAppointments());
+        content.add(createTodaysAppointmentsSection());
 
         // Recent registrations
-        content.add(createRecentRegistrations());
+        content.add(createRecentRegistrationsSection());
 
         return content;
     }
@@ -88,25 +120,6 @@ public class ReceptionistDashboard extends VerticalLayout {
         welcomeSection.add(header);
 
         return welcomeSection;
-    }
-
-    private Component createStatsGrid() {
-        Div statsGrid = new Div();
-        statsGrid.addClassName("aruclinic-dashboard-stats");
-
-        // Total Patients
-        statsGrid.add(createStatCard("Total Patients", "245", "12", "primary", VaadinIcon.USERS));
-
-        // Today's Registrations
-        statsGrid.add(createStatCard("Today's Registrations", "8", "3", "success", VaadinIcon.USER));
-
-        // Today's Appointments
-        statsGrid.add(createStatCard("Today's Appointments", "24", "5", "warning", VaadinIcon.CLOCK));
-
-        // Pending Payments
-        statsGrid.add(createStatCard("Pending Payments", "15", "2", "danger", VaadinIcon.MONEY));
-
-        return statsGrid;
     }
 
     private Component createStatCard(String label, String value, String trend, String type, VaadinIcon icon) {
@@ -203,7 +216,7 @@ public class ReceptionistDashboard extends VerticalLayout {
         return action;
     }
 
-    private Component createTodaysAppointments() {
+    private Component createTodaysAppointmentsSection() {
         Div section = new Div();
         section.addClassName("aruclinic-recent-activity");
 
@@ -221,41 +234,7 @@ public class ReceptionistDashboard extends VerticalLayout {
 
         header.add(title, viewAllBtn);
 
-        Div appointmentList = new Div();
         appointmentList.addClassName("aruclinic-activity-list");
-
-        // Sample appointments
-        appointmentList.add(createAppointmentItem(
-            "09:00 AM",
-            "John Doe",
-            "Dr. Smith",
-            "Confirmed",
-            "success"
-        ));
-
-        appointmentList.add(createAppointmentItem(
-            "10:30 AM",
-            "Jane Smith",
-            "Dr. Johnson",
-            "Checked In",
-            "primary"
-        ));
-
-        appointmentList.add(createAppointmentItem(
-            "02:00 PM",
-            "Robert Johnson",
-            "Dr. Williams",
-            "Pending",
-            "warning"
-        ));
-
-        appointmentList.add(createAppointmentItem(
-            "04:00 PM",
-            "Alice Brown",
-            "Dr. Smith",
-            "Confirmed",
-            "success"
-        ));
 
         section.add(header, appointmentList);
         return section;
@@ -291,7 +270,7 @@ public class ReceptionistDashboard extends VerticalLayout {
         return item;
     }
 
-    private Component createRecentRegistrations() {
+    private Component createRecentRegistrationsSection() {
         Div section = new Div();
         section.addClassName("aruclinic-recent-activity");
 
@@ -309,33 +288,7 @@ public class ReceptionistDashboard extends VerticalLayout {
 
         header.add(title, viewAllBtn);
 
-        Div registrationList = new Div();
         registrationList.addClassName("aruclinic-activity-list");
-
-        // Sample registrations
-        registrationList.add(createRegistrationItem(
-            "John Doe",
-            "john.doe@email.com",
-            "1234567890",
-            "5 min ago",
-            "primary"
-        ));
-
-        registrationList.add(createRegistrationItem(
-            "Jane Smith",
-            "jane.smith@email.com",
-            "0987654321",
-            "15 min ago",
-            "success"
-        ));
-
-        registrationList.add(createRegistrationItem(
-            "Robert Johnson",
-            "robert.j@email.com",
-            "1122334455",
-            "1 hour ago",
-            "warning"
-        ));
 
         section.add(header, registrationList);
         return section;
@@ -369,5 +322,108 @@ public class ReceptionistDashboard extends VerticalLayout {
         item.add(iconDiv, content);
 
         return item;
+    }
+
+    private void refreshData() {
+        statsGrid.removeAll();
+        appointmentList.removeAll();
+        registrationList.removeAll();
+
+        // 1. Stats from DB
+        long totalPatients = patientService.getAllPatientEntities().size();
+        
+        long todayRegistrations = patientService.getAllPatientEntities().stream()
+                .filter(p -> p.getCreatedAt() != null && p.getCreatedAt().toLocalDate().isEqual(LocalDate.now()))
+                .count();
+
+        long todayAppointments = appointmentService.findAll().stream()
+                .filter(a -> a.getAppointmentDate() != null && a.getAppointmentDate().isEqual(LocalDate.now()))
+                .count();
+
+        long pendingPayments = billingService.getAllBillEntities().stream()
+                .filter(b -> "UNPAID".equalsIgnoreCase(b.getStatus()))
+                .count();
+
+        statsGrid.add(createStatCard("Total Patients", String.valueOf(totalPatients), "+" + totalPatients, "primary", VaadinIcon.USERS));
+        statsGrid.add(createStatCard("Today's Registrations", String.valueOf(todayRegistrations), "+" + todayRegistrations, "success", VaadinIcon.USER));
+        statsGrid.add(createStatCard("Today's Appointments", String.valueOf(todayAppointments), "+" + todayAppointments, "warning", VaadinIcon.CLOCK));
+        statsGrid.add(createStatCard("Pending Payments", String.valueOf(pendingPayments), "+" + pendingPayments, "danger", VaadinIcon.MONEY));
+
+        // 2. Today's Appointments from DB
+        List<Appointment> todayAppts = appointmentService.findAll().stream()
+                .filter(a -> a.getAppointmentDate() != null && a.getAppointmentDate().isEqual(LocalDate.now()))
+                .sorted((a1, a2) -> {
+                    if (a1.getAppointmentTime() != null && a2.getAppointmentTime() != null) {
+                        return a1.getAppointmentTime().compareTo(a2.getAppointmentTime());
+                    }
+                    return 0;
+                })
+                .limit(5)
+                .collect(Collectors.toList());
+
+        if (todayAppts.isEmpty()) {
+            Div empty = new Div();
+            empty.setText("No appointments scheduled for today.");
+            empty.getStyle().set("color", "var(--aruclinic-text-secondary)").set("font-style", "italic").set("padding", "var(--aruclinic-spacing-md)");
+            appointmentList.add(empty);
+        } else {
+            for (Appointment a : todayAppts) {
+                String timeStr = a.getAppointmentTime() != null ? a.getAppointmentTime().format(DateTimeFormatter.ofPattern("hh:mm a")) : "N/A";
+                String patientName = a.getPatient() != null ? (a.getPatient().getFirstName() + " " + a.getPatient().getLastName()) : "N/A";
+                String doctorName = a.getDoctor() != null ? "Dr. " + a.getDoctor().getName() : "N/A";
+                String statusStr = a.getStatus() != null ? a.getStatus().name() : "SCHEDULED";
+                
+                String type = "primary";
+                if (AppointmentStatus.COMPLETED.equals(a.getStatus())) type = "success";
+                else if (AppointmentStatus.CANCELLED.equals(a.getStatus())) type = "danger";
+                else if (AppointmentStatus.SCHEDULED.equals(a.getStatus())) type = "warning";
+
+                appointmentList.add(createAppointmentItem(timeStr, patientName, doctorName, statusStr, type));
+            }
+        }
+
+        // 3. Recent Patient Registrations from DB
+        List<Patient> recentPatients = patientService.getAllPatientEntities().stream()
+                .sorted((p1, p2) -> {
+                    if (p1.getCreatedAt() != null && p2.getCreatedAt() != null) {
+                        return p2.getCreatedAt().compareTo(p1.getCreatedAt()); // newest first
+                    }
+                    return p2.getId().compareTo(p1.getId());
+                })
+                .limit(5)
+                .collect(Collectors.toList());
+
+        if (recentPatients.isEmpty()) {
+            Div empty = new Div();
+            empty.setText("No patients registered yet.");
+            empty.getStyle().set("color", "var(--aruclinic-text-secondary)").set("font-style", "italic").set("padding", "var(--aruclinic-spacing-md)");
+            registrationList.add(empty);
+        } else {
+            for (Patient p : recentPatients) {
+                String name = p.getFirstName() + " " + p.getLastName();
+                String emailStr = p.getEmail() != null ? p.getEmail() : "N/A";
+                String mobileStr = p.getMobileNumber() != null ? p.getMobileNumber() : "N/A";
+                
+                String timeAgo = "Just registered";
+                if (p.getCreatedAt() != null) {
+                    java.time.Duration duration = java.time.Duration.between(p.getCreatedAt(), LocalDateTime.now());
+                    long mins = duration.toMinutes();
+                    if (mins < 1) {
+                        timeAgo = "Just now";
+                    } else if (mins < 60) {
+                        timeAgo = mins + " min ago";
+                    } else {
+                        long hours = duration.toHours();
+                        if (hours < 24) {
+                            timeAgo = hours + " hours ago";
+                        } else {
+                            timeAgo = p.getCreatedAt().format(DateTimeFormatter.ofPattern("MMM dd, yyyy"));
+                        }
+                    }
+                }
+                
+                registrationList.add(createRegistrationItem(name, emailStr, mobileStr, timeAgo, "success"));
+            }
+        }
     }
 }

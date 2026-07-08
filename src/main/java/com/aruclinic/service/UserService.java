@@ -36,4 +36,8 @@ public interface UserService {
     void forgotPassword(String email);
 
     void changePassword(String oldPassword, String newPassword);
+
+    User getUserEntityByEmail(String email);
+
+    User getUserEntityById(Long id);
 }

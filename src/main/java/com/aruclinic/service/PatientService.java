@@ -31,4 +31,8 @@ public interface PatientService {
     com.aruclinic.entity.Patient getPatientEntityByEmail(String email);
 
     List<com.aruclinic.entity.Patient> getAllPatientEntities();
+
+    List<com.aruclinic.entity.Patient> getPatientEntitiesByIds(List<Long> ids);
+
+    com.aruclinic.entity.Patient savePatient(com.aruclinic.entity.Patient patient);
 }

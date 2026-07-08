@@ -1,5 +1,6 @@
 package com.aruclinic.view.appointment;
 
+import com.aruclinic.view.MainLayout;
 import com.aruclinic.dto.AppointmentDto;
 import com.aruclinic.dto.AppointmentStatus;
 import com.aruclinic.service.AppointmentService;
@@ -30,7 +31,7 @@ import java.util.Locale;
  * Calendar view for displaying appointments in a calendar format.
  */
 @PageTitle("Calendar | AruClinic")
-@Route("appointment/calendar")
+@Route(value = "appointment/calendar", layout = MainLayout.class)
 @CssImport("./themes/aruclinic/appointment.css")
 public class CalendarView extends VerticalLayout {
 

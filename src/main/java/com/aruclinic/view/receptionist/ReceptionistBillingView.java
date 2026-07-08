@@ -1,4 +1,4 @@
-package com.aruclinic.view.admin;
+package com.aruclinic.view.receptionist;
 
 import com.aruclinic.entity.Bill;
 import com.aruclinic.entity.Doctor;
@@ -17,6 +17,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Image;
@@ -41,10 +42,16 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Receptionist-facing Invoicing & Billing view mapped to receptionist/billing.
+ * Fully wired with realtime billing, payment method selections, dynamic UPI QR preview, and double side-by-side grids.
+ */
 @PageTitle("Billing Module | AruClinic")
-@Route(value = "admin/billing", layout = MainLayout.class)
+@Route(value = "receptionist/billing", layout = MainLayout.class)
 @CssImport("./themes/aruclinic/common.css")
-public class AdminBillingView extends VerticalLayout {
+public class ReceptionistBillingView extends VerticalLayout {
+
+    private static final long serialVersionUID = 1L;
 
     private final AdminService adminService;
     private final PrescriptionService prescriptionService;
@@ -52,29 +59,25 @@ public class AdminBillingView extends VerticalLayout {
     private final Grid<Appointment> pendingGrid = new Grid<>();
     private final Select<String> statusFilter = new Select<>();
 
-    public AdminBillingView(AdminService adminService, PrescriptionService prescriptionService) {
+    public ReceptionistBillingView(AdminService adminService, PrescriptionService prescriptionService) {
         this.adminService = adminService;
         this.prescriptionService = prescriptionService;
 
         setSizeFull();
         setPadding(true);
-        setClassName("aruclinic-admin-billing-view");
+        setClassName("aruclinic-receptionist-billing-view");
 
         configureGrid();
         configurePendingGrid();
-        
-        Span pendingHeader = new Span("Pending Invoices for Completed Appointments (Click 'Generate Invoice' to Bill)");
-        pendingHeader.getStyle().set("font-weight", "600").set("color", "var(--aruclinic-primary)").set("margin-top", "var(--aruclinic-spacing-md)");
 
-        add(createHeader(), createSummaryCards(), pendingHeader, pendingGrid, createFilterBar(), grid);
-        setFlexGrow(1.0, grid);
+        add(createHeader(), createSummaryCards(), createFilterAndTablesLayout());
         refreshGrid();
     }
 
     private void configureGrid() {
         grid.addClassName("aruclinic-billing-grid");
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_ROW_STRIPES);
-        grid.setHeight("500px");
+        grid.setHeight("450px");
 
         grid.addColumn(b -> "INV-" + b.getId()).setHeader("Invoice ID").setAutoWidth(true);
         grid.addColumn(b -> b.getPatient() != null ? b.getPatient().getFirstName() + " " + b.getPatient().getLastName() : "N/A")
@@ -94,14 +97,14 @@ public class AdminBillingView extends VerticalLayout {
     private void configurePendingGrid() {
         pendingGrid.addClassName("aruclinic-pending-billing-grid");
         pendingGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_ROW_STRIPES);
-        pendingGrid.setHeight("180px");
+        pendingGrid.setHeight("450px");
 
         pendingGrid.addColumn(a -> a.getPatient() != null ? a.getPatient().getFirstName() + " " + a.getPatient().getLastName() : "N/A")
                 .setHeader("Patient Name").setAutoWidth(true);
         pendingGrid.addColumn(a -> a.getDoctor() != null ? "Dr. " + a.getDoctor().getName() : "N/A")
                 .setHeader("Doctor").setAutoWidth(true);
         pendingGrid.addColumn(a -> a.getAppointmentDate() != null ? a.getAppointmentDate().toString() : "N/A")
-                .setHeader("Consultation Date").setAutoWidth(true);
+                .setHeader("Date").setAutoWidth(true);
         pendingGrid.addColumn(Appointment::getReason).setHeader("Reason").setAutoWidth(true);
         
         pendingGrid.addComponentColumn(a -> {
@@ -171,11 +174,10 @@ public class AdminBillingView extends VerticalLayout {
         layout.getStyle().set("margin", "16px 0");
 
         double revenueToday = adminService.getRevenueToday();
-        double revenueMonth = adminService.getRevenueThisMonth();
         long pendingCount = adminService.getPendingBillsCount();
 
+        // Displays Revenue Today and Pending Invoices; removes Revenue This Month
         layout.add(createSummaryCard("Revenue Today", "₹" + String.format("%.2f", revenueToday), "Paid Invoices"));
-        layout.add(createSummaryCard("Revenue This Month", "₹" + String.format("%.2f", revenueMonth), "Month-to-Date"));
         layout.add(createSummaryCard("Pending Invoices", String.valueOf(pendingCount), "Unpaid Invoices"));
 
         return layout;
@@ -199,19 +201,66 @@ public class AdminBillingView extends VerticalLayout {
         return card;
     }
 
-    private Component createFilterBar() {
-        HorizontalLayout bar = new HorizontalLayout();
-        bar.setWidthFull();
-        bar.setAlignItems(FlexComponent.Alignment.CENTER);
-        bar.getStyle().set("margin-top", "var(--aruclinic-spacing-md)");
+    private Component createFilterAndTablesLayout() {
+        HorizontalLayout tablesLayout = new HorizontalLayout();
+        tablesLayout.setSizeFull();
+        tablesLayout.setSpacing(true);
+        tablesLayout.getStyle().set("margin-top", "var(--aruclinic-spacing-md)");
+
+        // Left Container (Pending Invoices Grid)
+        VerticalLayout leftContainer = new VerticalLayout();
+        leftContainer.setPadding(false);
+        leftContainer.setSpacing(true);
+        leftContainer.getStyle()
+            .set("background", "var(--aruclinic-card-bg)")
+            .set("border", "1px solid var(--aruclinic-border)")
+            .set("border-radius", "var(--aruclinic-radius-md)")
+            .set("padding", "var(--aruclinic-spacing-lg)")
+            .set("box-shadow", "var(--aruclinic-shadow-md)");
+
+        H2 leftTitle = new H2("Pending Invoices (Completed Appointments)");
+        leftTitle.getStyle()
+            .set("font-size", "var(--aruclinic-font-size-lg)")
+            .set("font-weight", "600")
+            .set("margin", "0")
+            .set("color", "var(--aruclinic-text-primary)");
+        
+        leftContainer.add(leftTitle, pendingGrid);
+
+        // Right Container (All Invoices Grid with Status Filter)
+        VerticalLayout rightContainer = new VerticalLayout();
+        rightContainer.setPadding(false);
+        rightContainer.setSpacing(true);
+        rightContainer.getStyle()
+            .set("background", "var(--aruclinic-card-bg)")
+            .set("border", "1px solid var(--aruclinic-border)")
+            .set("border-radius", "var(--aruclinic-radius-md)")
+            .set("padding", "var(--aruclinic-spacing-lg)")
+            .set("box-shadow", "var(--aruclinic-shadow-md)");
+
+        H2 rightTitle = new H2("All Invoices");
+        rightTitle.getStyle()
+            .set("font-size", "var(--aruclinic-font-size-lg)")
+            .set("font-weight", "600")
+            .set("margin", "0")
+            .set("color", "var(--aruclinic-text-primary)");
 
         statusFilter.setPlaceholder("Filter by Billing Status");
         statusFilter.setItems("ALL", "PAID", "UNPAID");
         statusFilter.setValue("ALL");
         statusFilter.addValueChangeListener(e -> refreshGrid());
 
-        bar.add(statusFilter);
-        return bar;
+        HorizontalLayout rightHeader = new HorizontalLayout(rightTitle, statusFilter);
+        rightHeader.setWidthFull();
+        rightHeader.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        rightHeader.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        rightContainer.add(rightHeader, grid);
+
+        tablesLayout.add(leftContainer, rightContainer);
+        tablesLayout.setFlexGrow(1.0, leftContainer, rightContainer);
+
+        return tablesLayout;
     }
 
     private void updateQrCode(Image qrCodeImage, BigDecimalField amount, BigDecimalField tax, Select<String> methodSelect) {
@@ -450,7 +499,6 @@ public class AdminBillingView extends VerticalLayout {
 
         grid.setItems(bills);
 
-        // Refresh pending completed appointments to bill
         List<Appointment> completedAppts = adminService.getAllAppointments().stream()
                 .filter(a -> a.getStatus() == AppointmentStatus.COMPLETED)
                 .filter(a -> {

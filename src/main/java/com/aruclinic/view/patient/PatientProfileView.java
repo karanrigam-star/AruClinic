@@ -1,5 +1,6 @@
 package com.aruclinic.view.patient;
 
+import com.aruclinic.view.MainLayout;
 import com.aruclinic.dto.PatientDto;
 import com.aruclinic.service.PatientService;
 import com.aruclinic.service.BillingService;
@@ -44,7 +45,7 @@ import java.util.stream.Collectors;
  * Patient Profile view for displaying and editing patient information.
  */
 @PageTitle("Patient Profile | AruClinic")
-@Route("patient/profile")
+@Route(value = "patient/profile", layout = MainLayout.class)
 @CssImport("./themes/aruclinic/patient.css")
 public class PatientProfileView extends VerticalLayout implements BeforeEnterObserver {
 
@@ -132,14 +133,6 @@ public class PatientProfileView extends VerticalLayout implements BeforeEnterObs
             if (email != null) {
                 currentUser = userRepository.findByEmail(email).orElse(null);
                 patientDto = patientService.getPatientByEmail(email);
-            }
-
-            // Fallback for testing/debugging
-            if (patientDto == null) {
-                List<PatientDto> patients = patientService.getAllPatients();
-                if (!patients.isEmpty()) {
-                    patientDto = patients.get(0);
-                }
             }
         } catch (Exception e) {
             // Ignore

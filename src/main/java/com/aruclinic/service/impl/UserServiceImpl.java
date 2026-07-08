@@ -314,4 +314,14 @@ public class UserServiceImpl implements UserService {
 		user.setPassword(bCryptPasswordEncoder.encode(newPassword));
 		userRepository.save(user);
 	}
+
+	@Override
+	public User getUserEntityByEmail(String email) {
+		return userRepository.findByEmail(email).orElse(null);
+	}
+
+	@Override
+	public User getUserEntityById(Long id) {
+		return userRepository.findById(id).orElse(null);
+	}
 }

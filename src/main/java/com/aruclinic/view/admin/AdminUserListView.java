@@ -2,7 +2,10 @@ package com.aruclinic.view.admin;
 
 import com.aruclinic.entity.User;
 import com.aruclinic.entity.Patient;
+import com.aruclinic.entity.Doctor;
 import com.aruclinic.service.AdminService;
+import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -39,17 +42,14 @@ import java.util.stream.Collectors;
 public class AdminUserListView extends VerticalLayout {
 
     private final AdminService adminService;
-    private final com.aruclinic.repository.PatientRepository patientRepository;
     private final com.aruclinic.service.LocationService locationService;
     private final Grid<User> grid = new Grid<>();
     private final TextField searchField = new TextField();
     private final Select<String> roleFilter = new Select<>();
 
     public AdminUserListView(AdminService adminService,
-                             com.aruclinic.repository.PatientRepository patientRepository,
                              com.aruclinic.service.LocationService locationService) {
         this.adminService = adminService;
-        this.patientRepository = patientRepository;
         this.locationService = locationService;
 
         setSizeFull();
@@ -132,7 +132,8 @@ public class AdminUserListView extends VerticalLayout {
                 dialog.close();
                 refreshGrid();
             } catch (Exception ex) {
-                Notification.show("Error deleting user: " + ex.getMessage(), 4000, Notification.Position.TOP_CENTER);
+                Notification.show("Error deleting user: " + ex.getMessage(), 5000, Notification.Position.TOP_CENTER)
+                        .addThemeVariants(com.vaadin.flow.component.notification.NotificationVariant.LUMO_ERROR);
             }
         });
 
@@ -248,10 +249,37 @@ public class AdminUserListView extends VerticalLayout {
         patientFormLayout.add(dob, gender, blood, address, zipCode, state, district, city, emergencyContact, emergencyPhone);
         patientFields.add(patientFormLayout);
 
+        // Doctor-specific container
+        Div doctorFields = new Div();
+        doctorFields.setWidthFull();
+        FormLayout doctorFormLayout = new FormLayout();
+        TextField docSpec = new TextField("Specialization");
+        
+        ComboBox<String> docDept = new ComboBox<>("Department");
+        docDept.setItems("General Outpatient", "General Medicine", "Pediatrics", "Cardiology", "Dermatology", "Orthopedics", "Gynaecology", "Neurology");
+        docDept.setAllowCustomValue(true);
+        docDept.addCustomValueSetListener(event -> docDept.setValue(event.getDetail()));
+        docDept.setValue("General Outpatient");
+
+        ComboBox<String> docQual = new ComboBox<>("Qualification");
+        docQual.setItems("MBBS", "MD", "MS", "DNB", "PhD", "BDS", "MDS", "FACS", "FRCP");
+        docQual.setRequiredIndicatorVisible(true);
+        docQual.setValue("MBBS");
+
+        IntegerField docExp = new IntegerField("Experience (Years)");
+        docExp.setRequiredIndicatorVisible(true);
+        docExp.setValue(2);
+
+        doctorFormLayout.add(docSpec, docDept, docQual, docExp);
+        doctorFields.add(doctorFormLayout);
+        doctorFields.setVisible(false);
+
         roleSelect.addValueChangeListener(event -> {
             boolean isPatient = "PATIENT".equalsIgnoreCase(event.getValue());
+            boolean isDoctor = "DOCTOR".equalsIgnoreCase(event.getValue());
             patientFields.setVisible(isPatient);
-            if (isPatient) {
+            doctorFields.setVisible(isDoctor);
+            if (isPatient || isDoctor) {
                 dialog.setWidth("750px");
             } else {
                 dialog.setWidth("450px");
@@ -261,13 +289,17 @@ public class AdminUserListView extends VerticalLayout {
         // Set default role value (will trigger visibility of patient fields)
         roleSelect.setValue("PATIENT");
 
-        form.add(fn, ln, email, mobile, pw, roleSelect, patientFields);
+        form.add(fn, ln, email, mobile, pw, roleSelect, patientFields, doctorFields);
 
         Button saveBtn = new Button("Save", e -> {
-            if (fn.getValue().isEmpty() || email.getValue().isEmpty() || pw.getValue().isEmpty()) {
-                Notification.show("Please fill in all required fields", 2000, Notification.Position.TOP_CENTER);
-                return;
+            if ("DOCTOR".equalsIgnoreCase(roleSelect.getValue())) {
+                if (docSpec.getValue().isEmpty() || docQual.getValue() == null || docQual.getValue().trim().isEmpty() || docExp.getValue() == null) {
+                    Notification.show("Please fill in all required doctor fields (Specialization, Qualification, Experience)", 3000, Notification.Position.TOP_CENTER)
+                            .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    return;
+                }
             }
+
             User u = new User();
             u.setFirstName(fn.getValue());
             u.setLastName(ln.getValue());
@@ -279,7 +311,7 @@ public class AdminUserListView extends VerticalLayout {
 
             if ("PATIENT".equalsIgnoreCase(roleSelect.getValue())) {
                 try {
-                    java.util.Optional<Patient> patientOpt = patientRepository.findByEmail(u.getEmail());
+                    java.util.Optional<Patient> patientOpt = adminService.findPatientByEmail(u.getEmail());
                     if (patientOpt.isPresent()) {
                         Patient patient = patientOpt.get();
                         patient.setDateOfBirth(dob.getValue());
@@ -296,10 +328,24 @@ public class AdminUserListView extends VerticalLayout {
                         patient.setEmergencyContact(emergencyContact.getValue());
                         patient.setEmergencyPhone(emergencyPhone.getValue());
                         
-                        patientRepository.save(patient);
+                        adminService.savePatient(patient);
                     }
                 } catch (Exception ex) {
                     System.err.println("Error saving linked patient entity: " + ex.getMessage());
+                }
+            } else if ("DOCTOR".equalsIgnoreCase(roleSelect.getValue())) {
+                try {
+                    java.util.Optional<Doctor> doctorOpt = adminService.findDoctorByEmail(u.getEmail());
+                    if (doctorOpt.isPresent()) {
+                        Doctor doctor = doctorOpt.get();
+                        doctor.setSpecialization(docSpec.getValue());
+                        doctor.setDepartment(docDept.getValue() != null ? docDept.getValue() : "General Outpatient");
+                        doctor.setQualification(docQual.getValue());
+                        doctor.setExperience(docExp.getValue());
+                        adminService.saveDoctor(doctor);
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Error saving linked doctor entity: " + ex.getMessage());
                 }
             }
 
@@ -364,7 +410,7 @@ public class AdminUserListView extends VerticalLayout {
         TextField emergencyPhone = new TextField("Emergency Phone");
 
         // Load existing patient details if any
-        java.util.Optional<Patient> patientOpt = patientRepository.findByEmail(user.getEmail());
+        java.util.Optional<Patient> patientOpt = adminService.findPatientByEmail(user.getEmail());
         if (patientOpt.isPresent()) {
             Patient patient = patientOpt.get();
             dob.setValue(patient.getDateOfBirth());
@@ -381,6 +427,41 @@ public class AdminUserListView extends VerticalLayout {
             emergencyContact.setValue(patient.getEmergencyContact() != null ? patient.getEmergencyContact() : "");
             emergencyPhone.setValue(patient.getEmergencyPhone() != null ? patient.getEmergencyPhone() : "");
         }
+
+        // Doctor-specific container
+        Div doctorFields = new Div();
+        doctorFields.setWidthFull();
+        FormLayout doctorFormLayout = new FormLayout();
+        TextField docSpec = new TextField("Specialization");
+        
+        ComboBox<String> docDept = new ComboBox<>("Department");
+        docDept.setItems("General Outpatient", "General Medicine", "Pediatrics", "Cardiology", "Dermatology", "Orthopedics", "Gynaecology", "Neurology");
+        docDept.setAllowCustomValue(true);
+        docDept.addCustomValueSetListener(event -> docDept.setValue(event.getDetail()));
+        docDept.setValue("General Outpatient");
+
+        ComboBox<String> docQual = new ComboBox<>("Qualification");
+        docQual.setItems("MBBS", "MD", "MS", "DNB", "PhD", "BDS", "MDS", "FACS", "FRCP");
+        docQual.setRequiredIndicatorVisible(true);
+        docQual.setValue("MBBS");
+
+        IntegerField docExp = new IntegerField("Experience (Years)");
+        docExp.setRequiredIndicatorVisible(true);
+        docExp.setValue(2);
+
+        // Load existing doctor details if any
+        java.util.Optional<Doctor> doctorOpt = adminService.findDoctorByEmail(user.getEmail());
+        if (doctorOpt.isPresent()) {
+            Doctor doctor = doctorOpt.get();
+            docSpec.setValue(doctor.getSpecialization() != null ? doctor.getSpecialization() : "");
+            docDept.setValue(doctor.getDepartment() != null ? doctor.getDepartment() : "General Outpatient");
+            docQual.setValue(doctor.getQualification() != null ? doctor.getQualification() : "MBBS");
+            docExp.setValue(doctor.getExperience() != null ? doctor.getExperience() : 2);
+        }
+
+        doctorFormLayout.add(docSpec, docDept, docQual, docExp);
+        doctorFields.add(doctorFormLayout);
+        doctorFields.setVisible(false);
 
         zipCode.setValueChangeMode(ValueChangeMode.EAGER);
         zipCode.addValueChangeListener(e -> {
@@ -409,8 +490,10 @@ public class AdminUserListView extends VerticalLayout {
 
         roleSelect.addValueChangeListener(event -> {
             boolean isPatient = "PATIENT".equalsIgnoreCase(event.getValue());
+            boolean isDoctor = "DOCTOR".equalsIgnoreCase(event.getValue());
             patientFields.setVisible(isPatient);
-            if (isPatient) {
+            doctorFields.setVisible(isDoctor);
+            if (isPatient || isDoctor) {
                 dialog.setWidth("750px");
             } else {
                 dialog.setWidth("450px");
@@ -419,14 +502,16 @@ public class AdminUserListView extends VerticalLayout {
 
         // Trigger initial visibility
         boolean isPatientInit = "PATIENT".equalsIgnoreCase(roleSelect.getValue());
+        boolean isDoctorInit = "DOCTOR".equalsIgnoreCase(roleSelect.getValue());
         patientFields.setVisible(isPatientInit);
-        if (isPatientInit) {
+        doctorFields.setVisible(isDoctorInit);
+        if (isPatientInit || isDoctorInit) {
             dialog.setWidth("750px");
         } else {
             dialog.setWidth("450px");
         }
 
-        form.add(fn, ln, email, mobile, roleSelect, patientFields);
+        form.add(fn, ln, email, mobile, roleSelect, patientFields, doctorFields);
 
         Button saveBtn = new Button("Save", e -> {
             User uDetails = new User();
@@ -437,9 +522,19 @@ public class AdminUserListView extends VerticalLayout {
 
             adminService.updateUser(user.getId(), uDetails, roleSelect.getValue());
 
+            if ("DOCTOR".equalsIgnoreCase(roleSelect.getValue())) {
+                if (docSpec.getValue().isEmpty() || docQual.getValue() == null || docQual.getValue().trim().isEmpty() || docExp.getValue() == null) {
+                    Notification.show("Please fill in all required doctor fields (Specialization, Qualification, Experience)", 3000, Notification.Position.TOP_CENTER)
+                            .addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    return;
+                }
+            }
+
+            adminService.updateUser(user.getId(), uDetails, roleSelect.getValue());
+
             if ("PATIENT".equalsIgnoreCase(roleSelect.getValue())) {
                 try {
-                    java.util.Optional<Patient> pOpt = patientRepository.findByEmail(user.getEmail());
+                    java.util.Optional<Patient> pOpt = adminService.findPatientByEmail(user.getEmail());
                     if (pOpt.isPresent()) {
                         Patient patient = pOpt.get();
                         patient.setEmail(email.getValue());
@@ -460,10 +555,27 @@ public class AdminUserListView extends VerticalLayout {
                         patient.setEmergencyContact(emergencyContact.getValue());
                         patient.setEmergencyPhone(emergencyPhone.getValue());
                         
-                        patientRepository.save(patient);
+                        adminService.savePatient(patient);
                     }
                 } catch (Exception ex) {
                     System.err.println("Error updating linked patient entity: " + ex.getMessage());
+                }
+            } else if ("DOCTOR".equalsIgnoreCase(roleSelect.getValue())) {
+                try {
+                    java.util.Optional<Doctor> dOpt = adminService.findDoctorByEmail(user.getEmail());
+                    if (dOpt.isPresent()) {
+                        Doctor doctor = dOpt.get();
+                        doctor.setEmail(email.getValue());
+                        doctor.setName(fn.getValue() + " " + ln.getValue());
+                        doctor.setMobileNumber(mobile.getValue());
+                        doctor.setSpecialization(docSpec.getValue());
+                        doctor.setDepartment(docDept.getValue() != null ? docDept.getValue() : "General Outpatient");
+                        doctor.setQualification(docQual.getValue());
+                        doctor.setExperience(docExp.getValue());
+                        adminService.saveDoctor(doctor);
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Error updating linked doctor entity: " + ex.getMessage());
                 }
             }
 

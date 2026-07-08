@@ -33,4 +33,6 @@ public interface PrescriptionService {
     com.aruclinic.entity.Prescription getPrescriptionEntityById(Long id);
 
     List<com.aruclinic.entity.Prescription> getAllPrescriptionEntities();
+
+    List<Long> findPatientIdsByDoctorId(Long doctorId);
 }

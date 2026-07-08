@@ -3,8 +3,8 @@ package com.aruclinic.view.prescription;
 import com.aruclinic.dto.PrescriptionDto;
 import com.aruclinic.dto.PrescriptionItemDto;
 import com.aruclinic.entity.Patient;
-import com.aruclinic.repository.DoctorRepository;
-import com.aruclinic.repository.PatientRepository;
+import com.aruclinic.service.PatientService;
+import com.aruclinic.service.DoctorService;
 import com.aruclinic.service.PrescriptionService;
 import com.aruclinic.view.MainLayout;
 import com.vaadin.flow.component.Component;
@@ -37,8 +37,8 @@ import java.util.List;
 public class ViewPrescriptionView extends VerticalLayout implements HasUrlParameter<Long> {
 
     private final PrescriptionService prescriptionService;
-    private final PatientRepository patientRepository;
-    private final DoctorRepository doctorRepository;
+    private final PatientService patientService;
+    private final DoctorService doctorService;
 
     private Long prescriptionId;
     private PrescriptionDto prescription;
@@ -68,11 +68,11 @@ public class ViewPrescriptionView extends VerticalLayout implements HasUrlParame
     private final HorizontalLayout actionRow = new HorizontalLayout();
 
     public ViewPrescriptionView(PrescriptionService prescriptionService,
-                                PatientRepository patientRepository,
-                                DoctorRepository doctorRepository) {
+                                PatientService patientService,
+                                DoctorService doctorService) {
         this.prescriptionService = prescriptionService;
-        this.patientRepository = patientRepository;
-        this.doctorRepository = doctorRepository;
+        this.patientService = patientService;
+        this.doctorService = doctorService;
 
         setSizeFull();
         setPadding(true);
@@ -224,18 +224,20 @@ public class ViewPrescriptionView extends VerticalLayout implements HasUrlParame
         statusBadge.setClassName("status-badge " + prescription.getStatus().toLowerCase());
 
         patientName.setText(prescription.getPatientName());
-        patientRepository.findById(prescription.getPatientId()).ifPresent(p -> {
+        Patient p = patientService.getPatientEntityById(prescription.getPatientId());
+        if (p != null) {
             patientAgeGender.setText(p.getAge() + " yrs / " + p.getGender());
             patientMobile.setText(p.getMobileNumber());
-        });
+        }
 
         doctorName.setText(prescription.getDoctorName());
         doctorName.getStyle().set("font-weight", "bold");
         doctorSignName.setText("Dr. " + prescription.getDoctorName());
-        doctorRepository.findById(prescription.getDoctorId()).ifPresent(d -> {
+        com.aruclinic.entity.Doctor d = doctorService.getDoctorEntityById(prescription.getDoctorId());
+        if (d != null) {
             doctorQualSpec.setText(d.getQualification() + " (" + d.getSpecialization() + ")");
             doctorDept.setText(d.getDepartment());
-        });
+        }
 
         diagnosis.setText(prescription.getDiagnosis());
         symptoms.setText(prescription.getSymptoms());
@@ -374,7 +376,7 @@ public class ViewPrescriptionView extends VerticalLayout implements HasUrlParame
         sb.append("---------------------------------------------------\n");
         sb.append("Name: ").append(prescription.getPatientName()).append("\n");
 
-        Patient patient = patientRepository.findById(prescription.getPatientId()).orElse(null);
+        Patient patient = patientService.getPatientEntityById(prescription.getPatientId());
         if (patient != null) {
             sb.append("Age/Gender: ").append(patient.getAge()).append(" yrs / ").append(patient.getGender()).append("\n");
             sb.append("Mobile: ").append(patient.getMobileNumber()).append("\n");
@@ -387,7 +389,7 @@ public class ViewPrescriptionView extends VerticalLayout implements HasUrlParame
         sb.append("---------------------------------------------------\n");
         sb.append("Name: ").append(prescription.getDoctorName()).append("\n");
 
-        com.aruclinic.entity.Doctor doctor = doctorRepository.findById(prescription.getDoctorId()).orElse(null);
+        com.aruclinic.entity.Doctor doctor = doctorService.getDoctorEntityById(prescription.getDoctorId());
         if (doctor != null) {
             sb.append("Qualification: ").append(doctor.getQualification()).append("\n");
             sb.append("Specialization: ").append(doctor.getSpecialization()).append("\n");
@@ -494,14 +496,22 @@ public class ViewPrescriptionView extends VerticalLayout implements HasUrlParame
 
             // Role-based security validation
             String name = SecurityContextHolder.getContext().getAuthentication().getName();
+            
+            boolean isReceptionist = SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+                    .contains(new SimpleGrantedAuthority("ROLE_RECEPTIONIST"));
+            if (isReceptionist) {
+                event.forwardTo("access-denied");
+                return;
+            }
+
             boolean isPatient = SecurityContextHolder.getContext().getAuthentication().getAuthorities()
                     .contains(new SimpleGrantedAuthority("ROLE_PATIENT"));
 
             if (isPatient) {
-                Patient patient = patientRepository.findByEmail(name).orElse(null);
+                Patient patient = patientService.getPatientEntityByEmail(name);
                 if (patient != null && !prescription.getPatientId().equals(patient.getId())) {
                     Notification.show("Access Denied: You can only view your own prescriptions", 3000, Notification.Position.TOP_CENTER);
-                    event.forwardTo("patient");
+                    event.forwardTo("access-denied");
                     return;
                 }
             }

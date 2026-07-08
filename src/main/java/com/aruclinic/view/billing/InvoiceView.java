@@ -1,5 +1,6 @@
 package com.aruclinic.view.billing;
 
+import com.aruclinic.view.MainLayout;
 import com.aruclinic.dto.BillDto;
 import com.aruclinic.dto.BillItemDto;
 import com.aruclinic.service.BillingService;
@@ -31,7 +32,7 @@ import java.util.List;
  * Invoice View for displaying invoice details.
  */
 @PageTitle("Invoice | AruClinic")
-@Route("patient/billing/invoice")
+@Route(value = "patient/billing/invoice", layout = MainLayout.class)
 @CssImport("./themes/aruclinic/billing.css")
 public class InvoiceView extends VerticalLayout {
 

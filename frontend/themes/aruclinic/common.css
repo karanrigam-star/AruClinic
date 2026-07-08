@@ -691,6 +691,41 @@
     .aruclinic-stat-card .stat-value {
         font-size: var(--aruclinic-font-size-2xl);
     }
+
+    /* Stack top-level horizontal rows vertically on mobile */
+    vaadin-horizontal-layout[style*="width: 100%"],
+    vaadin-horizontal-layout[style*="width:100%"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: var(--aruclinic-spacing-sm) !important;
+        height: auto !important;
+    }
+
+    /* Force all inputs to span 100% width on mobile viewports */
+    vaadin-text-field, 
+    vaadin-password-field,
+    vaadin-combo-box, 
+    vaadin-date-picker,
+    vaadin-integer-field,
+    vaadin-number-field,
+    vaadin-select,
+    vaadin-email-field,
+    vaadin-text-area {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Prevent dialog overlays from clipping/overflowing mobile screen borders */
+    vaadin-dialog-overlay::part(overlay) {
+        max-width: 95vw !important;
+        margin: auto !important;
+    }
+
+    vaadin-dialog-overlay::part(content) {
+        max-height: 75vh !important;
+        overflow-y: auto !important;
+        padding: var(--aruclinic-spacing-md) !important;
+    }
 }
 
 @media (min-width: 768px) {
@@ -802,31 +837,19 @@
         transition: left 0.3s ease !important;
     }
 
+    .aruclinic-sidenav.expanded {
+        left: 0 !important;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25) !important;
+    }
+
     .aruclinic-sidenav vaadin-side-nav {
         height: 100% !important;
         overflow-y: auto !important;
         background: transparent !important;
     }
 
-    /* Hover on trigger reveals it */
-    .aruclinic-sidenav:hover {
-        left: 0 !important;
-    }
-
     .aruclinic-sidenav-trigger {
-        position: absolute !important;
-        left: 100% !important;
-        top: 36px !important;
-        width: 32px !important;
-        height: 48px !important;
-        background: var(--aruclinic-primary-dark) !important;
-        color: white !important;
-        border-radius: 0 12px 12px 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        cursor: pointer !important;
-        z-index: 1010 !important;
+        display: none !important;
     }
 
     /* Content area occupies full width on mobile */

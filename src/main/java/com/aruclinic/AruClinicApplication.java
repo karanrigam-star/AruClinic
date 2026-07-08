@@ -79,117 +79,37 @@ public class AruClinicApplication {
                 }
             }
 
-            // =========================
-            // ADMIN
-            // =========================
-            if (!userRepository.existsByEmail("admin@example.com")) {
+            // Check if any ADMIN user exists (SUPER_ADMIN or CLINIC_ADMIN)
+            boolean adminExists = false;
+            try {
+                long superAdminCount = userRepository.findByRoleName(RoleName.SUPER_ADMIN.name()).size();
+                long clinicAdminCount = userRepository.findByRoleName(RoleName.CLINIC_ADMIN.name()).size();
+                if (superAdminCount > 0 || clinicAdminCount > 0) {
+                    adminExists = true;
+                }
+            } catch (Exception e) {
+                // Ignore / fallback
+            }
 
+            if (!adminExists) {
+                String rawPassword = "Admin!" + java.util.UUID.randomUUID().toString().substring(0, 8);
                 User admin = new User();
-                admin.setEmail("admin@example.com");
-                admin.setFirstName("Admin");
-                admin.setLastName("User");
-                admin.setMobileNumber("1234567890");
-                admin.setPassword(passwordEncoder.encode("admin123!"));
+                admin.setEmail("admin@aruclinic.com");
+                admin.setFirstName("System");
+                admin.setLastName("Admin");
+                admin.setMobileNumber("9999999999");
+                admin.setPassword(passwordEncoder.encode(rawPassword));
 
                 Role role = roleRepository.findByName(RoleName.SUPER_ADMIN.name()).orElseThrow();
                 admin.addRole(role);
 
                 userRepository.save(admin);
-            }
 
-            // =========================
-            // DOCTOR
-            // =========================
-            if (!userRepository.existsByEmail("doctor@example.com")) {
-
-                User doctor = new User();
-                doctor.setEmail("doctor@example.com");
-                doctor.setFirstName("John");
-                doctor.setLastName("Doe");
-                doctor.setMobileNumber("0987654321");
-                doctor.setPassword(passwordEncoder.encode("doctor123!"));
-
-                Role role = roleRepository.findByName(RoleName.DOCTOR.name()).orElseThrow();
-                doctor.addRole(role);
-
-                userRepository.save(doctor);
-            }
-
-            // Seed/sync corresponding Doctor entity
-            if (doctorRepository.existsByEmail("doctor@example.com")) {
-                Doctor doc = doctorRepository.findByEmail("doctor@example.com").orElseThrow();
-                if ("Doctor".equalsIgnoreCase(doc.getName())) {
-                    doc.setName("John Doe");
-                    doctorRepository.save(doc);
-                }
-            } else {
-                Doctor doc = new Doctor();
-                doc.setEmail("doctor@example.com");
-                doc.setName("John Doe");
-                doc.setSpecialization("General Medicine");
-                doc.setDepartment("General Outpatient");
-                doc.setQualification("MBBS, MD");
-                doc.setExperience(8);
-                doc.setMobileNumber("0987654321");
-                doctorRepository.save(doc);
-            }
-
-            // =========================
-            // RECEPTIONIST
-            // =========================
-            if (!userRepository.existsByEmail("receptionist@example.com")) {
-
-                User receptionist = new User();
-                receptionist.setEmail("receptionist@example.com");
-                receptionist.setFirstName("Jane");
-                receptionist.setLastName("Smith");
-                receptionist.setMobileNumber("1122334455");
-                receptionist.setPassword(passwordEncoder.encode("receptionist123!"));
-
-                Role role = roleRepository.findByName(RoleName.RECEPTIONIST.name()).orElseThrow();
-                receptionist.addRole(role);
-
-                userRepository.save(receptionist);
-            }
-
-            // =========================
-            // PATIENT
-            // =========================
-            if (!userRepository.existsByEmail("patient@example.com")) {
-
-                User patient = new User();
-                patient.setEmail("patient@example.com");
-                patient.setFirstName("Alice");
-                patient.setLastName("Johnson");
-                patient.setMobileNumber("5566778899");
-                patient.setPassword(passwordEncoder.encode("patient123!"));
-
-                Role role = roleRepository.findByName(RoleName.PATIENT.name()).orElseThrow();
-                patient.addRole(role);
-
-                userRepository.save(patient);
-            }
-
-            // Seed/sync corresponding Patient entity
-            if (patientRepository.existsByEmail("patient@example.com")) {
-                Patient pat = patientRepository.findByEmail("patient@example.com").orElseThrow();
-                if ("Patient".equalsIgnoreCase(pat.getFirstName())) {
-                    pat.setFirstName("Alice");
-                    pat.setLastName("Johnson");
-                    patientRepository.save(pat);
-                }
-            } else {
-                Patient pat = new Patient();
-                pat.setEmail("patient@example.com");
-                pat.setFirstName("Alice");
-                pat.setLastName("Johnson");
-                pat.setDateOfBirth(LocalDate.of(1995, 5, 15));
-                pat.setAge(31);
-                pat.setGender("Female");
-                pat.setBloodGroup("O+");
-                pat.setMobileNumber("5566778899");
-                pat.setAddress("456 Oak Avenue, Suite 10");
-                patientRepository.save(pat);
+                System.out.println("==================================================");
+                System.out.println("      AruClinic Initial Bootstrap Admin Created   ");
+                System.out.println("      Email: admin@aruclinic.com                  ");
+                System.out.println("      Temporary Password: " + rawPassword         );
+                System.out.println("==================================================");
             }
         };
     }

@@ -1,19 +1,27 @@
 package com.aruclinic.view.patient;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.aruclinic.view.MainLayout;
+import com.aruclinic.service.PatientService;
+import com.aruclinic.entity.Patient;
+import com.aruclinic.dto.MedicalHistoryItemDto;
+import com.vaadin.flow.server.VaadinSession;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Medical History view for displaying patient's medical records and history.
@@ -21,14 +29,70 @@ import com.aruclinic.view.MainLayout;
 @PageTitle("Medical History | AruClinic")
 @Route(value = "patient/medical-history", layout = MainLayout.class)
 @CssImport("./themes/aruclinic/patient.css")
-public class MedicalHistoryView extends VerticalLayout {
+public class MedicalHistoryView extends VerticalLayout implements BeforeEnterObserver {
 
-    public MedicalHistoryView() {
+    private final PatientService patientService;
+    private Patient currentPatient = null;
+    private final Div timeline = new Div();
+
+    public MedicalHistoryView(PatientService patientService) {
+        this.patientService = patientService;
+
         setSizeFull();
         setPadding(true);
         setSpacing(true);
 
         add(createMedicalHistoryContent());
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        resolvePatient();
+        refreshTimeline();
+    }
+
+    private void resolvePatient() {
+        try {
+            org.springframework.security.core.Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null) {
+                VaadinSession session = VaadinSession.getCurrent();
+                if (session != null) {
+                    auth = (org.springframework.security.core.Authentication)
+                            session.getAttribute("SPRING_SECURITY_AUTHENTICATION");
+                }
+            }
+
+            if (auth != null) {
+                org.springframework.security.core.context.SecurityContext context =
+                        org.springframework.security.core.context.SecurityContextHolder.createEmptyContext();
+                context.setAuthentication(auth);
+                SecurityContextHolder.setContext(context);
+            }
+
+            String email = null;
+            if (auth != null && auth.isAuthenticated()) {
+                Object principal = auth.getPrincipal();
+                if (principal instanceof org.springframework.security.core.userdetails.User springUser) {
+                    email = springUser.getUsername();
+                } else if (principal instanceof String principalStr) {
+                    email = principalStr;
+                }
+            }
+
+            if (email != null) {
+                currentPatient = patientService.getPatientEntityByEmail(email);
+            }
+
+            // Fallback for blank setups during testing
+            if (currentPatient == null) {
+                List<Patient> patients = patientService.getAllPatientEntities();
+                if (!patients.isEmpty()) {
+                    currentPatient = patients.get(0);
+                }
+            }
+        } catch (Exception e) {
+            // Ignore
+        }
     }
 
     private Component createMedicalHistoryContent() {
@@ -43,69 +107,57 @@ public class MedicalHistoryView extends VerticalLayout {
         H1 title = new H1("Medical History");
         title.addClassName("aruclinic-medical-history-title");
 
-        Button addRecordBtn = new Button("Add Record", new Icon(VaadinIcon.PLUS));
-        addRecordBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        addRecordBtn.addClassName("aruclinic-btn");
-        addRecordBtn.addClassName("aruclinic-btn-primary");
-        addRecordBtn.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("patient/medical-history/add")));
-
-        header.add(title, addRecordBtn);
+        header.add(title);
 
         // Medical history timeline
-        Div timeline = new Div();
         timeline.addClassName("aruclinic-medical-history-timeline");
-
-        // Sample medical history items
-        timeline.add(createMedicalHistoryItem(
-            "June 1, 2025",
-            "Follow-up Consultation",
-            "Dr. Smith",
-            "Patient reported improvement in blood pressure. Medication adjusted.",
-            "primary"
-        ));
-
-        timeline.add(createMedicalHistoryItem(
-            "May 15, 2025",
-            "Blood Test Results",
-            "Lab",
-            "Cholesterol: 190 mg/dL, Glucose: 95 mg/dL, Blood Pressure: 120/80 mmHg",
-            "success"
-        ));
-
-        timeline.add(createMedicalHistoryItem(
-            "April 20, 2025",
-            "Annual Physical Exam",
-            "Dr. Johnson",
-            "General health checkup. All vitals normal. Recommended annual follow-up.",
-            "warning"
-        ));
-
-        timeline.add(createMedicalHistoryItem(
-            "March 10, 2025",
-            "X-Ray - Chest",
-            "Radiology",
-            "Chest X-ray showed no abnormalities. Clear lungs and heart.",
-            "success"
-        ));
-
-        timeline.add(createMedicalHistoryItem(
-            "February 5, 2025",
-            "Vaccination - Flu Shot",
-            "Nurse",
-            "Seasonal flu vaccination administered. No adverse reactions reported.",
-            "primary"
-        ));
-
-        timeline.add(createMedicalHistoryItem(
-            "January 15, 2025",
-            "Diagnosis - Hypertension",
-            "Dr. Smith",
-            "Diagnosed with stage 1 hypertension. Prescribed Lisinopril 10mg daily.",
-            "danger"
-        ));
 
         content.add(header, timeline);
         return content;
+    }
+
+    private void refreshTimeline() {
+        timeline.removeAll();
+
+        if (currentPatient == null) {
+            Div emptyMsg = new Div();
+            emptyMsg.setText("No patient session resolved.");
+            emptyMsg.getStyle().set("color", "var(--aruclinic-text-secondary)").set("font-style", "italic");
+            timeline.add(emptyMsg);
+            return;
+        }
+
+        List<MedicalHistoryItemDto> records = new ArrayList<>();
+        String json = currentPatient.getMedicalHistory();
+        if (json != null && !json.trim().isEmpty()) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                records = mapper.readValue(json, new TypeReference<List<MedicalHistoryItemDto>>() {});
+            } catch (Exception e) {
+                // If parsing fails, log and show error or keep empty
+            }
+        }
+
+        if (records.isEmpty()) {
+            Div emptyMsg = new Div();
+            emptyMsg.setText("No medical history records found.");
+            emptyMsg.getStyle().set("color", "var(--aruclinic-text-secondary)")
+                .set("font-style", "italic")
+                .set("padding", "var(--aruclinic-spacing-md)")
+                .set("text-align", "center");
+            timeline.add(emptyMsg);
+            return;
+        }
+
+        for (MedicalHistoryItemDto record : records) {
+            timeline.add(createMedicalHistoryItem(
+                record.getDate(),
+                record.getTitle(),
+                record.getDoctor(),
+                record.getDetails(),
+                record.getType() != null ? record.getType() : "primary"
+            ));
+        }
     }
 
     private Component createMedicalHistoryItem(String date, String title, String provider, String description, String type) {

@@ -1,5 +1,6 @@
 package com.aruclinic.view.notification;
 
+import com.aruclinic.view.MainLayout;
 import com.aruclinic.service.NotificationService;
 import com.aruclinic.repository.UserRepository;
 import com.aruclinic.dto.PrescriptionDto;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
  * Notifications view for displaying user notifications in real-time.
  */
 @PageTitle("Notifications | AruClinic")
-@Route("notifications")
+@Route(value = "notifications", layout = MainLayout.class)
 @CssImport("./themes/aruclinic/common.css")
 public class NotificationsView extends VerticalLayout implements BeforeEnterObserver {
 
@@ -103,14 +104,6 @@ public class NotificationsView extends VerticalLayout implements BeforeEnterObse
 
             if (email != null) {
                 currentUser = userRepository.findByEmail(email).orElse(null);
-            }
-
-            // Fallback for testing/debugging
-            if (currentUser == null) {
-                List<com.aruclinic.entity.User> users = userRepository.findAll();
-                if (!users.isEmpty()) {
-                    currentUser = users.get(0);
-                }
             }
         } catch (Exception e) {
             // Ignore

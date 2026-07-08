@@ -9,6 +9,8 @@ import com.aruclinic.repository.PatientRepository;
 import com.aruclinic.repository.UserRepository;
 import com.aruclinic.repository.NotificationRepository;
 import com.aruclinic.service.PrescriptionService;
+import com.aruclinic.service.AppointmentService;
+import com.aruclinic.entity.AppointmentStatus;
 import com.aruclinic.view.MainLayout;
 import java.util.stream.Collectors;
 import com.vaadin.flow.component.Component;
@@ -53,6 +55,7 @@ public class PrescriptionFormView extends VerticalLayout implements HasUrlParame
     private final DoctorRepository doctorRepository;
     private final UserRepository userRepository;
     private final NotificationRepository notificationRepository;
+    private final AppointmentService appointmentService;
 
     private Long editPrescriptionId = null;
     private Doctor currentDoctor = null;
@@ -86,12 +89,14 @@ public class PrescriptionFormView extends VerticalLayout implements HasUrlParame
                                 PatientRepository patientRepository,
                                 DoctorRepository doctorRepository,
                                 UserRepository userRepository,
-                                NotificationRepository notificationRepository) {
+                                NotificationRepository notificationRepository,
+                                AppointmentService appointmentService) {
         this.prescriptionService = prescriptionService;
         this.patientRepository = patientRepository;
         this.doctorRepository = doctorRepository;
         this.userRepository = userRepository;
         this.notificationRepository = notificationRepository;
+        this.appointmentService = appointmentService;
 
         setSizeFull();
         setPadding(true);
@@ -375,6 +380,49 @@ public class PrescriptionFormView extends VerticalLayout implements HasUrlParame
             } else {
                 prescriptionService.updatePrescription(editPrescriptionId, dto);
                 Notification.show("Prescription updated successfully!", 2000, Notification.Position.TOP_CENTER);
+            }
+
+            if ("ISSUED".equals(targetStatus)) {
+                Long apptId = (Long) com.vaadin.flow.server.VaadinSession.getCurrent().getAttribute("consulting_appointment_id");
+                com.aruclinic.entity.Appointment appt = null;
+                if (apptId != null) {
+                    try {
+                        appt = appointmentService.getById(apptId);
+                    } catch (Exception ex) {}
+                }
+                
+                // Fallback: look up the latest active scheduled/checked_in appointment for this patient and doctor
+                if (appt == null && patientSelect.getValue() != null && currentDoctor != null) {
+                    try {
+                        List<com.aruclinic.entity.Appointment> activeAppts = appointmentService.findAll().stream()
+                            .filter(a -> a.getPatient() != null && a.getPatient().getId().equals(patientSelect.getValue().getId()))
+                            .filter(a -> a.getDoctor() != null && a.getDoctor().getId().equals(currentDoctor.getId()))
+                            .filter(a -> a.getStatus() == AppointmentStatus.SCHEDULED || 
+                                         a.getStatus() == AppointmentStatus.CHECKED_IN)
+                            .sorted((a1, a2) -> {
+                                if (a1.getAppointmentDate() != null && a2.getAppointmentDate() != null) {
+                                    int d = a2.getAppointmentDate().compareTo(a1.getAppointmentDate());
+                                    if (d != 0) return d;
+                                }
+                                if (a1.getAppointmentTime() != null && a2.getAppointmentTime() != null) {
+                                    return a2.getAppointmentTime().compareTo(a1.getAppointmentTime());
+                                }
+                                return 0;
+                            })
+                            .collect(Collectors.toList());
+                        if (!activeAppts.isEmpty()) {
+                            appt = activeAppts.get(0);
+                        }
+                    } catch (Exception ex) {}
+                }
+
+                if (appt != null) {
+                    try {
+                        appt.setStatus(com.aruclinic.entity.AppointmentStatus.COMPLETED);
+                        appointmentService.updateAppointment(appt.getId(), appt);
+                    } catch (Exception ex) {}
+                }
+                com.vaadin.flow.server.VaadinSession.getCurrent().setAttribute("consulting_appointment_id", null);
             }
 
             getUI().ifPresent(ui -> ui.navigate("doctor/prescriptions"));

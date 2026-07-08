@@ -1,5 +1,6 @@
 package com.aruclinic.view.billing;
 
+import com.aruclinic.view.MainLayout;
 import com.aruclinic.dto.BillDto;
 import com.aruclinic.service.BillingService;
 import com.vaadin.flow.component.Component;
@@ -30,7 +31,7 @@ import java.time.LocalDate;
  * Payment View for processing invoice payments.
  */
 @PageTitle("Payment | AruClinic")
-@Route("patient/billing/pay")
+@Route(value = "patient/billing/pay", layout = MainLayout.class)
 @CssImport("./themes/aruclinic/billing.css")
 public class PaymentView extends VerticalLayout {
 

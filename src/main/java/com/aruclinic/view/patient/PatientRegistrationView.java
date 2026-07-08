@@ -25,12 +25,13 @@ import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.aruclinic.view.MainLayout;
 
 /**
  * Patient Registration view for adding new patients to the system.
  */
 @PageTitle("Patient Registration | AruClinic")
-@Route("receptionist/patient-registration")
+@Route(value = "receptionist/patient-registration", layout = MainLayout.class)
 @CssImport("./themes/aruclinic/patient.css")
 public class PatientRegistrationView extends VerticalLayout {
 

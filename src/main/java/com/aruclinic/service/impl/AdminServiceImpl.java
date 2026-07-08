@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +49,17 @@ public class AdminServiceImpl implements AdminService {
         // Initialize settings table if not exists
         try {
             jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS clinic_settings (setting_key VARCHAR(100) PRIMARY KEY, setting_value VARCHAR(500))");
+        } catch (Exception e) {}
+
+        // Initialize deleted records statistics archive table
+        try {
+            jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS deleted_records_archive (" +
+                "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
+                "record_type VARCHAR(50) NOT NULL, " +
+                "amount DECIMAL(12,2) DEFAULT 0.00, " +
+                "count BIGINT DEFAULT 1, " +
+                "invoice_date DATE, " +
+                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
         } catch (Exception e) {}
     }
 
@@ -98,10 +110,15 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public long getCompletedConsultations() {
         try {
-            return jdbcTemplate.queryForObject(
+            Long active = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM appointments WHERE status = 'COMPLETED'",
                 Long.class
             );
+            Long archived = jdbcTemplate.queryForObject(
+                "SELECT COALESCE(SUM(count), 0) FROM deleted_records_archive WHERE record_type = 'CONSULTATION'",
+                Long.class
+            );
+            return (active != null ? active : 0) + (archived != null ? archived : 0);
         } catch (Exception e) {
             return 0;
         }
@@ -110,12 +127,17 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public double getRevenueToday() {
         try {
-            Double val = jdbcTemplate.queryForObject(
+            Double active = jdbcTemplate.queryForObject(
                 "SELECT COALESCE(SUM(total), 0) FROM bills WHERE status = 'PAID' AND invoice_date = ?",
                 Double.class,
                 java.sql.Date.valueOf(LocalDate.now())
             );
-            return val != null ? val : 0.0;
+            Double archived = jdbcTemplate.queryForObject(
+                "SELECT COALESCE(SUM(amount), 0) FROM deleted_records_archive WHERE record_type = 'REVENUE' AND invoice_date = ?",
+                Double.class,
+                java.sql.Date.valueOf(LocalDate.now())
+            );
+            return (active != null ? active : 0.0) + (archived != null ? archived : 0.0);
         } catch (Exception e) {
             return 0.0;
         }
@@ -124,13 +146,19 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public double getRevenueThisMonth() {
         try {
-            Double val = jdbcTemplate.queryForObject(
+            Double active = jdbcTemplate.queryForObject(
                 "SELECT COALESCE(SUM(total), 0) FROM bills WHERE status = 'PAID' AND MONTH(invoice_date) = MONTH(?) AND YEAR(invoice_date) = YEAR(?)",
                 Double.class,
                 java.sql.Date.valueOf(LocalDate.now()),
                 java.sql.Date.valueOf(LocalDate.now())
             );
-            return val != null ? val : 0.0;
+            Double archived = jdbcTemplate.queryForObject(
+                "SELECT COALESCE(SUM(amount), 0) FROM deleted_records_archive WHERE record_type = 'REVENUE' AND MONTH(invoice_date) = MONTH(?) AND YEAR(invoice_date) = YEAR(?)",
+                Double.class,
+                java.sql.Date.valueOf(LocalDate.now()),
+                java.sql.Date.valueOf(LocalDate.now())
+            );
+            return (active != null ? active : 0.0) + (archived != null ? archived : 0.0);
         } catch (Exception e) {
             return 0.0;
         }
@@ -139,10 +167,15 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public long getPendingBillsCount() {
         try {
-            return jdbcTemplate.queryForObject(
+            Long active = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM bills WHERE status = 'UNPAID'",
                 Long.class
             );
+            Long archived = jdbcTemplate.queryForObject(
+                "SELECT COALESCE(SUM(count), 0) FROM deleted_records_archive WHERE record_type = 'PENDING_BILL'",
+                Long.class
+            );
+            return (active != null ? active : 0) + (archived != null ? archived : 0);
         } catch (Exception e) {
             return 0;
         }
@@ -151,10 +184,15 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public long getNewRegistrationsCount() {
         try {
-            return jdbcTemplate.queryForObject(
+            Long active = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)",
                 Long.class
             );
+            Long archived = jdbcTemplate.queryForObject(
+                "SELECT COALESCE(SUM(count), 0) FROM deleted_records_archive WHERE record_type = 'REGISTRATION' AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)",
+                Long.class
+            );
+            return (active != null ? active : 0) + (archived != null ? archived : 0);
         } catch (Exception e) {
             return 0;
         }
@@ -254,17 +292,122 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void deleteUser(Long id) {
         try {
+            // Prevent self-deletion
+            try {
+                org.springframework.security.core.Authentication authentication = 
+                    org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+                if (authentication != null) {
+                    String loggedInEmail = authentication.getName();
+                    Optional<User> targetUserOpt = userRepository.findById(id);
+                    if (targetUserOpt.isPresent()) {
+                        User targetUser = targetUserOpt.get();
+                        if (targetUser.getEmail() != null && targetUser.getEmail().equalsIgnoreCase(loggedInEmail)) {
+                            throw new RuntimeException("You cannot delete your own account while you are logged in!");
+                        }
+                    }
+                }
+            } catch (RuntimeException ex) {
+                throw ex;
+            } catch (Exception e) {
+                // Ignore ContextHolder issues during tests
+            }
+
+            // Prevent deleting the last administrator
+            userRepository.findById(id).ifPresent(user -> {
+                boolean isAdmin = user.getRoles().stream()
+                    .anyMatch(role -> "ADMIN".equalsIgnoreCase(role.getName()));
+                if (isAdmin) {
+                    Long adminCount = jdbcTemplate.queryForObject(
+                        "SELECT COUNT(*) FROM user_roles ur JOIN roles r ON ur.role_id = r.id WHERE r.name = 'ADMIN'",
+                        Long.class
+                    );
+                    if (adminCount != null && adminCount <= 1) {
+                        throw new RuntimeException("You cannot delete this administrator account. The system must have at least one active administrator.");
+                    }
+                }
+            });
+
+            // Archive registration first
+            jdbcTemplate.update("INSERT INTO deleted_records_archive (record_type, amount, count) VALUES ('REGISTRATION', 0, 1)");
+
             userRepository.findById(id).ifPresent(user -> {
                 String email = user.getEmail();
                 if (email != null) {
-                    doctorRepository.findByEmail(email).ifPresent(doctorRepository::delete);
-                    patientRepository.findByEmail(email).ifPresent(patientRepository::delete);
+                    doctorRepository.findByEmail(email).ifPresent(doctor -> {
+                        // Archive Doctor statistics before delete
+                        long completed = doctor.getAppointments().stream()
+                            .filter(a -> a.getStatus() == AppointmentStatus.COMPLETED)
+                            .count();
+                        if (completed > 0) {
+                            jdbcTemplate.update("INSERT INTO deleted_records_archive (record_type, amount, count) VALUES ('CONSULTATION', 0, ?)", completed);
+                        }
+                        BigDecimal doctorPaidTotal = billRepository.findByDoctorId(doctor.getId()).stream()
+                            .filter(b -> "PAID".equalsIgnoreCase(b.getStatus()))
+                            .map(Bill::getTotal)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                        if (doctorPaidTotal.compareTo(BigDecimal.ZERO) > 0) {
+                            jdbcTemplate.update("INSERT INTO deleted_records_archive (record_type, amount, count, invoice_date) VALUES ('REVENUE', ?, 1, CURDATE())", doctorPaidTotal);
+                        }
+                        doctorRepository.delete(doctor);
+                    });
+                    patientRepository.findByEmail(email).ifPresent(patient -> {
+                        // Archive Patient statistics before delete
+                        long completed = patient.getAppointments().stream()
+                            .filter(a -> a.getStatus() == AppointmentStatus.COMPLETED)
+                            .count();
+                        if (completed > 0) {
+                            jdbcTemplate.update("INSERT INTO deleted_records_archive (record_type, amount, count) VALUES ('CONSULTATION', 0, ?)", completed);
+                        }
+                        BigDecimal patientPaidTotal = patient.getBills().stream()
+                            .filter(b -> "PAID".equalsIgnoreCase(b.getStatus()))
+                            .map(Bill::getTotal)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                        if (patientPaidTotal.compareTo(BigDecimal.ZERO) > 0) {
+                            jdbcTemplate.update("INSERT INTO deleted_records_archive (record_type, amount, count, invoice_date) VALUES ('REVENUE', ?, 1, CURDATE())", patientPaidTotal);
+                        }
+                        long pending = patient.getBills().stream()
+                            .filter(b -> "UNPAID".equalsIgnoreCase(b.getStatus()))
+                            .count();
+                        if (pending > 0) {
+                            jdbcTemplate.update("INSERT INTO deleted_records_archive (record_type, amount, count) VALUES ('PENDING_BILL', 0, ?)", pending);
+                        }
+                        patientRepository.delete(patient);
+                    });
                 }
             });
+
+            // Delete associated notifications and audit logs first to prevent foreign key issues
+            jdbcTemplate.update("DELETE FROM notifications WHERE user_id = ?", id);
+            jdbcTemplate.update("DELETE FROM audit_logs WHERE performed_by = ?", id);
+
+            // Clean up receptionists, patients, doctors, and role mappings to resolve database constraints
+            jdbcTemplate.update("DELETE FROM receptionists WHERE user_id = ?", id);
+            
+            try {
+                jdbcTemplate.update("DELETE FROM bill_items WHERE bill_id IN (SELECT id FROM bills WHERE patient_id IN (SELECT id FROM patients WHERE user_id = ?))", id);
+                jdbcTemplate.update("DELETE FROM bills WHERE patient_id IN (SELECT id FROM patients WHERE user_id = ?)", id);
+                jdbcTemplate.update("DELETE FROM prescription_items WHERE prescription_id IN (SELECT id FROM prescriptions WHERE patient_id IN (SELECT id FROM patients WHERE user_id = ?))", id);
+                jdbcTemplate.update("DELETE FROM prescriptions WHERE patient_id IN (SELECT id FROM patients WHERE user_id = ?)", id);
+                jdbcTemplate.update("DELETE FROM appointments WHERE patient_id IN (SELECT id FROM patients WHERE user_id = ?)", id);
+                jdbcTemplate.update("DELETE FROM patients WHERE user_id = ?", id);
+            } catch (Exception e) {}
+
+            try {
+                jdbcTemplate.update("DELETE FROM prescriptions WHERE doctor_id IN (SELECT id FROM doctors WHERE user_id = ?)", id);
+                jdbcTemplate.update("DELETE FROM appointments WHERE doctor_id IN (SELECT id FROM doctors WHERE user_id = ?)", id);
+                jdbcTemplate.update("DELETE FROM bills WHERE doctor_id IN (SELECT id FROM doctors WHERE user_id = ?)", id);
+                jdbcTemplate.update("DELETE FROM doctors WHERE user_id = ?", id);
+            } catch (Exception e) {}
+
+            jdbcTemplate.update("DELETE FROM user_roles WHERE user_id = ?", id);
+
+            userRepository.deleteById(id);
+            userRepository.flush(); // Force immediate execution to catch constraint violations
+        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+            throw new RuntimeException("This user cannot be deleted because they are referenced by existing active records (such as bills or prescriptions) in the database. Please resolve those records first or disable the user's login access instead.");
         } catch (Exception ex) {
-            // ignore
+            throw new RuntimeException("Failed to delete user: " + ex.getMessage());
         }
-        userRepository.deleteById(id);
     }
 
     @Override
@@ -357,7 +500,31 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void deleteDoctor(Long id) {
-        doctorRepository.deleteById(id);
+        try {
+            doctorRepository.findById(id).ifPresent(doc -> {
+                // Archive Doctor statistics before delete
+                long completed = doc.getAppointments().stream()
+                    .filter(a -> a.getStatus() == AppointmentStatus.COMPLETED)
+                    .count();
+                if (completed > 0) {
+                    jdbcTemplate.update("INSERT INTO deleted_records_archive (record_type, amount, count) VALUES ('CONSULTATION', 0, ?)", completed);
+                }
+                BigDecimal doctorPaidTotal = billRepository.findByDoctorId(doc.getId()).stream()
+                    .filter(b -> "PAID".equalsIgnoreCase(b.getStatus()))
+                    .map(Bill::getTotal)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                if (doctorPaidTotal.compareTo(BigDecimal.ZERO) > 0) {
+                    jdbcTemplate.update("INSERT INTO deleted_records_archive (record_type, amount, count, invoice_date) VALUES ('REVENUE', ?, 1, CURDATE())", doctorPaidTotal);
+                }
+            });
+
+            doctorRepository.deleteById(id);
+            doctorRepository.flush();
+        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+            throw new RuntimeException("This doctor cannot be deleted because they are referenced by existing active records (such as bills or appointments) in the database. Please resolve those records first.");
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to delete doctor: " + ex.getMessage());
+        }
     }
 
     // ==========================================
@@ -427,7 +594,37 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void deletePatient(Long id) {
-        patientRepository.deleteById(id);
+        try {
+            patientRepository.findById(id).ifPresent(pat -> {
+                // Archive Patient statistics before delete
+                long completed = pat.getAppointments().stream()
+                    .filter(a -> a.getStatus() == AppointmentStatus.COMPLETED)
+                    .count();
+                if (completed > 0) {
+                    jdbcTemplate.update("INSERT INTO deleted_records_archive (record_type, amount, count) VALUES ('CONSULTATION', 0, ?)", completed);
+                }
+                BigDecimal patientPaidTotal = pat.getBills().stream()
+                    .filter(b -> "PAID".equalsIgnoreCase(b.getStatus()))
+                    .map(Bill::getTotal)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                if (patientPaidTotal.compareTo(BigDecimal.ZERO) > 0) {
+                    jdbcTemplate.update("INSERT INTO deleted_records_archive (record_type, amount, count, invoice_date) VALUES ('REVENUE', ?, 1, CURDATE())", patientPaidTotal);
+                }
+                long pending = pat.getBills().stream()
+                    .filter(b -> "UNPAID".equalsIgnoreCase(b.getStatus()))
+                    .count();
+                if (pending > 0) {
+                    jdbcTemplate.update("INSERT INTO deleted_records_archive (record_type, amount, count) VALUES ('PENDING_BILL', 0, ?)", pending);
+                }
+            });
+
+            patientRepository.deleteById(id);
+            patientRepository.flush();
+        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+            throw new RuntimeException("This patient cannot be deleted because they are referenced by existing active records (such as bills or appointments) in the database. Please resolve those records first.");
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to delete patient: " + ex.getMessage());
+        }
     }
 
     // ==========================================
@@ -568,6 +765,9 @@ public class AdminServiceImpl implements AdminService {
                     );
                 });
             }
+            if ("PAID".equalsIgnoreCase(saved.getStatus())) {
+                sendPaidNotificationToAdmins(saved);
+            }
         } catch (Exception e) {
             // Ignore notification error so billing doesn't fail
         }
@@ -589,7 +789,33 @@ public class AdminServiceImpl implements AdminService {
         Bill bill = billRepository.findById(id).orElseThrow();
         bill.setStatus("PAID");
         bill.setPaidDate(LocalDate.now());
-        billRepository.save(bill);
+        Bill saved = billRepository.save(bill);
+        sendPaidNotificationToAdmins(saved);
+    }
+
+    private void sendPaidNotificationToAdmins(Bill bill) {
+        try {
+            String invoiceNum = bill.getInvoiceNumber() != null ? bill.getInvoiceNumber() : ("INV-" + bill.getId());
+            String patientName = bill.getPatient() != null ? (bill.getPatient().getFirstName() + " " + bill.getPatient().getLastName()) : "Patient";
+            String title = "Invoice Paid: " + invoiceNum;
+            String msg = "Invoice " + invoiceNum + " for patient " + patientName + " of amount ₹" + bill.getTotal() + " has been marked as PAID via " + (bill.getPaymentMethod() != null ? bill.getPaymentMethod() : "Cash") + ".";
+
+            List<User> admins = userRepository.findByRoleName("ADMIN");
+            List<User> superAdmins = userRepository.findByRoleName("SUPER_ADMIN");
+            
+            java.util.Set<User> allAdmins = new java.util.HashSet<>();
+            allAdmins.addAll(admins);
+            allAdmins.addAll(superAdmins);
+
+            for (User admin : allAdmins) {
+                jdbcTemplate.update(
+                    "INSERT INTO notifications (user_id, title, message, is_read, created_at) VALUES (?, ?, ?, ?, NOW())",
+                    admin.getId(), title, msg, false
+                );
+            }
+        } catch (Exception e) {
+            // Ignore notification error
+        }
     }
 
     // ==========================================
@@ -632,5 +858,30 @@ public class AdminServiceImpl implements AdminService {
                 );
             }
         } catch (Exception e) {}
+    }
+
+    @Override
+    public java.util.Optional<Patient> findPatientByEmail(String email) {
+        return patientRepository.findByEmail(email);
+    }
+
+    @Override
+    public Patient savePatient(Patient patient) {
+        return patientRepository.save(patient);
+    }
+
+    @Override
+    public java.util.Optional<Doctor> findDoctorByEmail(String email) {
+        return doctorRepository.findByEmail(email);
+    }
+
+    @Override
+    public Doctor saveDoctor(Doctor doctor) {
+        return doctorRepository.save(doctor);
+    }
+
+    @Override
+    public User saveUser(User user) {
+        return userRepository.save(user);
     }
 }

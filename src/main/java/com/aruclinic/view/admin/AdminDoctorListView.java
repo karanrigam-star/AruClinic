@@ -5,6 +5,7 @@ import com.aruclinic.service.AdminService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -80,9 +81,14 @@ public class AdminDoctorListView extends VerticalLayout {
         Button deleteBtn = new Button("Delete", new Icon(VaadinIcon.TRASH));
         deleteBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ERROR);
         deleteBtn.addClickListener(e -> {
-            adminService.deleteDoctor(doctor.getId());
-            Notification.show("Doctor deleted successfully", 2000, Notification.Position.TOP_CENTER);
-            refreshGrid();
+            try {
+                adminService.deleteDoctor(doctor.getId());
+                Notification.show("Doctor deleted successfully", 2000, Notification.Position.TOP_CENTER);
+                refreshGrid();
+            } catch (Exception ex) {
+                Notification.show("Error: " + ex.getMessage(), 4000, Notification.Position.TOP_CENTER)
+                        .addThemeVariants(com.vaadin.flow.component.notification.NotificationVariant.LUMO_ERROR);
+            }
         });
 
         actions.add(editBtn, deleteBtn);
@@ -130,25 +136,39 @@ public class AdminDoctorListView extends VerticalLayout {
         FormLayout form = new FormLayout();
         TextField name = new TextField("Full Name");
         TextField specialization = new TextField("Specialization");
-        TextField dept = new TextField("Department");
-        TextField qual = new TextField("Qualification");
+        
+        ComboBox<String> dept = new ComboBox<>("Department");
+        dept.setItems("General Outpatient", "General Medicine", "Pediatrics", "Cardiology", "Dermatology", "Orthopedics", "Gynaecology", "Neurology");
+        dept.setAllowCustomValue(true);
+        dept.addCustomValueSetListener(event -> dept.setValue(event.getDetail()));
+        dept.setValue("General Outpatient");
+
+        ComboBox<String> qual = new ComboBox<>("Qualification");
+        qual.setItems("MBBS", "MD", "MS", "DNB", "PhD", "BDS", "MDS", "FACS", "FRCP");
+        qual.setRequiredIndicatorVisible(true);
+
         IntegerField exp = new IntegerField("Experience (Years)");
+        exp.setRequiredIndicatorVisible(true);
+        exp.setValue(2);
+
         TextField mobile = new TextField("Mobile Number");
         TextField email = new TextField("Email Address");
 
         form.add(name, specialization, dept, qual, exp, mobile, email);
 
         Button saveBtn = new Button("Save", e -> {
-            if (name.getValue().isEmpty() || email.getValue().isEmpty() || specialization.getValue().isEmpty()) {
-                Notification.show("Please fill in all required fields", 2000, Notification.Position.TOP_CENTER);
+            if (name.getValue().isEmpty() || email.getValue().isEmpty() || specialization.getValue().isEmpty()
+                    || qual.getValue() == null || qual.getValue().trim().isEmpty() || exp.getValue() == null) {
+                Notification.show("Please fill in all required fields (Name, Email, Specialization, Qualification, and Experience)", 3000, Notification.Position.TOP_CENTER)
+                        .addThemeVariants(com.vaadin.flow.component.notification.NotificationVariant.LUMO_ERROR);
                 return;
             }
             Doctor doc = new Doctor();
             doc.setName(name.getValue());
             doc.setSpecialization(specialization.getValue());
-            doc.setDepartment(dept.getValue());
+            doc.setDepartment(dept.getValue() != null ? dept.getValue() : "General Outpatient");
             doc.setQualification(qual.getValue());
-            doc.setExperience(exp.getValue() != null ? exp.getValue() : 1);
+            doc.setExperience(exp.getValue());
             doc.setMobileNumber(mobile.getValue());
             doc.setEmail(email.getValue());
 
@@ -177,12 +197,22 @@ public class AdminDoctorListView extends VerticalLayout {
         name.setValue(doctor.getName() != null ? doctor.getName() : "");
         TextField specialization = new TextField("Specialization");
         specialization.setValue(doctor.getSpecialization() != null ? doctor.getSpecialization() : "");
-        TextField dept = new TextField("Department");
-        dept.setValue(doctor.getDepartment() != null ? doctor.getDepartment() : "");
-        TextField qual = new TextField("Qualification");
-        qual.setValue(doctor.getQualification() != null ? doctor.getQualification() : "");
+
+        ComboBox<String> dept = new ComboBox<>("Department");
+        dept.setItems("General Outpatient", "General Medicine", "Pediatrics", "Cardiology", "Dermatology", "Orthopedics", "Gynaecology", "Neurology");
+        dept.setAllowCustomValue(true);
+        dept.addCustomValueSetListener(event -> dept.setValue(event.getDetail()));
+        dept.setValue(doctor.getDepartment() != null ? doctor.getDepartment() : "General Outpatient");
+
+        ComboBox<String> qual = new ComboBox<>("Qualification");
+        qual.setItems("MBBS", "MD", "MS", "DNB", "PhD", "BDS", "MDS", "FACS", "FRCP");
+        qual.setRequiredIndicatorVisible(true);
+        qual.setValue(doctor.getQualification() != null ? doctor.getQualification() : "MBBS");
+
         IntegerField exp = new IntegerField("Experience (Years)");
-        exp.setValue(doctor.getExperience());
+        exp.setRequiredIndicatorVisible(true);
+        exp.setValue(doctor.getExperience() != null ? doctor.getExperience() : 2);
+
         TextField mobile = new TextField("Mobile Number");
         mobile.setValue(doctor.getMobileNumber() != null ? doctor.getMobileNumber() : "");
         TextField email = new TextField("Email Address");
@@ -191,12 +221,18 @@ public class AdminDoctorListView extends VerticalLayout {
         form.add(name, specialization, dept, qual, exp, mobile, email);
 
         Button saveBtn = new Button("Save", e -> {
+            if (name.getValue().isEmpty() || email.getValue().isEmpty() || specialization.getValue().isEmpty()
+                    || qual.getValue() == null || qual.getValue().trim().isEmpty() || exp.getValue() == null) {
+                Notification.show("Please fill in all required fields (Name, Email, Specialization, Qualification, and Experience)", 3000, Notification.Position.TOP_CENTER)
+                        .addThemeVariants(com.vaadin.flow.component.notification.NotificationVariant.LUMO_ERROR);
+                return;
+            }
             Doctor doc = new Doctor();
             doc.setName(name.getValue());
             doc.setSpecialization(specialization.getValue());
-            doc.setDepartment(dept.getValue());
+            doc.setDepartment(dept.getValue() != null ? dept.getValue() : "General Outpatient");
             doc.setQualification(qual.getValue());
-            doc.setExperience(exp.getValue() != null ? exp.getValue() : 1);
+            doc.setExperience(exp.getValue());
             doc.setMobileNumber(mobile.getValue());
             doc.setEmail(email.getValue());
 

@@ -31,4 +31,8 @@ public interface DoctorService {
     com.aruclinic.entity.Doctor getDoctorEntityById(Long id);
 
     List<com.aruclinic.entity.Doctor> getDoctorsBySpecializationEntity(String specialization);
+
+    com.aruclinic.entity.Doctor getDoctorEntityByEmail(String email);
+
+    List<com.aruclinic.entity.Doctor> getAllDoctorEntities();
 }

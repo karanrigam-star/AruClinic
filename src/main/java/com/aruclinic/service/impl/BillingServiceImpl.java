@@ -251,4 +251,10 @@ public class BillingServiceImpl implements BillingService {
     public List<Bill> getAllBillEntities() {
         return billRepository.findAll();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Bill> getBillEntitiesByDoctorId(Long doctorId) {
+        return billRepository.findByDoctorId(doctorId);
+    }
 }

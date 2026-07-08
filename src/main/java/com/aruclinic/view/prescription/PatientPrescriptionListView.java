@@ -3,7 +3,8 @@ package com.aruclinic.view.prescription;
 import com.aruclinic.dto.PrescriptionDto;
 import com.aruclinic.dto.PrescriptionItemDto;
 import com.aruclinic.entity.Patient;
-import com.aruclinic.repository.PatientRepository;
+import com.aruclinic.service.PatientService;
+import com.aruclinic.service.UserService;
 import com.aruclinic.service.PrescriptionService;
 import com.aruclinic.view.MainLayout;
 import com.aruclinic.util.PdfHelper;
@@ -52,9 +53,9 @@ import java.util.stream.Collectors;
 public class PatientPrescriptionListView extends VerticalLayout implements BeforeEnterObserver {
 
     private final PrescriptionService prescriptionService;
-    private final PatientRepository patientRepository;
+    private final PatientService patientService;
     private final com.aruclinic.service.NotificationService notificationService;
-    private final com.aruclinic.repository.UserRepository userRepository;
+    private final UserService userService;
 
     private Patient currentPatient = null;
     private final Grid<PrescriptionDto> grid = new Grid<>();
@@ -65,13 +66,13 @@ public class PatientPrescriptionListView extends VerticalLayout implements Befor
     private final TextField searchField = new TextField();
 
     public PatientPrescriptionListView(PrescriptionService prescriptionService, 
-                                       PatientRepository patientRepository,
+                                       PatientService patientService,
                                        com.aruclinic.service.NotificationService notificationService,
-                                       com.aruclinic.repository.UserRepository userRepository) {
+                                       UserService userService) {
         this.prescriptionService = prescriptionService;
-        this.patientRepository = patientRepository;
+        this.patientService = patientService;
         this.notificationService = notificationService;
-        this.userRepository = userRepository;
+        this.userService = userService;
 
         setSizeFull();
         setPadding(true);
@@ -120,12 +121,12 @@ public class PatientPrescriptionListView extends VerticalLayout implements Befor
             }
 
             if (email != null) {
-                currentPatient = patientRepository.findByEmail(email).orElse(null);
+                currentPatient = patientService.getPatientEntityByEmail(email);
             }
 
             // Fallback for blank setups during testing
             if (currentPatient == null) {
-                List<Patient> patients = patientRepository.findAll();
+                List<Patient> patients = patientService.getAllPatientEntities();
                 if (!patients.isEmpty()) {
                     currentPatient = patients.get(0);
                 }
@@ -198,9 +199,10 @@ public class PatientPrescriptionListView extends VerticalLayout implements Befor
                 try {
                     prescriptionService.deletePrescriptionReal(item.getId());
                     if (currentPatient != null && currentPatient.getEmail() != null) {
-                        userRepository.findByEmail(currentPatient.getEmail()).ifPresent(patientUser -> {
+                        com.aruclinic.entity.User patientUser = userService.getUserEntityByEmail(currentPatient.getEmail());
+                        if (patientUser != null) {
                             notificationService.deletePrescriptionNotification(patientUser.getId(), item.getPrescriptionId());
-                        });
+                        }
                     }
                     getUI().ifPresent(ui -> ui.access(() -> {
                         refreshData();

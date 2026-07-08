@@ -201,6 +201,7 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
 
     private Component createHeader() {
         HorizontalLayout header = new HorizontalLayout();
+        header.addClassName("aruclinic-home-header");
         header.setWidthFull();
         header.getStyle()
             .set("background-color", "#002b5c") // Apollo Deep Navy
@@ -215,6 +216,7 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
 
         // Logo
         HorizontalLayout logoSection = new HorizontalLayout();
+        logoSection.addClassName("aruclinic-home-logo-section");
         logoSection.setAlignItems(FlexComponent.Alignment.CENTER);
         
         Div logoBadge = new Div();
@@ -242,6 +244,7 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
 
         // Auth Buttons
         HorizontalLayout authActions = new HorizontalLayout();
+        authActions.addClassName("aruclinic-home-auth-actions");
         authActions.setAlignItems(FlexComponent.Alignment.CENTER);
         authActions.setSpacing(true);
 
@@ -309,6 +312,7 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
 
     private Component createHeroSection() {
         Div hero = new Div();
+        hero.addClassName("aruclinic-home-hero");
         hero.getStyle()
             .set("background", "radial-gradient(circle at top right, #003b5c, #001e3d)")
             .set("padding", "var(--aruclinic-spacing-3xl) var(--aruclinic-spacing-xl)")
@@ -317,6 +321,7 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
             .set("width", "100%");
 
         H1 mainHeading = new H1("Premium Healthcare Management System");
+        mainHeading.addClassName("aruclinic-home-hero-title");
         mainHeading.getStyle()
             .set("font-size", "2.8rem")
             .set("font-weight", "800")
@@ -333,6 +338,7 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
 
         // Search Mockup
         Div searchBar = new Div();
+        searchBar.addClassName("aruclinic-home-search-bar");
         searchBar.getStyle()
             .set("background", "white")
             .set("border-radius", "50px")
@@ -501,15 +507,40 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private Component createFooter() {
-        Div footer = new Div();
+        HorizontalLayout footer = new HorizontalLayout();
+        footer.addClassName("aruclinic-home-footer");
+        footer.setWidthFull();
         footer.getStyle()
             .set("background-color", "#001e3d")
             .set("padding", "var(--aruclinic-spacing-xl)")
+            .set("align-items", "center")
+            .set("justify-content", "space-between")
+            .set("display", "flex");
+
+        Span copyright = new Span("© 2026 AruClinic Healthcare. All rights reserved. Designed to Fluent Healthcare Standards.");
+        copyright.getStyle()
             .set("color", "rgba(255, 255, 255, 0.6)")
-            .set("text-align", "center")
-            .set("font-size", "var(--aruclinic-font-size-xs)")
-            .set("width", "100%");
-        footer.setText("© 2026 AruClinic Healthcare. All rights reserved. Designed to Fluent Healthcare Standards.");
+            .set("font-size", "var(--aruclinic-font-size-xs)");
+
+        Anchor whatsappLink = new Anchor("https://wa.me/916909178159", "");
+        whatsappLink.setTarget("_blank");
+        whatsappLink.addClassName("aruclinic-whatsapp-btn");
+        whatsappLink.getStyle()
+            .set("display", "inline-flex")
+            .set("align-items", "center")
+            .set("background-color", "rgba(37, 211, 102, 0.12)")
+            .set("border", "1px solid #25D366")
+            .set("padding", "8px 16px")
+            .set("border-radius", "30px")
+            .set("text-decoration", "none")
+            .set("transition", "all 0.2s ease");
+            
+        whatsappLink.getElement().setProperty("innerHTML", 
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" fill=\"#25D366\" class=\"bi bi-whatsapp\" viewBox=\"0 0 16 16\" style=\"margin-right: 8px; vertical-align: middle;\">" +
+            "<path d=\"M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.949h.004c4.368 0 7.927-3.561 7.928-7.928a7.89 7.89 0 0 0-2.325-5.645zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.699-4.7c-.187-.093-1.102-.544-1.272-.605-.17-.061-.293-.093-.418.093-.125.187-.481.605-.59.728-.109.123-.217.138-.404.045-1.928-.963-2.733-1.579-3.907-2.605-.3-.263-.102-.242.09-.434.172-.172.383-.443.473-.564.09-.12.045-.226-.023-.32-.068-.094-.418-.997-.57-1.365-.148-.358-.299-.31-.41-.315-.1-.005-.216-.006-.33-.006a.65.65 0 0 0-.473.22c-.164.18-0.627.614-.627 1.498s.644 1.738.733 1.861c.09.124 1.266 1.933 3.07 2.71 1.507.647 2.128.536 2.5.5.373-.035 1.102-.45 1.258-.885.156-.435.156-.807.109-.885-.045-.078-.17-.123-.356-.216\"/>" +
+            "</svg><span style=\"font-weight:600;color:white;vertical-align:middle;font-size:12px;\">24/7 Helpline: 6909178159</span>");
+
+        footer.add(copyright, whatsappLink);
         return footer;
     }
 }

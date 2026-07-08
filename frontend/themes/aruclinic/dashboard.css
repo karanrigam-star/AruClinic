@@ -944,3 +944,45 @@
 .aruclinic-sidebar-overlay.active {
     display: block;
 }
+
+/* Mobile Viewport Alignments for Dashboard Activity Items */
+@media (max-width: 768px) {
+    .aruclinic-activity-item {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: var(--aruclinic-spacing-md) !important;
+        padding: var(--aruclinic-spacing-md) !important;
+    }
+
+    /* Left layout section (icon + text content) */
+    .aruclinic-activity-item > vaadin-horizontal-layout:first-of-type {
+        width: 100% !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        gap: var(--aruclinic-spacing-sm) !important;
+    }
+
+    /* Actions container takes full width and wraps buttons neatly */
+    .aruclinic-activity-item > vaadin-horizontal-layout:last-child {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: flex-start !important;
+        flex-wrap: wrap !important;
+        gap: var(--aruclinic-spacing-sm) !important;
+        margin-left: 0 !important;
+    }
+
+    /* Stretch buttons slightly on mobile for easier touch targets */
+    .aruclinic-activity-item vaadin-button,
+    .aruclinic-activity-item a vaadin-button {
+        flex: 1 1 auto !important;
+        min-width: 110px !important;
+        margin: 0 !important;
+    }
+
+    /* Stack three summary cards vertically on mobile */
+    .aruclinic-summary-cards {
+        grid-template-columns: repeat(1, 1fr) !important;
+    }
+}

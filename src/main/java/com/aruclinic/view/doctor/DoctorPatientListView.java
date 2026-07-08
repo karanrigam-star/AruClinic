@@ -4,10 +4,12 @@ import com.aruclinic.entity.Appointment;
 import com.aruclinic.entity.Doctor;
 import com.aruclinic.entity.Patient;
 import com.aruclinic.entity.Prescription;
-import com.aruclinic.repository.AppointmentRepository;
-import com.aruclinic.repository.DoctorRepository;
-import com.aruclinic.repository.PatientRepository;
-import com.aruclinic.repository.PrescriptionRepository;
+import com.aruclinic.service.PatientService;
+import com.aruclinic.service.PrescriptionService;
+import com.aruclinic.service.AppointmentService;
+import com.aruclinic.service.DoctorService;
+import com.aruclinic.view.helper.AppointmentRescheduleHelper;
+import com.aruclinic.entity.AppointmentStatus;
 import com.aruclinic.view.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -23,14 +25,22 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.security.core.context.SecurityContextHolder;
+import com.aruclinic.dto.MedicalHistoryItemDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.ArrayList;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -43,23 +53,23 @@ import java.util.stream.Collectors;
 @CssImport("./themes/aruclinic/patient.css")
 public class DoctorPatientListView extends VerticalLayout {
 
-    private final PatientRepository patientRepository;
-    private final AppointmentRepository appointmentRepository;
-    private final PrescriptionRepository prescriptionRepository;
-    private final DoctorRepository doctorRepository;
+    private final PatientService patientService;
+    private final PrescriptionService prescriptionService;
+    private final AppointmentService appointmentService;
+    private final DoctorService doctorService;
 
     private Doctor currentDoctor = null;
     private final Grid<Patient> grid = new Grid<>();
     private final TextField searchField = new TextField();
 
-    public DoctorPatientListView(PatientRepository patientRepository,
-                                 AppointmentRepository appointmentRepository,
-                                 PrescriptionRepository prescriptionRepository,
-                                 DoctorRepository doctorRepository) {
-        this.patientRepository = patientRepository;
-        this.appointmentRepository = appointmentRepository;
-        this.prescriptionRepository = prescriptionRepository;
-        this.doctorRepository = doctorRepository;
+    public DoctorPatientListView(PatientService patientService,
+                                 PrescriptionService prescriptionService,
+                                 AppointmentService appointmentService,
+                                 DoctorService doctorService) {
+        this.patientService = patientService;
+        this.prescriptionService = prescriptionService;
+        this.appointmentService = appointmentService;
+        this.doctorService = doctorService;
 
         setSizeFull();
         setPadding(true);
@@ -89,7 +99,7 @@ public class DoctorPatientListView extends VerticalLayout {
         // Display latest appointment status dynamically
         grid.addColumn(p -> {
             if (currentDoctor == null) return "N/A";
-            List<Appointment> appts = appointmentRepository.findByPatientId(p.getId()).stream()
+            List<Appointment> appts = appointmentService.findByPatientId(p.getId()).stream()
                     .filter(a -> a.getDoctor() != null && a.getDoctor().getId().equals(currentDoctor.getId()))
                     .collect(Collectors.toList());
             if (appts.isEmpty()) {
@@ -141,12 +151,12 @@ public class DoctorPatientListView extends VerticalLayout {
             }
 
             if (email != null) {
-                currentDoctor = doctorRepository.findByEmail(email).orElse(null);
+                currentDoctor = doctorService.getDoctorEntityByEmail(email);
             }
 
             // Fallback for SUPER_ADMIN or missing records
             if (currentDoctor == null) {
-                List<Doctor> doctors = doctorRepository.findAll();
+                List<Doctor> doctors = doctorService.getAllDoctorEntities();
                 if (!doctors.isEmpty()) {
                     currentDoctor = doctors.get(0);
                 }
@@ -198,19 +208,33 @@ public class DoctorPatientListView extends VerticalLayout {
         consultBtn.addClickListener(e -> getUI().ifPresent(ui -> 
                 ui.navigate("doctor/prescriptions/form/patient-" + patient.getId())));
 
+        Button rescheduleBtn = new Button("Reschedule", new Icon(VaadinIcon.CALENDAR));
+        rescheduleBtn.addThemeVariants(ButtonVariant.LUMO_SMALL);
+        rescheduleBtn.addClickListener(e -> {
+            List<Appointment> activeAppts = appointmentService.findByPatientId(patient.getId()).stream()
+                    .filter(a -> a.getStatus() == AppointmentStatus.SCHEDULED)
+                    .collect(Collectors.toList());
+            if (activeAppts.isEmpty()) {
+                Notification.show("No active scheduled appointment found for this patient.", 3000, Notification.Position.TOP_CENTER);
+            } else {
+                Appointment latestActive = activeAppts.get(0);
+                AppointmentRescheduleHelper.openRescheduleDialog(latestActive, appointmentService, doctorService, this::refreshGrid);
+            }
+        });
+
         Button historyBtn = new Button("View Records", new Icon(VaadinIcon.DOCTOR));
         historyBtn.addThemeVariants(ButtonVariant.LUMO_SMALL);
         historyBtn.addClassName("aruclinic-btn-outline");
         historyBtn.addClickListener(e -> openMedicalRecordsDialog(patient));
 
-        layout.add(consultBtn, historyBtn);
+        layout.add(consultBtn, rescheduleBtn, historyBtn);
         return layout;
     }
 
     private void openMedicalRecordsDialog(Patient patient) {
         Dialog dialog = new Dialog();
-        dialog.setWidth("700px");
-        dialog.setHeight("550px");
+        dialog.setWidth("800px");
+        dialog.setHeight("680px");
 
         VerticalLayout layout = new VerticalLayout();
         layout.setSizeFull();
@@ -220,16 +244,16 @@ public class DoctorPatientListView extends VerticalLayout {
         H3 title = new H3("Medical Records: " + patient.getFirstName() + " " + patient.getLastName());
         layout.add(title);
 
-        // Appointments History
+        // 1. Appointment History
         Span appointmentsHeader = new Span("Appointment History");
         appointmentsHeader.getStyle().set("font-weight", "600").set("color", "var(--aruclinic-primary)");
         layout.add(appointmentsHeader);
 
         Grid<Appointment> apptGrid = new Grid<>();
-        apptGrid.setHeight("180px");
+        apptGrid.setHeight("130px");
         apptGrid.addThemeVariants(GridVariant.LUMO_COMPACT, GridVariant.LUMO_ROW_STRIPES);
         
-        List<Appointment> appointments = appointmentRepository.findByPatientId(patient.getId());
+        List<Appointment> appointments = appointmentService.findByPatientId(patient.getId());
         apptGrid.setItems(appointments);
         
         apptGrid.addColumn(a -> {
@@ -250,16 +274,16 @@ public class DoctorPatientListView extends VerticalLayout {
 
         layout.add(apptGrid);
 
-        // Prescription History
+        // 2. Prescription History
         Span rxHeader = new Span("Prescription History");
         rxHeader.getStyle().set("font-weight", "600").set("color", "var(--aruclinic-primary)");
         layout.add(rxHeader);
 
         Grid<Prescription> rxGrid = new Grid<>();
-        rxGrid.setHeight("180px");
+        rxGrid.setHeight("130px");
         rxGrid.addThemeVariants(GridVariant.LUMO_COMPACT, GridVariant.LUMO_ROW_STRIPES);
 
-        List<Prescription> prescriptions = prescriptionRepository.findByPatientId(patient.getId());
+        List<Prescription> prescriptions = prescriptionService.getPrescriptionEntitiesByPatientId(patient.getId());
         rxGrid.setItems(prescriptions);
         rxGrid.addColumn(p -> "RX-" + p.getId()).setHeader("Rx ID").setAutoWidth(true);
         rxGrid.addColumn(p -> p.getPrescriptionDate() != null ? p.getPrescriptionDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "N/A").setHeader("Date").setAutoWidth(true);
@@ -267,6 +291,143 @@ public class DoctorPatientListView extends VerticalLayout {
         rxGrid.addColumn(Prescription::getStatus).setHeader("Status").setAutoWidth(true);
 
         layout.add(rxGrid);
+
+        // 3. Medical History Records
+        Span historyHeader = new Span("Medical History Records");
+        historyHeader.getStyle().set("font-weight", "600").set("color", "var(--aruclinic-primary)");
+
+        Button addHistoryBtn = new Button("Add Medical Record", new Icon(VaadinIcon.PLUS));
+        addHistoryBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
+
+        HorizontalLayout historyHeaderRow = new HorizontalLayout(historyHeader, addHistoryBtn);
+        historyHeaderRow.setWidthFull();
+        historyHeaderRow.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        historyHeaderRow.setAlignItems(FlexComponent.Alignment.CENTER);
+        layout.add(historyHeaderRow);
+
+        Grid<MedicalHistoryItemDto> historyGrid = new Grid<>();
+        historyGrid.setHeight("130px");
+        historyGrid.addThemeVariants(GridVariant.LUMO_COMPACT, GridVariant.LUMO_ROW_STRIPES);
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<MedicalHistoryItemDto> historyRecords = new ArrayList<>();
+        String currentHistoryJson = patient.getMedicalHistory();
+        if (currentHistoryJson != null && !currentHistoryJson.trim().isEmpty()) {
+            try {
+                historyRecords = mapper.readValue(currentHistoryJson, new TypeReference<List<MedicalHistoryItemDto>>() {});
+            } catch (Exception ex) {}
+        }
+        historyGrid.setItems(historyRecords);
+
+        historyGrid.addColumn(MedicalHistoryItemDto::getDate).setHeader("Date").setAutoWidth(true);
+        historyGrid.addColumn(MedicalHistoryItemDto::getTitle).setHeader("Title").setAutoWidth(true);
+        historyGrid.addColumn(MedicalHistoryItemDto::getDoctor).setHeader("Provider").setAutoWidth(true);
+        historyGrid.addColumn(MedicalHistoryItemDto::getDetails).setHeader("Details").setAutoWidth(true);
+        historyGrid.addColumn(MedicalHistoryItemDto::getType).setHeader("Type").setAutoWidth(true);
+
+        layout.add(historyGrid);
+
+        addHistoryBtn.addClickListener(e -> {
+            Dialog addDialog = new Dialog();
+            addDialog.setHeaderTitle("Add Medical Record: " + patient.getFirstName() + " " + patient.getLastName());
+            addDialog.setWidth("450px");
+
+            DatePicker recordDate = new DatePicker("Record Date", LocalDate.now());
+            recordDate.setWidthFull();
+
+            TextField recordTitle = new TextField("Record Title / Event");
+            recordTitle.setPlaceholder("e.g. Follow-up Exam, Vaccination - Flu Shot");
+            recordTitle.setWidthFull();
+            recordTitle.setRequiredIndicatorVisible(true);
+
+            TextArea recordDetails = new TextArea("Record Details / Notes");
+            recordDetails.setPlaceholder("Enter consultation notes, measurements, or details...");
+            recordDetails.setWidthFull();
+            recordDetails.setRequiredIndicatorVisible(true);
+
+            Select<String> severitySelect = new Select<>();
+            severitySelect.setLabel("Record Type (Severity)");
+            severitySelect.setItems("Info", "Success", "Warning", "Danger");
+            severitySelect.setValue("Info");
+            severitySelect.setWidthFull();
+
+            Button saveBtn = new Button("Save Record", new Icon(VaadinIcon.CHECK));
+            saveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            
+            Button cancelDialogBtn = new Button("Cancel", click -> addDialog.close());
+            cancelDialogBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+            saveBtn.addClickListener(clickEvent -> {
+                String titleVal = recordTitle.getValue().trim();
+                String detailsVal = recordDetails.getValue().trim();
+                LocalDate dateVal = recordDate.getValue();
+
+                if (titleVal.isEmpty()) {
+                    recordTitle.setInvalid(true);
+                    return;
+                }
+                if (detailsVal.isEmpty()) {
+                    recordDetails.setInvalid(true);
+                    return;
+                }
+                if (dateVal == null) {
+                    recordDate.setInvalid(true);
+                    return;
+                }
+
+                // Map severity to color type
+                String typeVal = "primary";
+                if ("Success".equals(severitySelect.getValue())) typeVal = "success";
+                else if ("Warning".equals(severitySelect.getValue())) typeVal = "warning";
+                else if ("Danger".equals(severitySelect.getValue())) typeVal = "danger";
+
+                String providerName = currentDoctor != null ? currentDoctor.getName() : "Doctor";
+
+                MedicalHistoryItemDto newRecord = new MedicalHistoryItemDto(
+                    dateVal.toString(),
+                    titleVal,
+                    providerName,
+                    detailsVal,
+                    typeVal
+                );
+
+                try {
+                    // Fetch latest patient entity to avoid optimistic locking / stale data
+                    Patient freshPatient = patientService.getPatientEntityById(patient.getId());
+                    
+                    List<MedicalHistoryItemDto> records = new ArrayList<>();
+                    String json = freshPatient.getMedicalHistory();
+                    if (json != null && !json.trim().isEmpty()) {
+                        records = mapper.readValue(json, new TypeReference<List<MedicalHistoryItemDto>>() {});
+                    }
+
+                    // Add new record at the beginning of the list
+                    records.add(0, newRecord);
+
+                    // Serialize back
+                    String newJson = mapper.writeValueAsString(records);
+                    freshPatient.setMedicalHistory(newJson);
+
+                    // Save
+                    patientService.savePatient(freshPatient);
+
+                    // Update dialog reference
+                    patient.setMedicalHistory(newJson);
+
+                    // Update UI list in parent dialog
+                    historyGrid.setItems(records);
+
+                    addDialog.close();
+                    Notification.show("Medical record added successfully!", 2000, Notification.Position.TOP_CENTER);
+                } catch (Exception ex) {
+                    Notification.show("Failed to save record: " + ex.getMessage(), 3000, Notification.Position.TOP_CENTER);
+                }
+            });
+
+            addDialog.getFooter().add(cancelDialogBtn, saveBtn);
+            addDialog.add(new VerticalLayout(recordDate, recordTitle, recordDetails, severitySelect));
+            addDialog.open();
+        });
 
         Button closeBtn = new Button("Close");
         closeBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -288,19 +449,19 @@ public class DoctorPatientListView extends VerticalLayout {
         if (currentDoctor != null) {
             // Find patient IDs directly to avoid LazyInitializationException outside transactional context
             java.util.Set<Long> patientIds = new java.util.HashSet<>(
-                appointmentRepository.findPatientIdsByDoctorId(currentDoctor.getId())
+                appointmentService.findPatientIdsByDoctorId(currentDoctor.getId())
             );
             patientIds.addAll(
-                prescriptionRepository.findPatientIdsByDoctorId(currentDoctor.getId())
+                prescriptionService.findPatientIdsByDoctorId(currentDoctor.getId())
             );
 
             if (patientIds.isEmpty()) {
                 patients = new java.util.ArrayList<>();
             } else {
-                patients = patientRepository.findAllById(patientIds);
+                patients = patientService.getPatientEntitiesByIds(new java.util.ArrayList<>(patientIds));
             }
         } else {
-            patients = patientRepository.findAll();
+            patients = patientService.getAllPatientEntities();
         }
 
         if (!filter.isEmpty()) {

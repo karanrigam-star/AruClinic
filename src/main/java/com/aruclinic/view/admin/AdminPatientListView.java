@@ -94,9 +94,14 @@ public class AdminPatientListView extends VerticalLayout {
         Button deleteBtn = new Button("Delete", new Icon(VaadinIcon.TRASH));
         deleteBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ERROR);
         deleteBtn.addClickListener(e -> {
-            adminService.deletePatient(patient.getId());
-            Notification.show("Patient deleted successfully", 2000, Notification.Position.TOP_CENTER);
-            refreshGrid();
+            try {
+                adminService.deletePatient(patient.getId());
+                Notification.show("Patient deleted successfully", 2000, Notification.Position.TOP_CENTER);
+                refreshGrid();
+            } catch (Exception ex) {
+                Notification.show("Error: " + ex.getMessage(), 4000, Notification.Position.TOP_CENTER)
+                        .addThemeVariants(com.vaadin.flow.component.notification.NotificationVariant.LUMO_ERROR);
+            }
         });
 
         actions.add(viewBtn, editBtn, deleteBtn);

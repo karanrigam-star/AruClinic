@@ -288,6 +288,7 @@ public class DoctorDashboard extends VerticalLayout implements com.vaadin.flow.r
         }
 
         Div statusCards = new Div();
+        statusCards.addClassName("aruclinic-summary-cards");
         statusCards.getStyle()
             .set("display", "grid")
             .set("grid-template-columns", "repeat(3, 1fr)")

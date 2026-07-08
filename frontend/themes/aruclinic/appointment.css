@@ -782,7 +782,18 @@
     }
 
     .aruclinic-schedule-grid {
-        grid-template-columns: repeat(1, 1fr);
+        grid-template-columns: repeat(1, 1fr) !important;
+    }
+
+    /* Stack date header container vertically on mobile */
+    .aruclinic-current-date-card {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: var(--aruclinic-spacing-md) !important;
+    }
+
+    .aruclinic-current-date-card button {
+        width: 100% !important;
     }
 }
 

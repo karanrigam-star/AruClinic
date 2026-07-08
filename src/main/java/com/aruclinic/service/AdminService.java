@@ -63,4 +63,11 @@ public interface AdminService {
     // Settings
     String getClinicSetting(String key, String defaultValue);
     void saveClinicSetting(String key, String value);
+
+    // Repository Decoupling Helpers
+    java.util.Optional<Patient> findPatientByEmail(String email);
+    Patient savePatient(Patient patient);
+    java.util.Optional<Doctor> findDoctorByEmail(String email);
+    Doctor saveDoctor(Doctor doctor);
+    User saveUser(User user);
 }

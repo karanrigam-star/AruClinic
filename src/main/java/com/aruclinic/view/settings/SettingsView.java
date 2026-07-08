@@ -1,5 +1,6 @@
 package com.aruclinic.view.settings;
 
+import com.aruclinic.view.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -18,7 +19,7 @@ import com.vaadin.flow.router.Route;
  * Settings view for user preferences and account settings.
  */
 @PageTitle("Settings | AruClinic")
-@Route("settings")
+@Route(value = "settings", layout = MainLayout.class)
 @CssImport("./themes/aruclinic/common.css")
 public class SettingsView extends VerticalLayout {
 

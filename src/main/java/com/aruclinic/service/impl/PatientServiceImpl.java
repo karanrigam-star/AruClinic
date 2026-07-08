@@ -208,4 +208,16 @@ public class PatientServiceImpl implements PatientService {
     public List<Patient> getAllPatientEntities() {
         return patientRepository.findAll();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Patient> getPatientEntitiesByIds(List<Long> ids) {
+        return patientRepository.findAllById(ids);
+    }
+
+    @Override
+    @Transactional
+    public Patient savePatient(Patient patient) {
+        return patientRepository.save(patient);
+    }
 }
