@@ -106,12 +106,14 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
         logo.setText("AC");
 
         H1 title = new H1("AruClinic");
+        title.addClassName("aruclinic-header-title");
         title.getStyle()
             .set("margin", "0")
             .set("font-size", "var(--aruclinic-font-size-xl)")
             .set("font-weight", "600");
 
         backBtn = new Button("Back", new Icon(VaadinIcon.ARROW_LEFT));
+        backBtn.addClassName("aruclinic-back-btn");
         backBtn.getStyle()
             .set("background", "rgba(255, 255, 255, 0.15)")
             .set("border", "none")
@@ -184,6 +186,7 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
         this.userAvatar.setText("U");
 
         Div userInfo = new Div();
+        userInfo.addClassName("aruclinic-header-user-info");
         userInfo.getStyle()
             .set("display", "flex")
             .set("flex-direction", "column")

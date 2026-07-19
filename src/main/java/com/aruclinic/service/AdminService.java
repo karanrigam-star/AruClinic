@@ -56,6 +56,7 @@ public interface AdminService {
     Bill createBill(Bill bill);
     Bill updateBill(Long id, Bill bill);
     void payBill(Long id);
+    void payBill(Long id, String paymentMethod);
 
     // Audit Logs
     List<AuditLog> getAuditLogs();

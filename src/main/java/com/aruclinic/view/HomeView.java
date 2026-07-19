@@ -11,8 +11,11 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.BeforeLeaveEvent;
+import com.vaadin.flow.router.BeforeLeaveObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +24,7 @@ import org.springframework.security.core.GrantedAuthority;
 @Route("")
 @AnonymousAllowed
 @CssImport("./themes/aruclinic/styles.css")
-public class HomeView extends VerticalLayout implements BeforeEnterObserver {
+public class HomeView extends VerticalLayout implements BeforeEnterObserver, BeforeLeaveObserver {
 
     private static final long serialVersionUID = 1L;
 
@@ -30,10 +33,11 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
     private String userRole = "";
 
     public HomeView() {
-        setSizeFull();
+        setWidthFull();
+        setMinHeight("100vh");
         setPadding(false);
         setSpacing(false);
-        getStyle().set("background-color", "#F8FAFC"); // Clean surface background
+        getStyle().set("background-color", "#001e3d"); // Match deep navy header/footer background
     }
 
     @Override
@@ -70,16 +74,23 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
         // Clear old children and rebuild to update auth buttons dynamically
         removeAll();
         
+        getStyle().set("background-color", "#001e3d");
+
+        // Force root HTML and body background color to prevent white overscroll bounce gaps on mobile/desktop
+        UI.getCurrent().getPage().executeJs(
+            "document.documentElement.style.backgroundColor = '#001e3d'; " +
+            "document.body.style.backgroundColor = '#001e3d';"
+        );
+
         add(createHeader());
         add(createHeroSection());
         add(createServicesSection());
-        add(createSecurityTestingSection());
         add(createFooter());
 
         // Check for logout query parameters
         java.util.List<String> logoutParams = event.getLocation().getQueryParameters().getParameters().get("logout");
         if (logoutParams != null && !logoutParams.isEmpty() && "true".equals(logoutParams.get(0))) {
-            String name = "User";
+            String name = null;
             try {
                 jakarta.servlet.http.Cookie[] cookies = com.vaadin.flow.server.VaadinService.getCurrentRequest().getCookies();
                 if (cookies != null) {
@@ -99,11 +110,17 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
                 // Ignore
             }
 
-            com.vaadin.flow.component.notification.Notification.show(
-                    "Hi \"" + name + "\", you have successfully logged out.",
-                    5000,
-                    com.vaadin.flow.component.notification.Notification.Position.TOP_CENTER
-            ).addThemeVariants(com.vaadin.flow.component.notification.NotificationVariant.LUMO_SUCCESS);
+            // ONLY show the notification if the name cookie was present
+            if (name != null) {
+                com.vaadin.flow.component.notification.Notification.show(
+                        "Hi \"" + name + "\", you have successfully logged out.",
+                        5000,
+                        com.vaadin.flow.component.notification.Notification.Position.TOP_CENTER
+                ).addThemeVariants(com.vaadin.flow.component.notification.NotificationVariant.LUMO_SUCCESS);
+                
+                // Instantly remove query parameter from browser address bar to prevent reload/back button trigger
+                getUI().ifPresent(ui -> ui.getPage().getHistory().replaceState(null, ""));
+            }
         }
     }
 
@@ -346,7 +363,7 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
             .set("display", "flex")
             .set("align-items", "center")
             .set("max-width", "600px")
-            .set("margin", "0 auto")
+            .set("margin", "0 auto 32px")
             .set("box-shadow", "0 8px 30px rgba(0,0,0,0.25)");
 
         Icon searchIcon = new Icon(VaadinIcon.SEARCH);
@@ -369,7 +386,9 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
         VerticalLayout container = new VerticalLayout();
         container.setWidthFull();
         container.setPadding(true);
-        container.getStyle().set("padding", "var(--aruclinic-spacing-3xl) var(--aruclinic-spacing-xl)");
+        container.getStyle()
+            .set("padding", "var(--aruclinic-spacing-3xl) var(--aruclinic-spacing-xl)")
+            .set("background-color", "var(--aruclinic-background)");
         container.setAlignItems(FlexComponent.Alignment.CENTER);
 
         H2 sectionTitle = new H2("Our Clinical Solutions");
@@ -444,67 +463,6 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
         return card;
     }
 
-    private Component createSecurityTestingSection() {
-        VerticalLayout container = new VerticalLayout();
-        container.setWidthFull();
-        container.setPadding(true);
-        container.getStyle()
-            .set("background-color", "#EEF2F6")
-            .set("padding", "var(--aruclinic-spacing-3xl) var(--aruclinic-spacing-xl)")
-            .set("border-top", "1px solid #E2E8F0");
-        container.setAlignItems(FlexComponent.Alignment.CENTER);
-
-        H2 title = new H2("Role-Based Security Testing Console");
-        title.getStyle()
-            .set("color", "#002b5c")
-            .set("font-size", "var(--aruclinic-font-size-xl)")
-            .set("margin-bottom", "4px")
-            .set("font-weight", "700");
-
-        Paragraph sub = new Paragraph("Select a clinical portal below to test authorization walls. If unauthorized, access will be blocked.");
-        sub.getStyle()
-            .set("color", "#4B5563")
-            .set("font-size", "var(--aruclinic-font-size-sm)")
-            .set("margin-bottom", "var(--aruclinic-spacing-xl)");
-
-        Div grid = new Div();
-        grid.getStyle()
-            .set("display", "grid")
-            .set("grid-template-columns", "repeat(auto-fit, minmax(200px, 1fr))")
-            .set("gap", "var(--aruclinic-spacing-md)")
-            .set("width", "100%")
-            .set("max-width", "1000px");
-
-        grid.add(createDashboardLinkCard("Patient Dashboard", "patient", VaadinIcon.USER));
-        grid.add(createDashboardLinkCard("Doctor Dashboard", "doctor", VaadinIcon.DOCTOR));
-        grid.add(createDashboardLinkCard("Receptionist Dashboard", "receptionist", VaadinIcon.NOTEBOOK));
-        grid.add(createDashboardLinkCard("Admin Dashboard", "admin", VaadinIcon.SHIELD));
-
-        container.add(title, sub, grid);
-        return container;
-    }
-
-    private Component createDashboardLinkCard(String name, String route, VaadinIcon icon) {
-        Div card = new Div();
-        card.getStyle()
-            .set("background", "white")
-            .set("border-radius", "12px")
-            .set("padding", "var(--aruclinic-spacing-lg)")
-            .set("box-shadow", "0 2px 5px rgba(0,0,0,0.03)")
-            .set("text-align", "center")
-            .set("border", "1px solid #E2E8F0");
-
-        H4 title = new H4(name);
-        title.getStyle().set("margin", "var(--aruclinic-spacing-sm) 0").set("font-size", "var(--aruclinic-font-size-sm)");
-
-        Button btn = new Button("Enter Portal", new Icon(icon));
-        btn.addThemeVariants(ButtonVariant.LUMO_SMALL);
-        btn.setWidthFull();
-        btn.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(route)));
-
-        card.add(title, btn);
-        return card;
-    }
 
     private Component createFooter() {
         HorizontalLayout footer = new HorizontalLayout();
@@ -542,5 +500,14 @@ public class HomeView extends VerticalLayout implements BeforeEnterObserver {
 
         footer.add(copyright, whatsappLink);
         return footer;
+    }
+
+    @Override
+    public void beforeLeave(BeforeLeaveEvent event) {
+        // Reset document background when navigating away to keep other views unaffected
+        UI.getCurrent().getPage().executeJs(
+            "document.documentElement.style.backgroundColor = ''; " +
+            "document.body.style.backgroundColor = '';"
+        );
     }
 }

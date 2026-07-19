@@ -34,6 +34,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.TextField;
 
 /**
  * Appointment Booking view for scheduling new appointments.
@@ -59,6 +62,16 @@ public class AppointmentBookingView extends VerticalLayout {
 
     private final Button bookButton = new Button("Next: Select Date & Time");
     private final Button cancelButton = new Button("Cancel");
+
+    // Staff Patient Booking fields
+    private final RadioButtonGroup<String> patientChoice = new RadioButtonGroup<>("Patient Booking Type");
+    private final ComboBox<com.aruclinic.dto.PatientDto> existingPatientCombo = new ComboBox<>("Select Patient");
+    private final TextField newPatientFirstName = new TextField("Patient First Name");
+    private final TextField newPatientLastName = new TextField("Patient Last Name");
+    private final TextField newPatientEmail = new TextField("Patient Email");
+    private final TextField newPatientMobile = new TextField("Patient Mobile");
+    private final DatePicker newPatientDob = new DatePicker("Patient Date of Birth");
+    private final Select<String> newPatientGender = new Select<>();
 
     private int currentStep = 1;
     private Div step1;
@@ -119,6 +132,41 @@ public class AppointmentBookingView extends VerticalLayout {
         doctorCombo.setRequired(true);
         doctorCombo.setRequiredIndicatorVisible(true);
         doctorCombo.setWidthFull();
+
+        // Configure Patient Selection (if staff)
+        String userRole = getUserRole();
+        boolean isStaff = "RECEPTIONIST".equalsIgnoreCase(userRole) || "ADMIN".equalsIgnoreCase(userRole) || "SUPER_ADMIN".equalsIgnoreCase(userRole) || "DOCTOR".equalsIgnoreCase(userRole);
+
+        if (isStaff) {
+            patientChoice.setItems("Existing Patient", "Register New Patient");
+            patientChoice.setValue("Existing Patient");
+            
+            existingPatientCombo.setItems(patientService.getAllPatients());
+            existingPatientCombo.setItemLabelGenerator(p -> p.getFirstName() + " " + p.getLastName() + " (" + p.getEmail() + ")");
+            existingPatientCombo.setRequired(true);
+            existingPatientCombo.setWidthFull();
+
+            newPatientFirstName.setRequired(true);
+            newPatientFirstName.setWidthFull();
+
+            newPatientLastName.setRequired(true);
+            newPatientLastName.setWidthFull();
+
+            newPatientEmail.setRequired(true);
+            newPatientEmail.setWidthFull();
+
+            newPatientMobile.setRequired(true);
+            newPatientMobile.setWidthFull();
+            newPatientMobile.setPattern("\\d{10}");
+
+            newPatientDob.setRequired(true);
+            newPatientDob.setWidthFull();
+
+            newPatientGender.setLabel("Gender");
+            newPatientGender.setItems("Male", "Female", "Other");
+            newPatientGender.setValue("Male");
+            newPatientGender.setWidthFull();
+        }
         
         List<String> doctorsList = doctorService.getAllDoctors().stream()
             .map(d -> {
@@ -131,8 +179,12 @@ public class AppointmentBookingView extends VerticalLayout {
             .collect(java.util.stream.Collectors.toList());
             
         if (doctorsList.isEmpty()) {
-            doctorCombo.setItems("Dr. Smith", "Dr. Johnson", "Dr. Williams", "Dr. Brown");
+            doctorCombo.setItems("No doctor available");
+            doctorCombo.setValue("No doctor available");
+            doctorCombo.setEnabled(false);
         } else {
+            doctorCombo.setPlaceholder("Select a doctor");
+            doctorCombo.setEnabled(true);
             doctorCombo.setItems(doctorsList);
         }
         
@@ -275,9 +327,45 @@ public class AppointmentBookingView extends VerticalLayout {
 
         FormLayout doctorLayout = new FormLayout();
         doctorLayout.setWidthFull();
+        doctorLayout.setResponsiveSteps(
+            new FormLayout.ResponsiveStep("0", 1)
+        );
         doctorLayout.add(doctorCombo);
 
-        step1Content.add(doctorLayout, doctorInfoPanel);
+        String userRole = getUserRole();
+        boolean isStaff = "RECEPTIONIST".equalsIgnoreCase(userRole) || "ADMIN".equalsIgnoreCase(userRole) || "SUPER_ADMIN".equalsIgnoreCase(userRole) || "DOCTOR".equalsIgnoreCase(userRole);
+
+        if (isStaff) {
+            Div patientSection = new Div();
+            patientSection.getStyle().set("margin-top", "20px");
+            patientSection.add(patientChoice);
+
+            FormLayout existingPatientLayout = new FormLayout();
+            existingPatientLayout.setWidthFull();
+            existingPatientLayout.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1)
+            );
+            existingPatientLayout.add(existingPatientCombo);
+
+            FormLayout newPatientLayout = new FormLayout();
+            newPatientLayout.setWidthFull();
+            newPatientLayout.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1),
+                new FormLayout.ResponsiveStep("600px", 2)
+            );
+            newPatientLayout.add(newPatientFirstName, newPatientLastName, newPatientEmail, newPatientMobile, newPatientDob, newPatientGender);
+            newPatientLayout.setVisible(false);
+
+            patientChoice.addValueChangeListener(e -> {
+                boolean isExisting = "Existing Patient".equals(e.getValue());
+                existingPatientLayout.setVisible(isExisting);
+                newPatientLayout.setVisible(!isExisting);
+            });
+
+            step1Content.add(doctorLayout, patientSection, existingPatientLayout, newPatientLayout, doctorInfoPanel);
+        } else {
+            step1Content.add(doctorLayout, doctorInfoPanel);
+        }
 
         // Step 2: Select Date & Time
         step2Content = new Div();
@@ -285,6 +373,11 @@ public class AppointmentBookingView extends VerticalLayout {
 
         FormLayout dateTimeLayout = new FormLayout();
         dateTimeLayout.setWidthFull();
+        dateTimeLayout.setResponsiveSteps(
+            new FormLayout.ResponsiveStep("0", 1),
+            new FormLayout.ResponsiveStep("600px", 2),
+            new FormLayout.ResponsiveStep("900px", 3)
+        );
 
         dateTimeLayout.add(datePicker);
         dateTimeLayout.add(timeSlotCombo);
@@ -298,6 +391,9 @@ public class AppointmentBookingView extends VerticalLayout {
 
         FormLayout confirmLayout = new FormLayout();
         confirmLayout.setWidthFull();
+        confirmLayout.setResponsiveSteps(
+            new FormLayout.ResponsiveStep("0", 1)
+        );
         confirmLayout.add(reasonTextArea);
 
         step3Content.add(confirmLayout);
@@ -415,13 +511,78 @@ public class AppointmentBookingView extends VerticalLayout {
     }
 
     private boolean validateStep1() {
-        if (doctorCombo.getValue() == null) {
-            doctorCombo.setErrorMessage("Please select a doctor");
+        if (doctorCombo.getValue() == null || "No doctor available".equals(doctorCombo.getValue())) {
+            doctorCombo.setErrorMessage("No doctors are currently available to book");
             doctorCombo.setInvalid(true);
             return false;
         }
         doctorCombo.setErrorMessage(null);
         doctorCombo.setInvalid(false);
+
+        String userRole = getUserRole();
+        boolean isStaff = "RECEPTIONIST".equalsIgnoreCase(userRole) || "ADMIN".equalsIgnoreCase(userRole) || "SUPER_ADMIN".equalsIgnoreCase(userRole) || "DOCTOR".equalsIgnoreCase(userRole);
+
+        if (isStaff) {
+            if ("Existing Patient".equals(patientChoice.getValue())) {
+                if (existingPatientCombo.getValue() == null) {
+                    existingPatientCombo.setErrorMessage("Please select an existing patient");
+                    existingPatientCombo.setInvalid(true);
+                    return false;
+                }
+                existingPatientCombo.setErrorMessage(null);
+                existingPatientCombo.setInvalid(false);
+            } else {
+                boolean isValid = true;
+                if (newPatientFirstName.getValue().trim().isEmpty()) {
+                    newPatientFirstName.setErrorMessage("First name is required");
+                    newPatientFirstName.setInvalid(true);
+                    isValid = false;
+                } else {
+                    newPatientFirstName.setErrorMessage(null);
+                    newPatientFirstName.setInvalid(false);
+                }
+
+                if (newPatientLastName.getValue().trim().isEmpty()) {
+                    newPatientLastName.setErrorMessage("Last name is required");
+                    newPatientLastName.setInvalid(true);
+                    isValid = false;
+                } else {
+                    newPatientLastName.setErrorMessage(null);
+                    newPatientLastName.setInvalid(false);
+                }
+
+                String emailVal = newPatientEmail.getValue().trim();
+                if (emailVal.isEmpty() || !emailVal.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+                    newPatientEmail.setErrorMessage("Please enter a valid email");
+                    newPatientEmail.setInvalid(true);
+                    isValid = false;
+                } else {
+                    newPatientEmail.setErrorMessage(null);
+                    newPatientEmail.setInvalid(false);
+                }
+
+                String mobileVal = newPatientMobile.getValue().trim();
+                if (!mobileVal.matches("\\d{10}")) {
+                    newPatientMobile.setErrorMessage("Mobile number must be 10 digits");
+                    newPatientMobile.setInvalid(true);
+                    isValid = false;
+                } else {
+                    newPatientMobile.setErrorMessage(null);
+                    newPatientMobile.setInvalid(false);
+                }
+
+                if (newPatientDob.getValue() == null) {
+                    newPatientDob.setErrorMessage("Date of birth is required");
+                    newPatientDob.setInvalid(true);
+                    isValid = false;
+                } else {
+                    newPatientDob.setErrorMessage(null);
+                    newPatientDob.setInvalid(false);
+                }
+
+                return isValid;
+            }
+        }
         return true;
     }
 
@@ -490,60 +651,119 @@ public class AppointmentBookingView extends VerticalLayout {
         appointmentDto.setDoctorId(doctorId);
         appointmentDto.setDoctorName(doctorNameForDto);
 
-        // Resolve patient ID from session and auto-create Patient record if missing
+        // Resolve patient ID
         Long patientId = null;
-        try {
-            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-            if (auth == null) {
-                com.vaadin.flow.server.VaadinSession session = com.vaadin.flow.server.VaadinSession.getCurrent();
-                if (session != null) {
-                    auth = (org.springframework.security.core.Authentication) 
-                            session.getAttribute("SPRING_SECURITY_AUTHENTICATION");
-                }
-            }
+        String userRole = getUserRole();
+        boolean isStaff = "RECEPTIONIST".equalsIgnoreCase(userRole) || "ADMIN".equalsIgnoreCase(userRole) || "SUPER_ADMIN".equalsIgnoreCase(userRole) || "DOCTOR".equalsIgnoreCase(userRole);
 
-            String email = null;
-            if (auth != null && auth.isAuthenticated()) {
-                Object principal = auth.getPrincipal();
-                if (principal instanceof org.springframework.security.core.userdetails.User springUser) {
-                    email = springUser.getUsername();
-                } else if (principal instanceof String principalStr) {
-                    email = principalStr;
+        if (isStaff) {
+            if ("Existing Patient".equals(patientChoice.getValue())) {
+                com.aruclinic.dto.PatientDto selected = existingPatientCombo.getValue();
+                if (selected != null) {
+                    patientId = selected.getId();
                 }
-            }
-
-            if (email != null) {
-                com.aruclinic.dto.PatientDto currentPatient = null;
+            } else {
+                // Register a new patient first
                 try {
-                    currentPatient = patientService.getPatientByEmail(email);
-                } catch (Exception e) {
-                    // Patient record doesn't exist, let's create/insert it from User details!
-                    com.aruclinic.dto.UserDto userDto = userService.getUserByEmail(email);
-                    if (userDto != null) {
-                        com.aruclinic.dto.PatientDto newPatientDto = new com.aruclinic.dto.PatientDto();
-                        newPatientDto.setFirstName(userDto.getFirstName());
-                        newPatientDto.setLastName(userDto.getLastName());
-                        newPatientDto.setEmail(userDto.getEmail());
-                        newPatientDto.setMobileNumber(userDto.getMobileNumber());
-                        newPatientDto.setDateOfBirth(userDto.getDateOfBirth() != null ? userDto.getDateOfBirth() : LocalDate.of(1995, 1, 1));
-                        newPatientDto.setAge(userDto.getDateOfBirth() != null ? java.time.Period.between(userDto.getDateOfBirth(), LocalDate.now()).getYears() : 31);
-                        newPatientDto.setGender(userDto.getGender() != null ? userDto.getGender() : "Other");
-                        newPatientDto.setBloodGroup(userDto.getBloodGroup() != null ? userDto.getBloodGroup() : "O+");
-                        newPatientDto.setAddress(userDto.getAddress() != null ? userDto.getAddress() : "Auto-created during appointment booking");
-                        newPatientDto.setCity(userDto.getCity());
-                        newPatientDto.setState(userDto.getState());
-                        newPatientDto.setZipCode(userDto.getZipCode());
-                        newPatientDto.setEmergencyContact(userDto.getEmergencyContactName());
-                        newPatientDto.setEmergencyPhone(userDto.getEmergencyPhone());
-                        currentPatient = patientService.createPatient(newPatientDto);
+                    String regEmail = newPatientEmail.getValue().trim();
+                    com.aruclinic.dto.PatientDto newPatientDto = new com.aruclinic.dto.PatientDto();
+                    newPatientDto.setFirstName(newPatientFirstName.getValue().trim());
+                    newPatientDto.setLastName(newPatientLastName.getValue().trim());
+                    newPatientDto.setEmail(regEmail);
+                    newPatientDto.setMobileNumber(newPatientMobile.getValue().trim());
+                    newPatientDto.setDateOfBirth(newPatientDob.getValue());
+                    newPatientDto.setGender(newPatientGender.getValue());
+                    newPatientDto.setBloodGroup("O+");
+                    newPatientDto.setAddress("Registered by staff during appointment booking");
+                    newPatientDto.setAge(java.time.Period.between(newPatientDob.getValue(), LocalDate.now()).getYears());
+
+                    if (!userService.existsByEmail(regEmail)) {
+                        com.aruclinic.dto.UserDto userDto = new com.aruclinic.dto.UserDto();
+                        userDto.setFirstName(newPatientFirstName.getValue().trim());
+                        userDto.setLastName(newPatientLastName.getValue().trim());
+                        userDto.setEmail(regEmail);
+                        userDto.setMobileNumber(newPatientMobile.getValue().trim());
+                        userDto.setPassword("patient123!");
+                        userDto.setConfirmPassword("patient123!");
+                        userDto.setDateOfBirth(newPatientDob.getValue());
+                        userDto.setGender(newPatientGender.getValue());
+                        userDto.setBloodGroup("O+");
+                        userDto.setAddress("Registered by staff during appointment booking");
+                        userDto.setCity("City");
+                        userDto.setState("State");
+                        userDto.setDistrict("District");
+                        userDto.setZipCode("791111");
+                        userDto.setEmergencyContactName("Emergency");
+                        userDto.setEmergencyPhone("1234567890");
+                        userService.registerUser(userDto);
+                    }
+
+                    com.aruclinic.dto.PatientDto created;
+                    try {
+                        created = patientService.getPatientByEmail(regEmail);
+                    } catch (Exception e) {
+                        created = patientService.createPatient(newPatientDto);
+                    }
+
+                    if (created != null) {
+                        patientId = created.getId();
+                    }
+                } catch (Exception ex) {
+                    showError("Failed to register new patient: " + ex.getMessage());
+                    return;
+                }
+            }
+        } else {
+            try {
+                org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+                if (auth == null) {
+                    com.vaadin.flow.server.VaadinSession session = com.vaadin.flow.server.VaadinSession.getCurrent();
+                    if (session != null) {
+                        auth = (org.springframework.security.core.Authentication) 
+                                session.getAttribute("SPRING_SECURITY_AUTHENTICATION");
                     }
                 }
-                if (currentPatient != null) {
-                    patientId = currentPatient.getId();
+
+                String email = null;
+                if (auth != null && auth.isAuthenticated()) {
+                    Object principal = auth.getPrincipal();
+                    if (principal instanceof org.springframework.security.core.userdetails.User springUser) {
+                        email = springUser.getUsername();
+                    } else if (principal instanceof String principalStr) {
+                        email = principalStr;
+                    }
                 }
-            }
-        } catch (Exception ex) {
-            // Ignore
+
+                if (email != null) {
+                    com.aruclinic.dto.PatientDto currentPatient = null;
+                    try {
+                        currentPatient = patientService.getPatientByEmail(email);
+                    } catch (Exception e) {
+                        com.aruclinic.dto.UserDto userDto = userService.getUserByEmail(email);
+                        if (userDto != null) {
+                            com.aruclinic.dto.PatientDto newPatientDto = new com.aruclinic.dto.PatientDto();
+                            newPatientDto.setFirstName(userDto.getFirstName());
+                            newPatientDto.setLastName(userDto.getLastName());
+                            newPatientDto.setEmail(userDto.getEmail());
+                            newPatientDto.setMobileNumber(userDto.getMobileNumber());
+                            newPatientDto.setDateOfBirth(userDto.getDateOfBirth() != null ? userDto.getDateOfBirth() : LocalDate.of(1995, 1, 1));
+                            newPatientDto.setAge(userDto.getDateOfBirth() != null ? java.time.Period.between(userDto.getDateOfBirth(), LocalDate.now()).getYears() : 31);
+                            newPatientDto.setGender(userDto.getGender() != null ? userDto.getGender() : "Other");
+                            newPatientDto.setBloodGroup(userDto.getBloodGroup() != null ? userDto.getBloodGroup() : "O+");
+                            newPatientDto.setAddress(userDto.getAddress() != null ? userDto.getAddress() : "Auto-created during appointment booking");
+                            newPatientDto.setCity(userDto.getCity());
+                            newPatientDto.setState(userDto.getState());
+                            newPatientDto.setZipCode(userDto.getZipCode());
+                            newPatientDto.setEmergencyContact(userDto.getEmergencyContactName());
+                            newPatientDto.setEmergencyPhone(userDto.getEmergencyPhone());
+                            currentPatient = patientService.createPatient(newPatientDto);
+                        }
+                    }
+                    if (currentPatient != null) {
+                        patientId = currentPatient.getId();
+                    }
+                }
+            } catch (Exception ex) {}
         }
 
         if (patientId == null) {
@@ -565,6 +785,10 @@ public class AppointmentBookingView extends VerticalLayout {
 
             getUI().ifPresent(ui -> ui.navigate(determineDashboardRoute()));
 
+        } catch (com.aruclinic.exception.AppointmentSlotConflictException conflictEx) {
+            showError(conflictEx.getMessage());
+            currentStep = 2;
+            updateStepUI();
         } catch (Exception e) {
             showError("Failed to book appointment: " + e.getMessage());
         }
@@ -662,5 +886,26 @@ public class AppointmentBookingView extends VerticalLayout {
         details.add(dept, spec, qual, exp);
         card.add(header, details);
         return card;
+    }
+
+    private String getUserRole() {
+        try {
+            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null) {
+                com.vaadin.flow.server.VaadinSession session = com.vaadin.flow.server.VaadinSession.getCurrent();
+                if (session != null) {
+                    auth = (org.springframework.security.core.Authentication) 
+                            session.getAttribute("SPRING_SECURITY_AUTHENTICATION");
+                }
+            }
+            if (auth != null && auth.isAuthenticated()) {
+                return auth.getAuthorities().stream()
+                    .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                    .map(a -> a.replace("ROLE_", ""))
+                    .findFirst()
+                    .orElse("PATIENT");
+            }
+        } catch (Exception e) {}
+        return "PATIENT";
     }
 }

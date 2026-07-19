@@ -12,8 +12,10 @@ import java.util.List;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     List<Appointment> findByPatientId(Long patientId);
     List<Appointment> findByDoctorId(Long doctorId);
-    @org.springframework.data.jpa.repository.Query(value = "SELECT * FROM appointments WHERE CAST(CONCAT(appointment_date, ' ', appointment_time) AS DATETIME) BETWEEN :start AND :end", nativeQuery = true)
-    List<Appointment> findByAppointmentDateTimeBetween(@org.springframework.data.repository.query.Param("start") LocalDateTime start, 
+    // Using derived query method - JPA will generate proper parameterized query
+    // This replaces the native SQL query to prevent SQL injection
+    @org.springframework.data.jpa.repository.Query("SELECT a FROM Appointment a WHERE (a.appointmentDate > CAST(:start AS date) OR (a.appointmentDate = CAST(:start AS date) AND a.appointmentTime >= CAST(:start AS time))) AND (a.appointmentDate < CAST(:end AS date) OR (a.appointmentDate = CAST(:end AS date) AND a.appointmentTime <= CAST(:end AS time)))")
+    List<Appointment> findByAppointmentDateTimeBetween(@org.springframework.data.repository.query.Param("start") LocalDateTime start,
                                                        @org.springframework.data.repository.query.Param("end") LocalDateTime end);
     List<Appointment> findByStatus(AppointmentStatus status);
 
@@ -42,4 +44,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     long countByAppointmentDate(java.time.LocalDate date);
     List<Appointment> findTop5ByOrderByCreatedAtDesc();
+
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.appointmentDate = :date AND a.appointmentTime = :time AND a.status != :status")
+    List<Appointment> findActiveAppointmentsWithLock(
+        @org.springframework.data.repository.query.Param("doctorId") Long doctorId,
+        @org.springframework.data.repository.query.Param("date") java.time.LocalDate date,
+        @org.springframework.data.repository.query.Param("time") java.time.LocalTime time,
+        @org.springframework.data.repository.query.Param("status") AppointmentStatus status
+    );
 }

@@ -827,3 +827,88 @@
         min-width: 100px;
     }
 }
+
+/* ============================================
+   Receptionist Billing View Responsiveness
+   ============================================ */
+.aruclinic-billing-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--aruclinic-spacing-md);
+    width: 100%;
+}
+
+.aruclinic-billing-summary-cards {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--aruclinic-spacing-md);
+    width: 100%;
+}
+
+.aruclinic-billing-summary-cards > * {
+    flex: 1;
+    min-width: 200px;
+}
+
+.aruclinic-billing-tables-layout {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--aruclinic-spacing-lg);
+    width: 100%;
+}
+
+.aruclinic-billing-tables-layout > * {
+    flex: 1 1 48%;
+    min-width: 300px;
+    box-sizing: border-box;
+}
+
+.aruclinic-billing-right-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--aruclinic-spacing-md);
+    width: 100%;
+}
+
+@media (max-width: 1024px) {
+    .aruclinic-billing-tables-layout {
+        flex-direction: column !important;
+    }
+    
+    .aruclinic-billing-tables-layout > * {
+        flex: 1 1 100%;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .aruclinic-billing-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .aruclinic-billing-header .aruclinic-btn {
+        width: 100%;
+    }
+
+    .aruclinic-billing-summary-cards {
+        flex-direction: column;
+    }
+    
+    .aruclinic-billing-summary-cards > * {
+        width: 100%;
+    }
+
+    .aruclinic-billing-right-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

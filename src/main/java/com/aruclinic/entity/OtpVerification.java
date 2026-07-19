@@ -24,6 +24,17 @@ public class OtpVerification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Transient
+    private String rawOtpCode;
+
+    public String getRawOtpCode() {
+        return rawOtpCode;
+    }
+
+    public void setRawOtpCode(String rawOtpCode) {
+        this.rawOtpCode = rawOtpCode;
+    }
+
     @Column(name = "email", nullable = false, length = 100)
     private String email;
 
@@ -86,7 +97,7 @@ public class OtpVerification {
 	@Column(name = "mobile_number", nullable = false, length = 20)
     private String mobileNumber;
 
-    @Column(name = "otp_code", nullable = false, length = 6)
+    @Column(name = "otp_code", nullable = false, length = 100)
     private String otpCode;
 
     @Column(name = "expires_at", nullable = false)

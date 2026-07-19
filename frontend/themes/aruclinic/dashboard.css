@@ -898,6 +898,17 @@
     .aruclinic-quick-actions {
         grid-template-columns: repeat(1, 1fr);
     }
+
+    .aruclinic-welcome-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--aruclinic-spacing-md) !important;
+    }
+
+    .aruclinic-welcome-actions .aruclinic-btn {
+        width: 100%;
+        margin: 0;
+    }
 }
 
 @media (min-width: 1440px) {
@@ -984,5 +995,41 @@
     /* Stack three summary cards vertically on mobile */
     .aruclinic-summary-cards {
         grid-template-columns: repeat(1, 1fr) !important;
+    }
+}
+
+.aruclinic-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--aruclinic-spacing-md);
+}
+
+/* ============================================
+   Admin Quick Actions Bar Styling
+   ============================================ */
+.aruclinic-quick-actions-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--aruclinic-spacing-md);
+    padding: var(--aruclinic-spacing-md);
+    background: #F1F5F9;
+    border-radius: 8px;
+    margin: 16px 0;
+    width: 100%;
+}
+
+.aruclinic-quick-actions-bar .vaadin-button {
+    flex: 1 1 auto;
+    min-width: 140px;
+}
+
+@media (max-width: 480px) {
+    .aruclinic-quick-actions-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .aruclinic-quick-actions-bar .vaadin-button {
+        width: 100%;
     }
 }

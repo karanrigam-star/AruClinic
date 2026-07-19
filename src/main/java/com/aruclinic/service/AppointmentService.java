@@ -12,6 +12,7 @@ import com.aruclinic.repository.NotificationRepository;
 import com.aruclinic.entity.Notification;
 import com.aruclinic.mapper.AppointmentMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,6 +45,7 @@ public class AppointmentService {
         this.notificationRepository = notificationRepository;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST', 'PATIENT', 'DOCTOR')")
     public Appointment createAppointment(Appointment appointment) {
         appointment.setStatus(AppointmentStatus.SCHEDULED);
         appointment.setCreatedAt(LocalDateTime.now());
@@ -88,6 +90,7 @@ public class AppointmentService {
         return saved;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST', 'PATIENT', 'DOCTOR')")
     public AppointmentDto createAppointment(AppointmentDto dto) {
         Appointment appointment = appointmentMapper.toAppointment(dto);
         
@@ -153,6 +156,7 @@ public class AppointmentService {
                 .orElseThrow(() -> new UserNotFoundException("Appointment not found with ID: " + id));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST', 'DOCTOR', 'PATIENT')")
     public Appointment updateAppointment(Long appointmentId, Appointment appointmentDetails) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new UserNotFoundException("Appointment not found with ID: " + appointmentId));
@@ -174,6 +178,7 @@ public class AppointmentService {
         return appointmentRepository.save(appointment);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST', 'DOCTOR')")
     public void deleteAppointment(Long appointmentId) {
         appointmentRepository.deleteById(appointmentId);
     }
@@ -351,11 +356,13 @@ public class AppointmentService {
     }
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST', 'DOCTOR')")
     public List<Appointment> findAll() {
         return appointmentRepository.findAll();
     }
 
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST', 'DOCTOR')")
     public List<Long> findPatientIdsByDoctorId(Long doctorId) {
         return appointmentRepository.findPatientIdsByDoctorId(doctorId);
     }

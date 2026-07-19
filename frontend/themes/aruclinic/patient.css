@@ -755,8 +755,24 @@
         align-items: flex-start;
     }
 
+    .aruclinic-profile-detail-item {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: var(--aruclinic-spacing-xs) !important;
+    }
+
     .aruclinic-patient-list-actions {
         width: 100%;
+    }
+
+    .aruclinic-registration-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .aruclinic-registration-actions .aruclinic-btn {
+        width: 100%;
+        margin: 0;
     }
 
     .aruclinic-patient-filter {

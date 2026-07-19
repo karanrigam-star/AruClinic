@@ -6,8 +6,8 @@ import com.aruclinic.service.AdminService;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -64,16 +64,19 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public long getTotalPatients() {
         return patientRepository.count();
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public long getTotalDoctors() {
         return doctorRepository.count();
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public long getTotalReceptionists() {
         try {
             return jdbcTemplate.queryForObject(
@@ -86,16 +89,19 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public long getTotalUsers() {
         return userRepository.count();
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public long getTodaysAppointments() {
         return appointmentRepository.countByAppointmentDate(LocalDate.now());
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public long getWaitingPatients() {
         try {
             return jdbcTemplate.queryForObject(
@@ -108,6 +114,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public long getCompletedConsultations() {
         try {
             Long active = jdbcTemplate.queryForObject(
@@ -125,6 +132,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public double getRevenueToday() {
         try {
             Double active = jdbcTemplate.queryForObject(
@@ -144,6 +152,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public double getRevenueThisMonth() {
         try {
             Double active = jdbcTemplate.queryForObject(
@@ -165,6 +174,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public long getPendingBillsCount() {
         try {
             Long active = jdbcTemplate.queryForObject(
@@ -182,6 +192,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public long getNewRegistrationsCount() {
         try {
             Long active = jdbcTemplate.queryForObject(
@@ -202,11 +213,13 @@ public class AdminServiceImpl implements AdminService {
     // USER MANAGEMENT
     // ==========================================
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public User createUser(User user, String roleName) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         Role role = roleRepository.findByName(roleName).orElseGet(() -> {
@@ -247,6 +260,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public User updateUser(Long id, User userDetails, String roleName) {
         User user = userRepository.findById(id).orElseThrow();
         String oldEmail = user.getEmail();
@@ -290,6 +304,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public void deleteUser(Long id) {
         try {
             // Prevent self-deletion
@@ -411,6 +426,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public void resetUserPassword(Long id, String newPassword) {
         User user = userRepository.findById(id).orElseThrow();
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -418,16 +434,19 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public void toggleUserStatus(Long id, boolean enabled) {
         saveClinicSetting("user_disabled_" + id, enabled ? null : "true");
     }
 
     @Override
+    @PreAuthorize("permitAll()")
     public boolean isUserEnabled(Long id) {
         return getClinicSetting("user_disabled_" + id, null) == null;
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email).orElse(null);
     }
@@ -436,11 +455,13 @@ public class AdminServiceImpl implements AdminService {
     // DOCTOR MANAGEMENT
     // ==========================================
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public List<Doctor> getAllDoctors() {
         return doctorRepository.findAll();
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public Doctor createDoctor(Doctor doctor) {
         if (!userRepository.existsByEmail(doctor.getEmail())) {
             User u = new User();
@@ -461,6 +482,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public Doctor updateDoctor(Long id, Doctor docDetails) {
         Doctor doc = doctorRepository.findById(id).orElseThrow();
         String oldEmail = doc.getEmail();
@@ -499,6 +521,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public void deleteDoctor(Long id) {
         try {
             doctorRepository.findById(id).ifPresent(doc -> {
@@ -531,6 +554,7 @@ public class AdminServiceImpl implements AdminService {
     // RECEPTIONIST MANAGEMENT
     // ==========================================
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public List<User> getReceptionists() {
         try {
             List<Long> userIds = jdbcTemplate.queryForList(
@@ -547,16 +571,19 @@ public class AdminServiceImpl implements AdminService {
     // PATIENT MANAGEMENT
     // ==========================================
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public List<Patient> getAllPatients() {
         return patientRepository.findAll();
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public Patient createPatient(Patient patient) {
         return patientRepository.save(patient);
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public Patient updatePatient(Long id, Patient patDetails) {
         Patient pat = patientRepository.findById(id).orElseThrow();
         String oldEmail = pat.getEmail();
@@ -593,6 +620,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public void deletePatient(Long id) {
         try {
             patientRepository.findById(id).ifPresent(pat -> {
@@ -631,21 +659,24 @@ public class AdminServiceImpl implements AdminService {
     // APPOINTMENT MANAGEMENT
     // ==========================================
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public List<Appointment> getAllAppointments() {
         return appointmentRepository.findAll();
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public Appointment createAppointment(Appointment appointment) {
         Appointment saved = appointmentRepository.save(appointment);
         try {
-            sendAppointmentNotification(saved, "New Appointment Booked", 
+            sendAppointmentNotification(saved, "New Appointment Booked",
                 "A new appointment #" + saved.getId() + " has been booked for you on " + saved.getAppointmentDate() + " at " + saved.getAppointmentTime() + ".");
         } catch (Exception e) {}
         return saved;
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public Appointment updateAppointment(Long id, Appointment apptDetails) {
         Appointment appt = appointmentRepository.findById(id).orElseThrow();
         appt.setAppointmentDate(apptDetails.getAppointmentDate());
@@ -658,11 +689,13 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public void cancelAppointment(Long id) {
         cancelAppointment(id, "Cancelled by Admin");
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public void cancelAppointment(Long id, String reason) {
         Appointment appt = appointmentRepository.findById(id).orElseThrow();
         appointmentRepository.cancelAppointmentById(id, com.aruclinic.entity.AppointmentStatus.CANCELLED, reason);
@@ -670,17 +703,19 @@ public class AdminServiceImpl implements AdminService {
         appt.setReason(reason);
 
         try {
-            sendAppointmentNotification(appt, "Appointment Cancelled", 
+            sendAppointmentNotification(appt, "Appointment Cancelled",
                 "Your appointment #" + appt.getId() + " on " + appt.getAppointmentDate() + " has been cancelled. Reason: " + reason);
         } catch (Exception e) {}
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public void rescheduleAppointment(Long id, java.time.LocalDate date, java.time.LocalTime time, String reason) {
         rescheduleAppointment(id, date, time, reason, null);
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public void rescheduleAppointment(Long id, java.time.LocalDate date, java.time.LocalTime time, String reason, Long newDoctorId) {
         Appointment appt = appointmentRepository.findById(id).orElseThrow();
         com.aruclinic.entity.Doctor oldDoc = appt.getDoctor();
@@ -690,6 +725,19 @@ public class AdminServiceImpl implements AdminService {
                     .orElseThrow(() -> new com.aruclinic.exception.UserNotFoundException("Doctor not found with ID: " + newDoctorId));
             appt.setDoctor(newDoc);
             doctorChanged = true;
+        }
+
+        // Concurrency Slot Checking
+        Long targetDoctorId = newDoctorId != null ? newDoctorId : (oldDoc != null ? oldDoc.getId() : null);
+        if (targetDoctorId != null && date != null && time != null) {
+            List<Appointment> conflicts = appointmentRepository.findActiveAppointmentsWithLock(
+                    targetDoctorId, date, time, com.aruclinic.entity.AppointmentStatus.CANCELLED);
+            for (Appointment conflict : conflicts) {
+                if (!conflict.getId().equals(id)) {
+                    throw new com.aruclinic.exception.AppointmentSlotConflictException(
+                            "The selected time slot is already booked for this doctor. Please choose a different slot.");
+                }
+            }
         }
 
         appointmentRepository.rescheduleAppointmentById(id, date, time, reason);
@@ -707,7 +755,7 @@ public class AdminServiceImpl implements AdminService {
             msg += ". Reason: " + reason;
 
             sendAppointmentNotification(appt, "Appointment Rescheduled", msg);
-            
+
             if (doctorChanged && oldDoc != null) {
                 userRepository.findByEmail(oldDoc.getEmail()).ifPresent(u -> {
                     jdbcTemplate.update(
@@ -742,11 +790,13 @@ public class AdminServiceImpl implements AdminService {
     // BILLING
     // ==========================================
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public List<Bill> getAllBills() {
         return billRepository.findAll();
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public Bill createBill(Bill bill) {
         if (bill.getInvoiceNumber() == null || bill.getInvoiceNumber().trim().isEmpty()) {
             bill.setInvoiceNumber("INV-" + System.currentTimeMillis());
@@ -758,7 +808,7 @@ public class AdminServiceImpl implements AdminService {
                 patientUserOpt.ifPresent(u -> {
                     String title = "New Invoice Generated: INV-" + saved.getId();
                     String msg = "A new invoice of ₹" + saved.getTotal() + " from Dr. " + (saved.getDoctor() != null ? saved.getDoctor().getName() : "AruClinic") + " has been generated. Date: " + saved.getInvoiceDate();
-                    
+
                     jdbcTemplate.update(
                         "INSERT INTO notifications (user_id, title, message, is_read, created_at) VALUES (?, ?, ?, ?, NOW())",
                         u.getId(), title, msg, false
@@ -775,6 +825,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public Bill updateBill(Long id, Bill billDetails) {
         Bill bill = billRepository.findById(id).orElseThrow();
         bill.setAmount(billDetails.getAmount());
@@ -785,9 +836,17 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public void payBill(Long id) {
+        payBill(id, "Cash");
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
+    public void payBill(Long id, String paymentMethod) {
         Bill bill = billRepository.findById(id).orElseThrow();
         bill.setStatus("PAID");
+        bill.setPaymentMethod(paymentMethod);
         bill.setPaidDate(LocalDate.now());
         Bill saved = billRepository.save(bill);
         sendPaidNotificationToAdmins(saved);
@@ -802,7 +861,7 @@ public class AdminServiceImpl implements AdminService {
 
             List<User> admins = userRepository.findByRoleName("ADMIN");
             List<User> superAdmins = userRepository.findByRoleName("SUPER_ADMIN");
-            
+
             java.util.Set<User> allAdmins = new java.util.HashSet<>();
             allAdmins.addAll(admins);
             allAdmins.addAll(superAdmins);
@@ -822,6 +881,7 @@ public class AdminServiceImpl implements AdminService {
     // AUDIT LOGS
     // ==========================================
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public List<AuditLog> getAuditLogs() {
         return auditLogRepository.findAll();
     }
@@ -830,6 +890,7 @@ public class AdminServiceImpl implements AdminService {
     // CLINIC SETTINGS
     // ==========================================
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public String getClinicSetting(String key, String defaultValue) {
         try {
             List<String> results = jdbcTemplate.query(
@@ -847,6 +908,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public void saveClinicSetting(String key, String value) {
         try {
             if (value == null) {
@@ -861,27 +923,62 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public java.util.Optional<Patient> findPatientByEmail(String email) {
         return patientRepository.findByEmail(email);
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public Patient savePatient(Patient patient) {
         return patientRepository.save(patient);
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public java.util.Optional<Doctor> findDoctorByEmail(String email) {
         return doctorRepository.findByEmail(email);
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'DOCTOR')")
     public Doctor saveDoctor(Doctor doctor) {
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_DOCTOR"))) {
+            String loggedInEmail = getLoggedInEmail(auth);
+            if (loggedInEmail != null && !loggedInEmail.equalsIgnoreCase(doctor.getEmail())) {
+                throw new org.springframework.security.access.AccessDeniedException("Doctors are only allowed to update their own profile.");
+            }
+        }
         return doctorRepository.save(doctor);
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'DOCTOR', 'PATIENT', 'RECEPTIONIST')")
     public User saveUser(User user) {
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+            if (!isAdmin) {
+                String loggedInEmail = getLoggedInEmail(auth);
+                if (loggedInEmail != null && !loggedInEmail.equalsIgnoreCase(user.getEmail())) {
+                    throw new org.springframework.security.access.AccessDeniedException("Users are only allowed to update their own user record.");
+                }
+            }
+        }
         return userRepository.save(user);
+    }
+
+    private String getLoggedInEmail(org.springframework.security.core.Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) return null;
+        Object principal = auth.getPrincipal();
+        if (principal instanceof org.springframework.security.core.userdetails.User springUser) {
+            return springUser.getUsername();
+        } else if (principal instanceof com.aruclinic.entity.User userEntity) {
+            return userEntity.getEmail();
+        } else if (principal instanceof String principalStr) {
+            return principalStr;
+        }
+        return null;
     }
 }

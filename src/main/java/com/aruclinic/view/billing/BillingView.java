@@ -113,8 +113,10 @@ public class BillingView extends VerticalLayout implements BeforeEnterObserver {
                 currentPatient = patientService.getPatientEntityByEmail(email);
             }
 
-            // Fallback for blank setups during testing
-            if (currentPatient == null) {
+            // Fallback for blank setups during testing (strictly disallowed for PATIENT role)
+            boolean isPatient = auth != null && auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_PATIENT"));
+            if (currentPatient == null && !isPatient) {
                 List<Patient> patients = patientService.getAllPatientEntities();
                 if (!patients.isEmpty()) {
                     currentPatient = patients.get(0);

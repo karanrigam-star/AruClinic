@@ -11,6 +11,7 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.textfield.TextArea;
 
 import java.time.LocalDate;
@@ -116,11 +117,20 @@ public class AppointmentRescheduleHelper {
                 } catch (Exception ex) {}
             }
 
-            LocalTime selectedTime = parseTimeSlot(selectedSlot);
-            appointmentService.patientRescheduleAppointment(appt.getId(), date.getValue(), selectedTime, reason, newDoctorId);
-            Notification.show("Appointment rescheduled successfully!", 2000, Notification.Position.TOP_CENTER);
-            dialog.close();
-            refreshCallback.run();
+            try {
+                LocalTime selectedTime = parseTimeSlot(selectedSlot);
+                appointmentService.patientRescheduleAppointment(appt.getId(), date.getValue(), selectedTime, reason, newDoctorId);
+                Notification.show("Appointment rescheduled successfully!", 2000, Notification.Position.TOP_CENTER)
+                        .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                dialog.close();
+                refreshCallback.run();
+            } catch (com.aruclinic.exception.AppointmentSlotConflictException conflictEx) {
+                Notification.show(conflictEx.getMessage(), 5000, Notification.Position.TOP_CENTER)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            } catch (Exception ex) {
+                Notification.show("Failed to reschedule: " + ex.getMessage(), 5000, Notification.Position.TOP_CENTER)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            }
         });
         saveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 

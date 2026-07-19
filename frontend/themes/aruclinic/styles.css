@@ -1011,12 +1011,21 @@ side-nav-item::part(link):hover {
     background: var(--aruclinic-text-muted);
 }
 
-/* Modern Input Focus Indicator */
-vaadin-text-field:focus-within, vaadin-password-field:focus-within, vaadin-combo-box:focus-within, vaadin-date-picker:focus-within {
-    --lumo-primary-color: var(--aruclinic-primary-light);
-    box-shadow: 0 0 0 3px rgba(44, 183, 223, 0.15);
-    border-radius: var(--aruclinic-radius-sm);
-    transition: box-shadow var(--aruclinic-transition-fast);
+/* Modern Input Focus Indicator - Reset host element outlines and shadows */
+vaadin-text-field:focus-within, 
+vaadin-password-field:focus-within, 
+vaadin-combo-box:focus-within, 
+vaadin-date-picker:focus-within,
+vaadin-text-area:focus-within,
+vaadin-integer-field:focus-within,
+vaadin-number-field:focus-within,
+vaadin-select:focus-within,
+vaadin-email-field:focus-within,
+vaadin-time-picker:focus-within {
+    --lumo-primary-color: var(--aruclinic-primary) !important;
+    --lumo-primary-color-50pct: rgba(15, 108, 189, 0.16) !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 /* Entrance Fade-In Animations for Pages */
@@ -1546,10 +1555,40 @@ vaadin-combo-box::part(input-field), vaadin-date-picker::part(input-field) {
     transition: all var(--aruclinic-transition-fast) !important;
 }
 
-vaadin-text-field:focus-within::part(input-field), vaadin-password-field:focus-within::part(input-field), 
-vaadin-combo-box:focus-within::part(input-field), vaadin-date-picker:focus-within::part(input-field) {
-    border-color: var(--aruclinic-primary-light) !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+/* Custom clean, professional focus state matching the AruClinic UI Theme */
+vaadin-text-field[focused]::part(input-field),
+vaadin-password-field[focused]::part(input-field),
+vaadin-combo-box[focused]::part(input-field),
+vaadin-date-picker[focused]::part(input-field),
+vaadin-text-area[focused]::part(input-field),
+vaadin-integer-field[focused]::part(input-field),
+vaadin-number-field[focused]::part(input-field),
+vaadin-select[focused]::part(input-field),
+vaadin-email-field[focused]::part(input-field),
+vaadin-time-picker[focused]::part(input-field),
+vaadin-text-field:focus-within::part(input-field),
+vaadin-password-field:focus-within::part(input-field),
+vaadin-combo-box:focus-within::part(input-field),
+vaadin-date-picker:focus-within::part(input-field),
+vaadin-text-area:focus-within::part(input-field),
+vaadin-integer-field:focus-within::part(input-field),
+vaadin-number-field:focus-within::part(input-field),
+vaadin-select:focus-within::part(input-field),
+vaadin-email-field:focus-within::part(input-field),
+vaadin-time-picker:focus-within::part(input-field) {
+    border-color: var(--aruclinic-primary) !important;
+    box-shadow: 0 0 0 3px rgba(15, 108, 189, 0.16) !important;
+    outline: none !important;
+}
+
+/* Disable native browser outlines on inner input slot elements */
+vaadin-text-field input, vaadin-password-field input,
+vaadin-combo-box input, vaadin-date-picker input,
+vaadin-text-area textarea, vaadin-integer-field input,
+vaadin-number-field input, vaadin-select select,
+vaadin-email-field input, vaadin-time-picker input {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* Custom styling for primary blue header grids */

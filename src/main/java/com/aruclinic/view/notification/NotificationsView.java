@@ -233,7 +233,12 @@ public class NotificationsView extends VerticalLayout implements BeforeEnterObse
         viewBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_PRIMARY);
         viewBtn.addClassName("aruclinic-btn");
         viewBtn.addClassName("aruclinic-btn-primary");
-        viewBtn.addClickListener(e -> viewNotification(title));
+        viewBtn.addClickListener(e -> {
+            if (isUnread) {
+                markAsRead(n);
+            }
+            viewNotification(n, type);
+        });
 
         Button clearBtn = new Button(new Icon(VaadinIcon.TRASH));
         clearBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
@@ -496,16 +501,87 @@ public class NotificationsView extends VerticalLayout implements BeforeEnterObse
         refreshNotifications();
     }
 
-    private void viewNotification(String title) {
+    private void viewNotification(com.aruclinic.entity.Notification n, String type) {
+        if (n == null) return;
+        String title = n.getTitle();
+        
         if (title != null && title.contains("Prescription Deleted: PRESC-")) {
             showDeletedPrescriptionDialog(title);
-        } else {
-            com.vaadin.flow.component.notification.Notification.show(
-                "Viewing details of: " + title,
-                2000,
-                com.vaadin.flow.component.notification.Notification.Position.BOTTOM_CENTER
-            );
+            return;
         }
+
+        // Beautiful, responsive notification popup compatible with all devices (mobile & desktop)
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle(title != null ? title : "Notification Details");
+        dialog.setWidth("450px");
+        dialog.setMaxWidth("90vw"); // Responsive sizing for mobile views
+
+        VerticalLayout content = new VerticalLayout();
+        content.setSpacing(true);
+        content.setPadding(true);
+        content.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        // Circular background container for the icon
+        Div iconCircle = new Div();
+        iconCircle.getStyle()
+            .set("width", "60px")
+            .set("height", "60px")
+            .set("border-radius", "50%")
+            .set("display", "flex")
+            .set("align-items", "center")
+            .set("justify-content", "center")
+            .set("margin-bottom", "10px");
+
+        String displayType = type != null ? type : "info";
+        Icon icon = new Icon(getIconForType(displayType));
+        icon.setSize("28px");
+        
+        if ("danger".equalsIgnoreCase(displayType) || "error".equalsIgnoreCase(displayType) || (title != null && (title.contains("Cancel") || title.contains("Delete") || title.contains("Error") || title.contains("Failed")))) {
+            iconCircle.getStyle().set("background", "#fee2e2");
+            icon.setColor("#ef4444");
+        } else if ("success".equalsIgnoreCase(displayType) || (title != null && (title.contains("Paid") || title.contains("Enable") || title.contains("Success") || title.contains("Booked") || title.contains("Scheduled") || title.contains("Updated")))) {
+            iconCircle.getStyle().set("background", "#dcfce7");
+            icon.setColor("#22c55e");
+        } else if ("warning".equalsIgnoreCase(displayType) || (title != null && (title.contains("Reschedule") || title.contains("Reassign") || title.contains("Assigned")))) {
+            iconCircle.getStyle().set("background", "#fef3c7");
+            icon.setColor("#f59e0b");
+        } else { // info / primary
+            iconCircle.getStyle().set("background", "#e0f2fe");
+            icon.setColor("#0ea5e9");
+        }
+        iconCircle.add(icon);
+        content.add(iconCircle);
+
+        // Formatted timestamp
+        Span timeSpan = new Span(formatTimestamp(n.getCreatedAt()));
+        timeSpan.getStyle()
+            .set("font-size", "var(--aruclinic-font-size-xs, 0.75rem)")
+            .set("color", "var(--aruclinic-text-secondary, #64748b)")
+            .set("margin-bottom", "15px");
+        content.add(timeSpan);
+
+        // Detailed message display block
+        Div messageBlock = new Div();
+        messageBlock.getStyle()
+            .set("background", "var(--aruclinic-bg-light, #f8fafc)")
+            .set("border", "1px solid var(--aruclinic-border-color, #e2e8f0)")
+            .set("border-radius", "8px")
+            .set("padding", "var(--aruclinic-spacing-md, 16px)")
+            .set("width", "100%")
+            .set("font-size", "var(--aruclinic-font-size-md, 0.95rem)")
+            .set("color", "var(--aruclinic-text-primary, #0f172a)")
+            .set("line-height", "1.5");
+        messageBlock.setText(n.getMessage());
+        content.add(messageBlock);
+
+        dialog.add(content);
+
+        Button closeBtn = new Button("Close", e -> dialog.close());
+        closeBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        closeBtn.getStyle().set("width", "100%");
+        dialog.getFooter().add(closeBtn);
+
+        dialog.open();
     }
 
     private void showDeletedPrescriptionDialog(String title) {

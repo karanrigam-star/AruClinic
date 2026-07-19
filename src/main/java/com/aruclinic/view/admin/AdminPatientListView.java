@@ -104,6 +104,13 @@ public class AdminPatientListView extends VerticalLayout {
             }
         });
 
+        // Disable and hide delete button for receptionist role
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_RECEPTIONIST"))) {
+            deleteBtn.setEnabled(false);
+            deleteBtn.setVisible(false);
+        }
+
         actions.add(viewBtn, editBtn, deleteBtn);
         return actions;
     }
@@ -144,9 +151,14 @@ public class AdminPatientListView extends VerticalLayout {
     private void openAddDialog() {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Register New Patient");
-        dialog.setWidth("500px");
+        dialog.setWidth("90%");
+        dialog.setMaxWidth("500px");
 
         FormLayout form = new FormLayout();
+        form.setResponsiveSteps(
+            new FormLayout.ResponsiveStep("0", 1),
+            new FormLayout.ResponsiveStep("400px", 2)
+        );
         TextField fn = new TextField("First Name");
         TextField ln = new TextField("Last Name");
         TextField email = new TextField("Email Address");
@@ -232,9 +244,14 @@ public class AdminPatientListView extends VerticalLayout {
     private void openEditDialog(Patient patient) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Edit Patient Details");
-        dialog.setWidth("500px");
+        dialog.setWidth("90%");
+        dialog.setMaxWidth("500px");
 
         FormLayout form = new FormLayout();
+        form.setResponsiveSteps(
+            new FormLayout.ResponsiveStep("0", 1),
+            new FormLayout.ResponsiveStep("400px", 2)
+        );
         TextField fn = new TextField("First Name");
         fn.setValue(patient.getFirstName() != null ? patient.getFirstName() : "");
         TextField ln = new TextField("Last Name");
@@ -333,11 +350,13 @@ public class AdminPatientListView extends VerticalLayout {
     private void openViewDialog(Patient patient) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Medical & Activity Records: " + patient.getFirstName() + " " + patient.getLastName());
-        dialog.setWidth("750px");
-        dialog.setHeight("600px");
+        dialog.setWidth("95%");
+        dialog.setMaxWidth("750px");
+        dialog.setHeight("90vh");
 
         VerticalLayout layout = new VerticalLayout();
         layout.setSizeFull();
+        layout.getStyle().set("overflow-y", "auto");
         layout.setPadding(false);
 
         // Demographic block

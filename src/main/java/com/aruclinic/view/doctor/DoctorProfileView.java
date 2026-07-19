@@ -103,6 +103,8 @@ public class DoctorProfileView extends VerticalLayout implements BeforeEnterObse
                 Object principal = auth.getPrincipal();
                 if (principal instanceof org.springframework.security.core.userdetails.User springUser) {
                     email = springUser.getUsername();
+                } else if (principal instanceof com.aruclinic.entity.User userEntity) {
+                    email = userEntity.getEmail();
                 } else if (principal instanceof String principalStr) {
                     email = principalStr;
                 }

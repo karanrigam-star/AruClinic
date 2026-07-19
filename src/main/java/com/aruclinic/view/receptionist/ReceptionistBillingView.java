@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 @PageTitle("Billing Module | AruClinic")
 @Route(value = "receptionist/billing", layout = MainLayout.class)
 @CssImport("./themes/aruclinic/common.css")
-public class ReceptionistBillingView extends VerticalLayout {
+public class ReceptionistBillingView extends VerticalLayout implements com.vaadin.flow.router.BeforeEnterObserver {
 
     private static final long serialVersionUID = 1L;
 
@@ -58,12 +58,14 @@ public class ReceptionistBillingView extends VerticalLayout {
     private final Grid<Bill> grid = new Grid<>();
     private final Grid<Appointment> pendingGrid = new Grid<>();
     private final Select<String> statusFilter = new Select<>();
+    private Patient selectedPatientForInvoice = null;
 
     public ReceptionistBillingView(AdminService adminService, PrescriptionService prescriptionService) {
         this.adminService = adminService;
         this.prescriptionService = prescriptionService;
 
-        setSizeFull();
+        setWidthFull();
+        setHeight("auto");
         setPadding(true);
         setClassName("aruclinic-receptionist-billing-view");
 
@@ -123,11 +125,7 @@ public class ReceptionistBillingView extends VerticalLayout {
         if ("UNPAID".equalsIgnoreCase(bill.getStatus())) {
             Button payBtn = new Button("Record Payment", new Icon(VaadinIcon.MONEY));
             payBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL);
-            payBtn.addClickListener(e -> {
-                adminService.payBill(bill.getId());
-                Notification.show("Payment recorded successfully. Admin notified.", 2000, Notification.Position.TOP_CENTER);
-                refreshGrid();
-            });
+            payBtn.addClickListener(e -> openRecordPaymentDialog(bill));
             actions.add(payBtn);
         } else {
             Span paidLabel = new Span("Paid");
@@ -151,26 +149,25 @@ public class ReceptionistBillingView extends VerticalLayout {
     }
 
     private Component createHeader() {
-        HorizontalLayout header = new HorizontalLayout();
+        com.vaadin.flow.component.orderedlayout.FlexLayout header = new com.vaadin.flow.component.orderedlayout.FlexLayout();
         header.setWidthFull();
-        header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        header.setAlignItems(FlexComponent.Alignment.CENTER);
+        header.addClassName("aruclinic-billing-header");
 
         H1 title = new H1("Invoicing & Billing");
         title.getStyle().set("margin", "0").set("font-size", "var(--aruclinic-font-size-2xl)");
 
         Button addBtn = new Button("Generate Invoice", new Icon(VaadinIcon.PLUS));
         addBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        addBtn.addClickListener(e -> openGenerateInvoiceDialog());
+        addBtn.addClickListener(e -> openGenerateInvoiceDialog(selectedPatientForInvoice));
 
         header.add(title, addBtn);
         return header;
     }
 
     private Component createSummaryCards() {
-        HorizontalLayout layout = new HorizontalLayout();
+        com.vaadin.flow.component.orderedlayout.FlexLayout layout = new com.vaadin.flow.component.orderedlayout.FlexLayout();
         layout.setWidthFull();
-        layout.setSpacing(true);
+        layout.addClassName("aruclinic-billing-summary-cards");
         layout.getStyle().set("margin", "16px 0");
 
         double revenueToday = adminService.getRevenueToday();
@@ -202,10 +199,15 @@ public class ReceptionistBillingView extends VerticalLayout {
     }
 
     private Component createFilterAndTablesLayout() {
-        HorizontalLayout tablesLayout = new HorizontalLayout();
-        tablesLayout.setSizeFull();
-        tablesLayout.setSpacing(true);
-        tablesLayout.getStyle().set("margin-top", "var(--aruclinic-spacing-md)");
+        VerticalLayout container = new VerticalLayout();
+        container.setPadding(false);
+        container.setSpacing(true);
+        container.setWidthFull();
+
+        com.vaadin.flow.component.tabs.Tab pendingTab = new com.vaadin.flow.component.tabs.Tab("Pending Invoices");
+        com.vaadin.flow.component.tabs.Tab historyTab = new com.vaadin.flow.component.tabs.Tab("All Invoices History");
+        com.vaadin.flow.component.tabs.Tabs tabs = new com.vaadin.flow.component.tabs.Tabs(pendingTab, historyTab);
+        tabs.setWidthFull();
 
         // Left Container (Pending Invoices Grid)
         VerticalLayout leftContainer = new VerticalLayout();
@@ -218,13 +220,13 @@ public class ReceptionistBillingView extends VerticalLayout {
             .set("padding", "var(--aruclinic-spacing-lg)")
             .set("box-shadow", "var(--aruclinic-shadow-md)");
 
-        H2 leftTitle = new H2("Pending Invoices (Completed Appointments)");
+        H2 leftTitle = new H2("Completed Appointments (Need Billing)");
         leftTitle.getStyle()
             .set("font-size", "var(--aruclinic-font-size-lg)")
             .set("font-weight", "600")
             .set("margin", "0")
             .set("color", "var(--aruclinic-text-primary)");
-        
+
         leftContainer.add(leftTitle, pendingGrid);
 
         // Right Container (All Invoices Grid with Status Filter)
@@ -250,32 +252,43 @@ public class ReceptionistBillingView extends VerticalLayout {
         statusFilter.setValue("ALL");
         statusFilter.addValueChangeListener(e -> refreshGrid());
 
-        HorizontalLayout rightHeader = new HorizontalLayout(rightTitle, statusFilter);
+        com.vaadin.flow.component.orderedlayout.FlexLayout rightHeader = new com.vaadin.flow.component.orderedlayout.FlexLayout(rightTitle, statusFilter);
         rightHeader.setWidthFull();
-        rightHeader.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        rightHeader.setAlignItems(FlexComponent.Alignment.CENTER);
+        rightHeader.addClassName("aruclinic-billing-right-header");
 
         rightContainer.add(rightHeader, grid);
 
-        tablesLayout.add(leftContainer, rightContainer);
-        tablesLayout.setFlexGrow(1.0, leftContainer, rightContainer);
+        Div contentArea = new Div(leftContainer);
+        contentArea.setWidthFull();
 
-        return tablesLayout;
+        tabs.addSelectedChangeListener(event -> {
+            contentArea.removeAll();
+            if (tabs.getSelectedTab().equals(pendingTab)) {
+                contentArea.add(leftContainer);
+            } else {
+                contentArea.add(rightContainer);
+            }
+        });
+
+        container.add(tabs, contentArea);
+        return container;
     }
 
-    private void updateQrCode(Image qrCodeImage, BigDecimalField amount, BigDecimalField tax, Select<String> methodSelect) {
+    private void updateQrCode(Image qrCodeImage, BigDecimalField amount, BigDecimalField tax, Select<String> methodSelect, Select<String> upiAppSelect) {
         if ("UPI".equals(methodSelect.getValue())) {
+            upiAppSelect.setVisible(true);
             BigDecimal subtotal = amount.getValue() != null ? amount.getValue() : BigDecimal.ZERO;
             BigDecimal taxAmt = tax.getValue() != null ? tax.getValue() : BigDecimal.ZERO;
             BigDecimal total = subtotal.add(taxAmt);
             
             try {
+                String appName = upiAppSelect.getValue() != null ? upiAppSelect.getValue() : "Google Pay";
                 String payload = "upi://pay?pa=aruclinic@upi&pn=AruClinic&am=" + total + "&cu=INR&tn=Invoice";
                 String encodedPayload = java.net.URLEncoder.encode(payload, java.nio.charset.StandardCharsets.UTF_8.toString());
                 String qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodedPayload;
                 
                 qrCodeImage.setSrc(qrUrl);
-                qrCodeImage.setAlt("UPI Payment QR Code");
+                qrCodeImage.setAlt(appName + " Payment QR Code");
                 qrCodeImage.setWidth("150px");
                 qrCodeImage.setHeight("150px");
                 qrCodeImage.getStyle().set("display", "block").set("margin", "12px auto");
@@ -284,20 +297,26 @@ public class ReceptionistBillingView extends VerticalLayout {
                 qrCodeImage.setVisible(false);
             }
         } else {
+            upiAppSelect.setVisible(false);
             qrCodeImage.setVisible(false);
         }
     }
 
-    private void openGenerateInvoiceDialog() {
+    private void openGenerateInvoiceDialog(Patient preSelectedPatient) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Generate Invoice");
-        dialog.setWidth("450px");
+        dialog.setWidth("90%");
+        dialog.setMaxWidth("450px");
 
         FormLayout form = new FormLayout();
+        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
         Select<Patient> patientSelect = new Select<>();
         patientSelect.setLabel("Patient");
         patientSelect.setItems(adminService.getAllPatients());
         patientSelect.setItemLabelGenerator(p -> p.getFirstName() + " " + p.getLastName() + " (" + p.getEmail() + ")");
+        if (preSelectedPatient != null) {
+            patientSelect.setValue(preSelectedPatient);
+        }
 
         Select<Doctor> doctorSelect = new Select<>();
         doctorSelect.setLabel("Doctor");
@@ -316,6 +335,12 @@ public class ReceptionistBillingView extends VerticalLayout {
         methodSelect.setItems("Cash", "Card", "UPI", "Net Banking");
         methodSelect.setValue("Cash");
 
+        Select<String> upiAppSelect = new Select<>();
+        upiAppSelect.setLabel("UPI App");
+        upiAppSelect.setItems("Google Pay", "Paytm", "PhonePe", "BHIM UPI", "Other UPI");
+        upiAppSelect.setValue("Google Pay");
+        upiAppSelect.setVisible(false);
+
         Select<String> payStatusSelect = new Select<>();
         payStatusSelect.setLabel("Payment Status");
         payStatusSelect.setItems("PAID", "UNPAID");
@@ -324,11 +349,12 @@ public class ReceptionistBillingView extends VerticalLayout {
         Image qrCodeImage = new Image();
         qrCodeImage.setVisible(false);
 
-        amount.addValueChangeListener(e -> updateQrCode(qrCodeImage, amount, tax, methodSelect));
-        tax.addValueChangeListener(e -> updateQrCode(qrCodeImage, amount, tax, methodSelect));
-        methodSelect.addValueChangeListener(e -> updateQrCode(qrCodeImage, amount, tax, methodSelect));
+        amount.addValueChangeListener(e -> updateQrCode(qrCodeImage, amount, tax, methodSelect, upiAppSelect));
+        tax.addValueChangeListener(e -> updateQrCode(qrCodeImage, amount, tax, methodSelect, upiAppSelect));
+        methodSelect.addValueChangeListener(e -> updateQrCode(qrCodeImage, amount, tax, methodSelect, upiAppSelect));
+        upiAppSelect.addValueChangeListener(e -> updateQrCode(qrCodeImage, amount, tax, methodSelect, upiAppSelect));
 
-        form.add(patientSelect, doctorSelect, amount, tax, date, methodSelect, payStatusSelect, qrCodeImage);
+        form.add(patientSelect, doctorSelect, amount, tax, date, methodSelect, upiAppSelect, payStatusSelect, qrCodeImage);
 
         Button saveBtn = new Button("Generate", e -> {
             if (patientSelect.getValue() == null || doctorSelect.getValue() == null || amount.getValue() == null) {
@@ -347,7 +373,11 @@ public class ReceptionistBillingView extends VerticalLayout {
             b.setTotal(totalAmount);
             b.setInvoiceDate(date.getValue());
             b.setStatus(payStatusSelect.getValue());
-            b.setPaymentMethod(methodSelect.getValue());
+            String finalPaymentMethod = methodSelect.getValue();
+            if ("UPI".equals(finalPaymentMethod)) {
+                finalPaymentMethod = "UPI - " + upiAppSelect.getValue();
+            }
+            b.setPaymentMethod(finalPaymentMethod);
             b.setDescription("General Clinic Billing");
             if ("PAID".equals(payStatusSelect.getValue())) {
                 b.setPaidDate(LocalDate.now());
@@ -372,9 +402,11 @@ public class ReceptionistBillingView extends VerticalLayout {
     private void openGenerateInvoiceDialog(Appointment appt) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Generate Invoice for Appointment #" + appt.getId());
-        dialog.setWidth("480px");
+        dialog.setWidth("90%");
+        dialog.setMaxWidth("480px");
 
         FormLayout form = new FormLayout();
+        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
         
         TextField patientField = new TextField("Patient");
         patientField.setValue(appt.getPatient() != null ? appt.getPatient().getFirstName() + " " + appt.getPatient().getLastName() : "N/A");
@@ -436,6 +468,12 @@ public class ReceptionistBillingView extends VerticalLayout {
         methodSelect.setItems("Cash", "Card", "UPI", "Net Banking");
         methodSelect.setValue("Cash");
 
+        Select<String> upiAppSelect = new Select<>();
+        upiAppSelect.setLabel("UPI App");
+        upiAppSelect.setItems("Google Pay", "Paytm", "PhonePe", "BHIM UPI", "Other UPI");
+        upiAppSelect.setValue("Google Pay");
+        upiAppSelect.setVisible(false);
+
         Select<String> payStatusSelect = new Select<>();
         payStatusSelect.setLabel("Payment Status");
         payStatusSelect.setItems("PAID", "UNPAID");
@@ -444,11 +482,12 @@ public class ReceptionistBillingView extends VerticalLayout {
         Image qrCodeImage = new Image();
         qrCodeImage.setVisible(false);
 
-        amount.addValueChangeListener(e -> updateQrCode(qrCodeImage, amount, tax, methodSelect));
-        tax.addValueChangeListener(e -> updateQrCode(qrCodeImage, amount, tax, methodSelect));
-        methodSelect.addValueChangeListener(e -> updateQrCode(qrCodeImage, amount, tax, methodSelect));
+        amount.addValueChangeListener(e -> updateQrCode(qrCodeImage, amount, tax, methodSelect, upiAppSelect));
+        tax.addValueChangeListener(e -> updateQrCode(qrCodeImage, amount, tax, methodSelect, upiAppSelect));
+        methodSelect.addValueChangeListener(e -> updateQrCode(qrCodeImage, amount, tax, methodSelect, upiAppSelect));
+        upiAppSelect.addValueChangeListener(e -> updateQrCode(qrCodeImage, amount, tax, methodSelect, upiAppSelect));
 
-        form.add(amount, tax, date, methodSelect, payStatusSelect, qrCodeImage);
+        form.add(amount, tax, date, methodSelect, upiAppSelect, payStatusSelect, qrCodeImage);
 
         Button saveBtn = new Button("Generate", e -> {
             if (appt.getPatient() == null || appt.getDoctor() == null || amount.getValue() == null) {
@@ -467,7 +506,11 @@ public class ReceptionistBillingView extends VerticalLayout {
             b.setTotal(totalAmount);
             b.setInvoiceDate(date.getValue());
             b.setStatus(payStatusSelect.getValue());
-            b.setPaymentMethod(methodSelect.getValue());
+            String finalPaymentMethod = methodSelect.getValue();
+            if ("UPI".equals(finalPaymentMethod)) {
+                finalPaymentMethod = "UPI - " + upiAppSelect.getValue();
+            }
+            b.setPaymentMethod(finalPaymentMethod);
             b.setDescription("Billing for Completed Appointment #" + appt.getId());
             if ("PAID".equals(payStatusSelect.getValue())) {
                 b.setPaidDate(LocalDate.now());
@@ -508,5 +551,120 @@ public class ReceptionistBillingView extends VerticalLayout {
                 })
                 .collect(Collectors.toList());
         pendingGrid.setItems(completedAppts);
+    }
+
+    @Override
+    public void beforeEnter(com.vaadin.flow.router.BeforeEnterEvent event) {
+        List<String> patientIds = event.getLocation().getQueryParameters().getParameters().get("patientId");
+        if (patientIds != null && !patientIds.isEmpty()) {
+            try {
+                Long patientId = Long.parseLong(patientIds.get(0));
+                selectedPatientForInvoice = adminService.getAllPatients().stream()
+                    .filter(p -> p.getId().equals(patientId))
+                    .findFirst()
+                    .orElse(null);
+                filterByPatientId(patientId);
+            } catch (Exception e) {
+                selectedPatientForInvoice = null;
+                refreshGrid();
+            }
+        } else {
+            selectedPatientForInvoice = null;
+            refreshGrid();
+        }
+    }
+
+    private void filterByPatientId(Long patientId) {
+        List<Bill> bills = adminService.getAllBills().stream()
+                .filter(b -> b.getPatient() != null && b.getPatient().getId().equals(patientId))
+                .collect(Collectors.toList());
+        grid.setItems(bills);
+
+        List<Appointment> completedAppts = adminService.getAllAppointments().stream()
+                .filter(a -> a.getStatus() == AppointmentStatus.COMPLETED)
+                .filter(a -> a.getPatient() != null && a.getPatient().getId().equals(patientId))
+                .filter(a -> {
+                    String matchToken = "Appointment #" + a.getId();
+                    return adminService.getAllBills().stream()
+                            .noneMatch(b -> b.getDescription() != null && b.getDescription().contains(matchToken));
+                })
+                .collect(Collectors.toList());
+        pendingGrid.setItems(completedAppts);
+    }
+
+    private void openRecordPaymentDialog(Bill bill) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Record Payment for Invoice " + bill.getInvoiceNumber());
+        dialog.setWidth("90%");
+        dialog.setMaxWidth("420px");
+
+        FormLayout form = new FormLayout();
+        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+
+        TextField amountField = new TextField("Total Amount (₹)");
+        amountField.setValue("₹" + bill.getTotal().toString());
+        amountField.setReadOnly(true);
+
+        Select<String> methodSelect = new Select<>();
+        methodSelect.setLabel("Payment Method");
+        methodSelect.setItems("Cash", "Card", "UPI", "Net Banking");
+        methodSelect.setValue("Cash");
+
+        Select<String> upiAppSelect = new Select<>();
+        upiAppSelect.setLabel("UPI App");
+        upiAppSelect.setItems("Google Pay", "Paytm", "PhonePe", "BHIM UPI", "Other UPI");
+        upiAppSelect.setValue("Google Pay");
+        upiAppSelect.setVisible(false);
+
+        Image qrCodeImage = new Image();
+        qrCodeImage.setVisible(false);
+
+        Runnable updateQr = () -> {
+            if ("UPI".equals(methodSelect.getValue())) {
+                upiAppSelect.setVisible(true);
+                try {
+                    String appName = upiAppSelect.getValue();
+                    String payload = "upi://pay?pa=aruclinic@upi&pn=AruClinic&am=" + bill.getTotal() + "&cu=INR&tn=Invoice-" + bill.getInvoiceNumber();
+                    String encodedPayload = java.net.URLEncoder.encode(payload, java.nio.charset.StandardCharsets.UTF_8.toString());
+                    String qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodedPayload;
+                    
+                    qrCodeImage.setSrc(qrUrl);
+                    qrCodeImage.setAlt(appName + " Payment QR Code");
+                    qrCodeImage.setWidth("150px");
+                    qrCodeImage.setHeight("150px");
+                    qrCodeImage.getStyle().set("display", "block").set("margin", "12px auto");
+                    qrCodeImage.setVisible(true);
+                } catch (Exception ex) {
+                    qrCodeImage.setVisible(false);
+                }
+            } else {
+                upiAppSelect.setVisible(false);
+                qrCodeImage.setVisible(false);
+            }
+        };
+
+        methodSelect.addValueChangeListener(e -> updateQr.run());
+        upiAppSelect.addValueChangeListener(e -> updateQr.run());
+
+        form.add(amountField, methodSelect, upiAppSelect, qrCodeImage);
+
+        Button confirmBtn = new Button("Confirm Payment", e -> {
+            String selectedMethod = methodSelect.getValue();
+            if ("UPI".equals(selectedMethod)) {
+                selectedMethod = "UPI - " + upiAppSelect.getValue();
+            }
+            adminService.payBill(bill.getId(), selectedMethod);
+            Notification.show("Payment recorded successfully. Admin notified.", 2000, Notification.Position.TOP_CENTER);
+            dialog.close();
+            refreshGrid();
+        });
+        confirmBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        Button cancelBtn = new Button("Cancel", e -> dialog.close());
+        cancelBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+        dialog.getFooter().add(cancelBtn, confirmBtn);
+        dialog.add(form);
+        dialog.open();
     }
 }

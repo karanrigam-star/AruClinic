@@ -63,7 +63,8 @@ public class DoctorPrescriptionListView extends VerticalLayout implements com.va
         this.prescriptionService = prescriptionService;
         this.doctorRepository = doctorRepository;
 
-        setSizeFull();
+        setWidthFull();
+        setHeight("auto");
         setPadding(true);
         setClassName("aruclinic-doctor-prescription-list-view");
 
@@ -71,7 +72,6 @@ public class DoctorPrescriptionListView extends VerticalLayout implements com.va
         configureGrid();
         
         add(createHeader(), createStatsBlock(), createFilterBar(), grid);
-        setFlexGrow(1.0, grid);
         refreshData();
     }
 
@@ -237,10 +237,9 @@ public class DoctorPrescriptionListView extends VerticalLayout implements com.va
     }
 
     private Component createHeader() {
-        HorizontalLayout header = new HorizontalLayout();
+        com.vaadin.flow.component.orderedlayout.FlexLayout header = new com.vaadin.flow.component.orderedlayout.FlexLayout();
         header.setWidthFull();
-        header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        header.setAlignItems(FlexComponent.Alignment.CENTER);
+        header.addClassName("aruclinic-prescription-list-header");
 
         H1 title = new H1("My Prescriptions");
         title.getStyle().set("margin", "0").set("font-size", "var(--aruclinic-font-size-2xl)");
@@ -282,13 +281,13 @@ public class DoctorPrescriptionListView extends VerticalLayout implements com.va
     }
 
     private Component createFilterBar() {
-        HorizontalLayout bar = new HorizontalLayout();
+        com.vaadin.flow.component.orderedlayout.FlexLayout bar = new com.vaadin.flow.component.orderedlayout.FlexLayout();
         bar.setWidthFull();
-        bar.setAlignItems(FlexComponent.Alignment.CENTER);
+        bar.addClassName("aruclinic-prescription-filter");
         bar.getStyle().set("margin-top", "var(--aruclinic-spacing-md)");
 
         searchField.setPlaceholder("Search prescriptions by patient, diagnosis, or symptoms...");
-        searchField.setWidth("60%");
+        searchField.addClassName("aruclinic-search-field");
         searchField.setClearButtonVisible(true);
         searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
         searchField.setValueChangeMode(ValueChangeMode.EAGER);

@@ -70,12 +70,7 @@ public class RegistrationView extends VerticalLayout {
         setSizeFull();
         setPadding(false);
         setSpacing(false);
-        getStyle()
-            .set("background", "linear-gradient(135deg, var(--aruclinic-primary) 0%, var(--aruclinic-primary-dark) 100%)")
-            .set("min-height", "100vh")
-            .set("display", "flex")
-            .set("align-items", "center")
-            .set("justify-content", "center");
+        addClassName("aruclinic-login-page");
 
         // First name field
         firstName.setPlaceholder("First Name");
@@ -264,11 +259,6 @@ public class RegistrationView extends VerticalLayout {
         // Form Fields Grid (3 rows, 2 columns)
         Div gridContainer = new Div();
         gridContainer.addClassName("aruclinic-registration-grid");
-        gridContainer.getStyle()
-            .set("display", "grid")
-            .set("grid-template-columns", "repeat(2, 1fr)")
-            .set("gap", "var(--aruclinic-spacing-md)")
-            .set("width", "100%");
 
         // Row 1: First Name, Last Name
         Div firstNameGroup = new Div();
@@ -553,13 +543,13 @@ public class RegistrationView extends VerticalLayout {
             UserDto registeredUser = userService.registerUser(userDto);
             if (registeredUser != null) {
                 Notification.show(
-                    "Registration successful! Please check your email for verification.",
+                    "Registration successful! Please log in to verify your account.",
                     5000,
                     Notification.Position.BOTTOM_CENTER
                 ).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
-                // Redirect to OTP verification or login
-                getUI().ifPresent(ui -> ui.navigate("auth/verify"));
+                // Redirect to login page
+                getUI().ifPresent(ui -> ui.navigate("auth/login"));
             }
         } catch (Exception e) {
             showError("Registration failed: " + e.getMessage());

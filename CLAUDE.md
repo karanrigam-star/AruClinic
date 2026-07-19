@@ -6,6 +6,7 @@ This file contains instructions for building, running, and contributing to the *
 * **Compile Project:** `mvn clean compile`
 * **Compile & Run Tests:** `mvn test`
 * **Start Dev Server:** `mvn spring-boot:run`
+* **Free Port 8080 (PowerShell):** `Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }`
 
 ## Project Layout
 * **Backend:** Spring Boot (Java 21) in `src/main/java`

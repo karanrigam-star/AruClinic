@@ -5,6 +5,7 @@ import com.aruclinic.entity.Bill;
 import com.aruclinic.exception.AruClinicException;
 import com.aruclinic.repository.BillRepository;
 import com.aruclinic.service.BillingService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,7 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public BillDto createBill(BillDto billDto) {
         Bill bill = new Bill();
         bill.setInvoiceNumber(billDto.getInvoiceId());
@@ -58,6 +60,7 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public BillDto getBillById(Long id) {
         Bill bill = billRepository.findById(id)
                 .orElseThrow(() -> new AruClinicException("Bill not found with id: " + id));
@@ -79,6 +82,7 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public BillDto updateBill(Long id, BillDto billDto) {
         Bill existingBill = billRepository.findById(id)
                 .orElseThrow(() -> new AruClinicException("Bill not found with id: " + id));
@@ -130,12 +134,14 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public void deleteBill(Long id) {
         billRepository.deleteById(id);
     }
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public List<BillDto> getAllBills() {
         return billRepository.findAll().stream()
                 .map(this::convertToDto)
@@ -144,6 +150,7 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public List<BillDto> getBillsByPatientId(Long patientId) {
         return billRepository.findByPatientId(patientId).stream()
                 .map(this::convertToDto)
@@ -152,6 +159,7 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public List<BillDto> getUnpaidBillsByPatientId(Long patientId) {
         return billRepository.findByPatientIdAndStatus(patientId, "PENDING").stream()
                 .map(this::convertToDto)
@@ -160,6 +168,7 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public List<BillDto> getPaidBillsByPatientId(Long patientId) {
         return billRepository.findByPatientIdAndStatus(patientId, "PAID").stream()
                 .map(this::convertToDto)
@@ -168,6 +177,7 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public List<BillDto> getBillsByStatus(String status) {
         return billRepository.findByStatus(status).stream()
                 .map(this::convertToDto)
@@ -176,6 +186,7 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public BillDto markBillAsPaid(Long billId) {
         Bill bill = billRepository.findById(billId)
                 .orElseThrow(() -> new AruClinicException("Bill not found with id: " + billId));
@@ -186,6 +197,7 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public double getTotalRevenue() {
         return billRepository.findAll().stream()
                 .filter(bill -> "PAID".equals(bill.getStatus()))
@@ -195,6 +207,7 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public double getPendingPayments() {
         return billRepository.findByStatus("PENDING").stream()
                 .mapToDouble(bill -> bill.getTotal().doubleValue())
@@ -203,6 +216,7 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public void processPayment(String invoiceId, BigDecimal amount) {
         Bill bill = billRepository.findByInvoiceNumber(invoiceId)
                 .orElseThrow(() -> new AruClinicException("Invoice not found: " + invoiceId));
@@ -236,24 +250,28 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public List<Bill> getBillEntitiesByPatientId(Long patientId) {
         return billRepository.findByPatientId(patientId);
     }
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public Bill getBillEntityById(Long id) {
         return billRepository.findById(id).orElse(null);
     }
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public List<Bill> getAllBillEntities() {
         return billRepository.findAll();
     }
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public List<Bill> getBillEntitiesByDoctorId(Long doctorId) {
         return billRepository.findByDoctorId(doctorId);
     }

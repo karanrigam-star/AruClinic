@@ -1339,3 +1339,16 @@ vaadin-grid::part(cell),
 vaadin-grid::part(header-cell) {
     border-right: 1px solid rgba(0, 98, 255, 0.35) !important;
 }
+
+/* ============================================
+   Doctor Prescription List View Responsiveness
+   ============================================ */
+.aruclinic-search-field {
+    width: 60%;
+}
+
+@media (max-width: 767px) {
+    .aruclinic-search-field {
+        width: 100% !important;
+    }
+}

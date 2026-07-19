@@ -28,9 +28,14 @@ import java.time.LocalDate;
 public class AdminDashboard extends VerticalLayout {
 
     private final AdminService adminService;
+    private final com.aruclinic.service.NotificationService notificationService;
+    private Div dashboardContentDiv;
+    private Component statsGrid;
+    private Component recentActivitySection;
 
-    public AdminDashboard(AdminService adminService) {
+    public AdminDashboard(AdminService adminService, com.aruclinic.service.NotificationService notificationService) {
         this.adminService = adminService;
+        this.notificationService = notificationService;
 
         setSizeFull();
         setPadding(false);
@@ -39,18 +44,78 @@ public class AdminDashboard extends VerticalLayout {
         add(createDashboardContent());
     }
 
+    @Override
+    protected void onAttach(com.vaadin.flow.component.AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        // Enable polling every 3 seconds for real-time updates
+        attachEvent.getUI().setPollInterval(3000);
+        
+        // Add a poll listener to refresh stats, activity logs, and display new notifications
+        attachEvent.getUI().addPollListener(e -> {
+            refreshStats();
+        });
+    }
+
+    @Override
+    protected void onDetach(com.vaadin.flow.component.DetachEvent detachEvent) {
+        // Disable polling when leaving the page to save resources
+        detachEvent.getUI().setPollInterval(-1);
+        super.onDetach(detachEvent);
+    }
+
+    private void refreshStats() {
+        if (dashboardContentDiv == null) return;
+        
+        // Rebuild and replace stats grid
+        Component newStatsGrid = createStatsGrid();
+        dashboardContentDiv.replace(statsGrid, newStatsGrid);
+        statsGrid = newStatsGrid;
+        
+        // Rebuild and replace recent activity section
+        Component newRecentActivity = createRecentActivitySection();
+        dashboardContentDiv.replace(recentActivitySection, newRecentActivity);
+        recentActivitySection = newRecentActivity;
+
+        // Check for new real-time payment/system notifications for current admin
+        try {
+            org.springframework.security.core.Authentication auth = 
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated()) {
+                User user = adminService.getUserByEmail(auth.getName());
+                if (user != null) {
+                    java.util.List<com.aruclinic.entity.Notification> unread = notificationService.findByUserId(user.getId()).stream()
+                            .filter(n -> !n.isRead())
+                            .toList();
+                    if (!unread.isEmpty()) {
+                        for (com.aruclinic.entity.Notification n : unread) {
+                            Notification.show(n.getTitle() + ": " + n.getMessage(), 5000, Notification.Position.TOP_CENTER);
+                            notificationService.markAsRead(n.getId());
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            // Ignore context/concurrency exceptions
+        }
+    }
+
     private Component createDashboardContent() {
-        Div content = new Div();
-        content.addClassName("aruclinic-dashboard-content");
-        content.setSizeFull();
+        dashboardContentDiv = new Div();
+        dashboardContentDiv.addClassName("aruclinic-dashboard-content");
+        dashboardContentDiv.setSizeFull();
 
-        content.add(createWelcomeSection());
-        content.add(createQuickActionsBar());
-        content.add(createStatsGrid());
-        content.add(createChartsSection());
-        content.add(createRecentActivitySection());
+        dashboardContentDiv.add(createWelcomeSection());
+        dashboardContentDiv.add(createQuickActionsBar());
+        
+        statsGrid = createStatsGrid();
+        dashboardContentDiv.add(statsGrid);
+        
+        dashboardContentDiv.add(createChartsSection());
+        
+        recentActivitySection = createRecentActivitySection();
+        dashboardContentDiv.add(recentActivitySection);
 
-        return content;
+        return dashboardContentDiv;
     }
 
     private Component createWelcomeSection() {
@@ -97,11 +162,9 @@ public class AdminDashboard extends VerticalLayout {
     }
 
     private Component createQuickActionsBar() {
-        HorizontalLayout bar = new HorizontalLayout();
+        com.vaadin.flow.component.orderedlayout.FlexLayout bar = new com.vaadin.flow.component.orderedlayout.FlexLayout();
         bar.setWidthFull();
-        bar.setSpacing(true);
-        bar.setPadding(true);
-        bar.getStyle().set("background", "#F1F5F9").set("border-radius", "8px").set("margin", "16px 0");
+        bar.addClassName("aruclinic-quick-actions-bar");
 
         Button addUserBtn = new Button("Add User", new Icon(VaadinIcon.USER));
         addUserBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS);

@@ -42,15 +42,11 @@ public class ForgotPasswordView extends VerticalLayout {
     }
 
     private void configureComponents() {
-        setSizeFull();
+        setWidthFull();
+        setMinHeight("100vh");
         setPadding(false);
         setSpacing(false);
-        getStyle()
-            .set("background", "linear-gradient(135deg, var(--aruclinic-primary) 0%, var(--aruclinic-primary-dark) 100%)")
-            .set("min-height", "100vh")
-            .set("display", "flex")
-            .set("align-items", "center")
-            .set("justify-content", "center");
+        addClassName("aruclinic-login-page");
 
         // Email field
         email.setPlaceholder("Enter your registered email");
@@ -75,8 +71,6 @@ public class ForgotPasswordView extends VerticalLayout {
     private Component createForgotPasswordContainer() {
         Div container = new Div();
         container.addClassName("aruclinic-login-card");
-        container.setWidth("90%");
-        container.setMaxWidth("480px");
 
         // Header
         Div header = new Div();

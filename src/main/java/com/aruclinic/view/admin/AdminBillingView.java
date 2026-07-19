@@ -56,7 +56,8 @@ public class AdminBillingView extends VerticalLayout {
         this.adminService = adminService;
         this.prescriptionService = prescriptionService;
 
-        setSizeFull();
+        setWidthFull();
+        setHeight("auto");
         setPadding(true);
         setClassName("aruclinic-admin-billing-view");
 
@@ -148,10 +149,9 @@ public class AdminBillingView extends VerticalLayout {
     }
 
     private Component createHeader() {
-        HorizontalLayout header = new HorizontalLayout();
+        com.vaadin.flow.component.orderedlayout.FlexLayout header = new com.vaadin.flow.component.orderedlayout.FlexLayout();
         header.setWidthFull();
-        header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        header.setAlignItems(FlexComponent.Alignment.CENTER);
+        header.addClassName("aruclinic-billing-header");
 
         H1 title = new H1("Invoicing & Billing");
         title.getStyle().set("margin", "0").set("font-size", "var(--aruclinic-font-size-2xl)");
@@ -165,9 +165,9 @@ public class AdminBillingView extends VerticalLayout {
     }
 
     private Component createSummaryCards() {
-        HorizontalLayout layout = new HorizontalLayout();
+        com.vaadin.flow.component.orderedlayout.FlexLayout layout = new com.vaadin.flow.component.orderedlayout.FlexLayout();
         layout.setWidthFull();
-        layout.setSpacing(true);
+        layout.addClassName("aruclinic-billing-summary-cards");
         layout.getStyle().set("margin", "16px 0");
 
         double revenueToday = adminService.getRevenueToday();
@@ -242,9 +242,11 @@ public class AdminBillingView extends VerticalLayout {
     private void openGenerateInvoiceDialog() {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Generate Invoice");
-        dialog.setWidth("450px");
+        dialog.setWidth("90%");
+        dialog.setMaxWidth("450px");
 
         FormLayout form = new FormLayout();
+        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
         Select<Patient> patientSelect = new Select<>();
         patientSelect.setLabel("Patient");
         patientSelect.setItems(adminService.getAllPatients());
@@ -323,9 +325,11 @@ public class AdminBillingView extends VerticalLayout {
     private void openGenerateInvoiceDialog(Appointment appt) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Generate Invoice for Appointment #" + appt.getId());
-        dialog.setWidth("480px");
+        dialog.setWidth("90%");
+        dialog.setMaxWidth("480px");
 
         FormLayout form = new FormLayout();
+        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
         
         TextField patientField = new TextField("Patient");
         patientField.setValue(appt.getPatient() != null ? appt.getPatient().getFirstName() + " " + appt.getPatient().getLastName() : "N/A");

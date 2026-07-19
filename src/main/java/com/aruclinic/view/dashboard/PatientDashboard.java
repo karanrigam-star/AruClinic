@@ -109,8 +109,10 @@ public class PatientDashboard extends VerticalLayout implements BeforeEnterObser
                 currentPatient = patientService.getPatientEntityByEmail(email);
             }
 
-            // Fallback for blank setups during testing
-            if (currentPatient == null) {
+            // Fallback for blank setups during testing (strictly disallowed for PATIENT role)
+            boolean isPatient = auth != null && auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_PATIENT"));
+            if (currentPatient == null && !isPatient) {
                 List<Patient> patients = patientService.getAllPatientEntities();
                 if (!patients.isEmpty()) {
                     currentPatient = patients.get(0);
@@ -318,7 +320,7 @@ public class PatientDashboard extends VerticalLayout implements BeforeEnterObser
         Div header = new Div();
         header.addClassName("aruclinic-activity-header");
 
-        H2 title = new H2("Upcoming Appointments");
+        H2 title = new H2("My Appointments");
         title.addClassName("aruclinic-activity-title");
 
         Button viewAllBtn = new Button("View All", new Icon(VaadinIcon.ARROW_RIGHT));
@@ -335,15 +337,15 @@ public class PatientDashboard extends VerticalLayout implements BeforeEnterObser
         List<Appointment> upcomingAppts = new ArrayList<>();
         if (currentPatient != null) {
             upcomingAppts = appointmentService.getAppointmentsByPatientId(currentPatient.getId()).stream()
-                    .filter(a -> a.getAppointmentDateTime() != null && a.getAppointmentDateTime().isAfter(java.time.LocalDateTime.now()))
-                    .sorted((a1, a2) -> a1.getAppointmentDateTime().compareTo(a2.getAppointmentDateTime()))
-                    .limit(3)
+                    .filter(a -> a.getAppointmentDateTime() != null)
+                    .sorted((a1, a2) -> a2.getAppointmentDateTime().compareTo(a1.getAppointmentDateTime())) // newest first
+                    .limit(5)
                     .collect(Collectors.toList());
         }
 
         if (upcomingAppts.isEmpty()) {
             Div emptyMessage = new Div();
-            emptyMessage.setText("No upcoming appointments scheduled.");
+            emptyMessage.setText("No appointments found.");
             emptyMessage.getStyle().set("padding", "var(--aruclinic-spacing-md)")
                     .set("color", "var(--aruclinic-text-secondary)")
                     .set("text-align", "center")

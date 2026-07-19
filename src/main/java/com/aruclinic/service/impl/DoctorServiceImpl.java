@@ -10,6 +10,7 @@ import com.aruclinic.repository.UserRepository;
 import com.aruclinic.service.DoctorService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +33,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public DoctorDto createDoctor(DoctorDto doctorDto) {
         Doctor doctor = doctorMapper.toDoctor(doctorDto);
         Doctor savedDoctor = doctorRepository.save(doctor);
@@ -40,6 +42,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public DoctorDto getDoctorById(Long id) {
         Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Doctor not found with id: " + id));
@@ -48,6 +51,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'DOCTOR')")
     public DoctorDto updateDoctor(Long id, DoctorDto doctorDto) {
         Doctor existingDoctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Doctor not found with id: " + id));
@@ -103,6 +107,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public void deleteDoctor(Long id) {
         if (!doctorRepository.existsById(id)) {
             throw new UserNotFoundException("Doctor not found with id: " + id);
@@ -112,6 +117,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public List<DoctorDto> getAllDoctors() {
         return doctorRepository.findAll().stream()
                 .map(doctorMapper::toDoctorDto)
@@ -120,6 +126,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public List<DoctorDto> getDoctorsBySpecialization(String specialization) {
         return doctorRepository.findBySpecializationContainingIgnoreCase(specialization).stream()
                 .map(doctorMapper::toDoctorDto)
@@ -128,6 +135,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public List<DoctorDto> getDoctorsByDepartment(String department) {
         return doctorRepository.findByDepartmentContainingIgnoreCase(department).stream()
                 .map(doctorMapper::toDoctorDto)
@@ -136,6 +144,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public List<DoctorDto> searchDoctors(String query) {
         return doctorRepository.findByNameContainingIgnoreCaseOrSpecializationContainingIgnoreCaseOrDepartmentContainingIgnoreCase(
                         query, query, query)
@@ -146,6 +155,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public DoctorDto getDoctorByEmail(String email) {
         Doctor doctor = doctorRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("Doctor not found with email: " + email));
@@ -154,6 +164,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public List<DoctorDto> getAvailableDoctors() {
         // For now, return all doctors
         // In a real application, this would filter by availability
@@ -162,25 +173,49 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public Doctor getDoctorEntityById(Long id) {
         return doctorRepository.findById(id).orElse(null);
     }
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public List<Doctor> getDoctorsBySpecializationEntity(String specialization) {
         return doctorRepository.findBySpecialization(specialization);
     }
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'DOCTOR')")
     public Doctor getDoctorEntityByEmail(String email) {
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_DOCTOR"))) {
+            String loggedInEmail = getLoggedInEmail(auth);
+            if (loggedInEmail != null && !loggedInEmail.equalsIgnoreCase(email)) {
+                throw new org.springframework.security.access.AccessDeniedException("Doctors are only allowed to view their own profile.");
+            }
+        }
         return doctorRepository.findByEmail(email).orElse(null);
     }
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'DOCTOR')")
     public List<Doctor> getAllDoctorEntities() {
         return doctorRepository.findAll();
+    }
+
+    private String getLoggedInEmail(org.springframework.security.core.Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) return null;
+        Object principal = auth.getPrincipal();
+        if (principal instanceof org.springframework.security.core.userdetails.User springUser) {
+            return springUser.getUsername();
+        } else if (principal instanceof com.aruclinic.entity.User userEntity) {
+            return userEntity.getEmail();
+        } else if (principal instanceof String principalStr) {
+            return principalStr;
+        }
+        return null;
     }
 }

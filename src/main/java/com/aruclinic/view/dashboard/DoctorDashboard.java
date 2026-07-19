@@ -289,10 +289,6 @@ public class DoctorDashboard extends VerticalLayout implements com.vaadin.flow.r
 
         Div statusCards = new Div();
         statusCards.addClassName("aruclinic-summary-cards");
-        statusCards.getStyle()
-            .set("display", "grid")
-            .set("grid-template-columns", "repeat(3, 1fr)")
-            .set("gap", "var(--aruclinic-spacing-md)");
 
         statusCards.add(createSummaryCard("Scheduled", String.valueOf(scheduled), "var(--aruclinic-primary)", VaadinIcon.CLOCK));
         statusCards.add(createSummaryCard("Completed", String.valueOf(completed), "var(--aruclinic-success)", VaadinIcon.CHECK_CIRCLE));

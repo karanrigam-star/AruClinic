@@ -202,31 +202,12 @@ public class PatientRegistrationView extends VerticalLayout {
 
         FormLayout personalInfoLayout = new FormLayout();
         personalInfoLayout.setWidthFull();
-
-        // Name row
-        HorizontalLayout nameRow = new HorizontalLayout();
-        nameRow.setWidthFull();
-        nameRow.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        nameRow.add(firstName, lastName);
-
-        // Patient ID and DOB row
-        HorizontalLayout idDobRow = new HorizontalLayout();
-        idDobRow.setWidthFull();
-        idDobRow.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        idDobRow.add(patientId, dateOfBirth);
-
-        // Gender and Mobile row
-        HorizontalLayout genderMobileRow = new HorizontalLayout();
-        genderMobileRow.setWidthFull();
-        genderMobileRow.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        genderMobileRow.add(gender, mobile);
-
-        // Email
-        HorizontalLayout emailRow = new HorizontalLayout();
-        emailRow.setWidthFull();
-        emailRow.add(email);
-
-        personalInfoLayout.add(nameRow, idDobRow, genderMobileRow, emailRow);
+        personalInfoLayout.setResponsiveSteps(
+            new FormLayout.ResponsiveStep("0", 1),
+            new FormLayout.ResponsiveStep("600px", 2)
+        );
+        personalInfoLayout.add(firstName, lastName, patientId, dateOfBirth, gender, mobile, email);
+        personalInfoLayout.setColspan(email, 2);
         personalInfoSection.add(sectionTitle, personalInfoLayout);
 
         // Address Information Section
@@ -238,9 +219,12 @@ public class PatientRegistrationView extends VerticalLayout {
 
         FormLayout addressLayout = new FormLayout();
         addressLayout.setWidthFull();
-
+        addressLayout.setResponsiveSteps(
+            new FormLayout.ResponsiveStep("0", 1),
+            new FormLayout.ResponsiveStep("600px", 2)
+        );
         addressLayout.add(address, zipCode, state, district, city);
-
+        addressLayout.setColspan(address, 2);
         addressSection.add(addressTitle, addressLayout);
 
         // Emergency Contact Section
@@ -252,9 +236,11 @@ public class PatientRegistrationView extends VerticalLayout {
 
         FormLayout emergencyLayout = new FormLayout();
         emergencyLayout.setWidthFull();
-
+        emergencyLayout.setResponsiveSteps(
+            new FormLayout.ResponsiveStep("0", 1),
+            new FormLayout.ResponsiveStep("600px", 2)
+        );
         emergencyLayout.add(emergencyContact, emergencyPhone);
-
         emergencySection.add(emergencyTitle, emergencyLayout);
 
         // Medical Information Section
@@ -266,9 +252,11 @@ public class PatientRegistrationView extends VerticalLayout {
 
         FormLayout medicalLayout = new FormLayout();
         medicalLayout.setWidthFull();
-
+        medicalLayout.setResponsiveSteps(
+            new FormLayout.ResponsiveStep("0", 1),
+            new FormLayout.ResponsiveStep("600px", 2)
+        );
         medicalLayout.add(bloodType, allergies);
-
         medicalSection.add(medicalTitle, medicalLayout);
 
         // Actions

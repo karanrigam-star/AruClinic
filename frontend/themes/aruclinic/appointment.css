@@ -795,6 +795,17 @@
     .aruclinic-current-date-card button {
         width: 100% !important;
     }
+
+    .aruclinic-booking-actions {
+        flex-direction: column !important;
+        gap: var(--aruclinic-spacing-md) !important;
+        align-items: stretch !important;
+    }
+
+    .aruclinic-booking-btn {
+        width: 100% !important;
+        margin: 0 !important;
+    }
 }
 
 @media (max-width: 480px) {

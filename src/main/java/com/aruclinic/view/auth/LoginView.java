@@ -31,6 +31,8 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.aruclinic.security.CustomUserDetailsService;
 import com.aruclinic.repository.UserRepository;
 import com.vaadin.flow.server.VaadinSession;
+import com.aruclinic.service.OtpService;
+import com.aruclinic.util.EmailUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -48,6 +50,8 @@ public class LoginView extends VerticalLayout {
     private final UserRepository userRepository;
     private final com.aruclinic.service.AdminService adminService;
     private final com.aruclinic.repository.NotificationRepository notificationRepository;
+    private final OtpService otpService;
+    private final EmailUtil emailUtil;
     private final TextField email = new TextField();
     private final PasswordField password = new PasswordField();
     private final Button loginButton = new Button("Login");
@@ -58,12 +62,16 @@ public class LoginView extends VerticalLayout {
                      CustomUserDetailsService customUserDetailsService,
                      UserRepository userRepository,
                      com.aruclinic.service.AdminService adminService,
-                     com.aruclinic.repository.NotificationRepository notificationRepository) {
+                     com.aruclinic.repository.NotificationRepository notificationRepository,
+                     OtpService otpService,
+                     EmailUtil emailUtil) {
         this.userService = userService;
         this.customUserDetailsService = customUserDetailsService;
         this.userRepository = userRepository;
         this.adminService = adminService;
         this.notificationRepository = notificationRepository;
+        this.otpService = otpService;
+        this.emailUtil = emailUtil;
         configureComponents();
         add(createLoginContainer());
     }
@@ -72,12 +80,7 @@ public class LoginView extends VerticalLayout {
         setSizeFull();
         setPadding(false);
         setSpacing(false);
-        getStyle()
-            .set("background", "linear-gradient(135deg, var(--aruclinic-primary) 0%, var(--aruclinic-primary-dark) 100%)")
-            .set("min-height", "100vh")
-            .set("display", "flex")
-            .set("align-items", "center")
-            .set("justify-content", "center");
+        addClassName("aruclinic-login-page");
 
         // Email field
         email.setPlaceholder("Email");
@@ -206,43 +209,30 @@ public class LoginView extends VerticalLayout {
             // 1. Verify credentials via User Service
             userService.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
 
-            // 2. Load UserDetails for Spring Security context
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(emailValue);
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
-            
-            // 3. Set the authentication context
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            // 2. Get user info to generate OTP
+            com.aruclinic.entity.User userEntity = userRepository.findByEmail(emailValue).orElseThrow();
+            String mobileNumber = userEntity.getMobileNumber();
 
-            // 4. Save to Vaadin Session to propagate security context to route observers
-            VaadinSession.getCurrent().setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
-            VaadinSession.getCurrent().setAttribute("SPRING_SECURITY_AUTHENTICATION", authentication);
-            if (VaadinSession.getCurrent().getSession() != null) {
-                VaadinSession.getCurrent().getSession().setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
-            }
+            // 3. Generate OTP (5 minutes expiration)
+            com.aruclinic.entity.OtpVerification otpVerification = otpService.generateOtp(emailValue, mobileNumber);
 
-            Notification.show("Login successful! Welcome back.", 3000, Notification.Position.TOP_CENTER)
+            // 4. Send OTP email using SMTP
+            emailUtil.sendEmail(emailValue, "Your AruClinic Verification OTP", 
+                "Hello " + userEntity.getFirstName() + ",\n\n" +
+                "Your OTP for logging in to AruClinic is: " + otpVerification.getRawOtpCode() + "\n" +
+                "This code is valid for 5 minutes.\n\n" +
+                "Best regards,\n" +
+                "AruClinic Team");
+
+            // 5. Store pending login email and mobile in session
+            VaadinSession.getCurrent().setAttribute("pending_login_email", emailValue);
+            VaadinSession.getCurrent().setAttribute("pending_login_mobile", mobileNumber);
+
+            Notification.show("OTP sent successfully to your email. Please verify.", 4000, Notification.Position.TOP_CENTER)
                 .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
-            // Navigate to respective dashboard according to role
-            String landingRoute = "";
-            String roleName = userDetails.getAuthorities().stream()
-                    .map(auth -> auth.getAuthority().replace("ROLE_", ""))
-                    .findFirst()
-                    .orElse("PATIENT");
-
-            if ("SUPER_ADMIN".equalsIgnoreCase(roleName) || "ADMIN".equalsIgnoreCase(roleName)) {
-                landingRoute = "admin";
-            } else if ("DOCTOR".equalsIgnoreCase(roleName)) {
-                landingRoute = "doctor";
-            } else if ("RECEPTIONIST".equalsIgnoreCase(roleName)) {
-                landingRoute = "receptionist";
-            } else {
-                landingRoute = "patient";
-            }
-
-            final String targetRoute = landingRoute;
-            getUI().ifPresent(ui -> ui.navigate(targetRoute));
+            // 6. Redirect to OTP verification page
+            getUI().ifPresent(ui -> ui.navigate("auth/verify"));
 
         } catch (com.aruclinic.exception.UserDisabledException e) {
             showRequestToEnableDialog(emailValue);

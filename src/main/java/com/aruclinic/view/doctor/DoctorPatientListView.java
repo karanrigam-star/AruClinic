@@ -233,11 +233,13 @@ public class DoctorPatientListView extends VerticalLayout {
 
     private void openMedicalRecordsDialog(Patient patient) {
         Dialog dialog = new Dialog();
-        dialog.setWidth("800px");
-        dialog.setHeight("680px");
+        dialog.setWidth("95%");
+        dialog.setMaxWidth("800px");
+        dialog.setHeight("90vh");
 
         VerticalLayout layout = new VerticalLayout();
         layout.setSizeFull();
+        layout.getStyle().set("overflow-y", "auto");
         layout.setPadding(true);
         layout.setSpacing(true);
 
@@ -303,6 +305,7 @@ public class DoctorPatientListView extends VerticalLayout {
         historyHeaderRow.setWidthFull();
         historyHeaderRow.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         historyHeaderRow.setAlignItems(FlexComponent.Alignment.CENTER);
+        historyHeaderRow.addClassName("aruclinic-mobile-wrap-header");
         layout.add(historyHeaderRow);
 
         Grid<MedicalHistoryItemDto> historyGrid = new Grid<>();
@@ -330,7 +333,8 @@ public class DoctorPatientListView extends VerticalLayout {
         addHistoryBtn.addClickListener(e -> {
             Dialog addDialog = new Dialog();
             addDialog.setHeaderTitle("Add Medical Record: " + patient.getFirstName() + " " + patient.getLastName());
-            addDialog.setWidth("450px");
+            addDialog.setWidth("90%");
+            addDialog.setMaxWidth("450px");
 
             DatePicker recordDate = new DatePicker("Record Date", LocalDate.now());
             recordDate.setWidthFull();

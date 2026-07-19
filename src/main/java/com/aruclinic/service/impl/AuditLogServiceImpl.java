@@ -5,8 +5,10 @@ import com.aruclinic.entity.User;
 import com.aruclinic.repository.AuditLogRepository;
 import com.aruclinic.repository.UserRepository;
 import com.aruclinic.service.AuditLogService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,6 +25,7 @@ public class AuditLogServiceImpl implements AuditLogService {
     }
 
     @Override
+    @PreAuthorize("permitAll()")
     public AuditLog logAction(String action, Long entityId, String entityType, String userEmail, String details) {
         User user = userRepository.findByEmail(userEmail).orElse(null);
         if (user == null) {
@@ -44,11 +47,13 @@ public class AuditLogServiceImpl implements AuditLogService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public List<AuditLog> getAllAuditLogs() {
         return auditLogRepository.findAll();
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public List<AuditLog> getRecentAuditLogs(int count) {
         return auditLogRepository.findTop10ByOrderByPerformedAtDesc();
     }

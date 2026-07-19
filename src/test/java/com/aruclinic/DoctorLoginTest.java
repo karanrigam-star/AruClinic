@@ -15,8 +15,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.springframework.security.test.context.support.WithMockUser;
+
 @SpringBootTest
 @org.springframework.transaction.annotation.Transactional
+@WithMockUser(username = "admin@example.com", roles = {"ADMIN"})
 public class DoctorLoginTest {
 
     @Autowired

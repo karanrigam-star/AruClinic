@@ -13,6 +13,7 @@ import com.aruclinic.util.EmailUtil;
 import com.aruclinic.util.SmsUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import org.slf4j.Logger;
@@ -28,11 +29,12 @@ import java.util.*;
 public class UserServiceImpl implements UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+    private static final java.security.SecureRandom secureRandom = new java.security.SecureRandom();
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final EmailUtil emailUtil;
     private final SmsUtil smsUtil;
@@ -40,14 +42,16 @@ public class UserServiceImpl implements UserService {
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
     private final AdminService adminService;
+    private final org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
 
     public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
-                          UserMapper userMapper, BCryptPasswordEncoder bCryptPasswordEncoder,
+                          UserMapper userMapper, org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder bCryptPasswordEncoder,
                           JwtTokenProvider jwtTokenProvider, EmailUtil emailUtil,
                           SmsUtil smsUtil, OtpService otpService,
                           PatientRepository patientRepository,
                           DoctorRepository doctorRepository,
-                          @org.springframework.context.annotation.Lazy AdminService adminService) {
+                          @org.springframework.context.annotation.Lazy AdminService adminService,
+                          org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userMapper = userMapper;
@@ -59,9 +63,11 @@ public class UserServiceImpl implements UserService {
         this.patientRepository = patientRepository;
         this.doctorRepository = doctorRepository;
         this.adminService = adminService;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
+    @PreAuthorize("permitAll()")
     public UserDto registerUser(UserDto userDto) {
         if (!userDto.getPassword().equals(userDto.getConfirmPassword())) {
             throw new AruClinicException("Password and confirm password do not match");
@@ -109,25 +115,24 @@ public class UserServiceImpl implements UserService {
             // Ignore to make sure user registration flow doesn't block
         }
 
-        // Generate and send OTP
-        String otp = String.valueOf(new Random().nextInt(899999) + 100000);
+        // Generate and send OTP using SecureRandom
+        String otp = String.valueOf(secureRandom.nextInt(900000) + 100000);
 
         // Save OTP to database
         OtpVerification otpVerification = new OtpVerification();
         otpVerification.setEmail(userDto.getEmail());
         otpVerification.setMobileNumber(userDto.getMobileNumber());
         otpVerification.setOtpCode(otp);
-        otpVerification.setExpiresAt(LocalDateTime.now().plusMinutes(10));
+        otpVerification.setExpiresAt(LocalDateTime.now().plusMinutes(5));
         otpVerification.setVerified(false);
 
         otpService.saveOtp(otpVerification);
 
-        // Log OTP for development
+        // Log OTP generation without exposing the code
         logger.info("====================================");
-        logger.info("OTP GENERATED");
+        logger.info("OTP GENERATED (Code masked for security)");
         logger.info("Email : {}", userDto.getEmail());
         logger.info("Mobile : {}", userDto.getMobileNumber());
-        logger.info("OTP : {}", otp);
         logger.info("Expires : {}", otpVerification.getExpiresAt());
         logger.info("====================================");
 
@@ -141,6 +146,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @PreAuthorize("permitAll()")
     public UserDto loginUser(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -157,6 +163,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public UserDto updateUser(Long id, UserDto userDto) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
@@ -227,6 +234,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public UserDto getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -234,45 +242,107 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream().map(userMapper::toUserDto).toList();
     }
 
     @Override
+    @PreAuthorize("permitAll()")
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
     @Override
+    @PreAuthorize("permitAll()")
     public boolean existsByMobileNumber(String mobileNumber) {
         return userRepository.existsByMobileNumber(mobileNumber);
     }
 
     @Override
+    @PreAuthorize("permitAll()")
     public boolean verifyOtp(String email, String mobileNumber, String otpCode) {
-        return true; // Stub
+        Optional<OtpVerification> otpOpt = otpService.findByEmailAndMobileNumber(email, mobileNumber);
+        
+        // Hash the user-inputted OTP code using SHA-256 for comparison with secure stored hash
+        String hashedOtpInput;
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(otpCode.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashBytes) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            hashedOtpInput = hexString.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new RuntimeException("Failed to hash user input OTP", e);
+        }
+
+        if (otpOpt.isPresent() && otpOpt.get().getOtpCode().equals(hashedOtpInput) && otpOpt.get().getExpiresAt().isAfter(LocalDateTime.now())) {
+            OtpVerification otpVerification = otpOpt.get();
+            otpVerification.setVerified(true);
+            otpService.saveOtp(otpVerification);
+
+            // Enable the user
+            userRepository.findByEmail(email).ifPresent(user -> {
+                jdbcTemplate.update("DELETE FROM clinic_settings WHERE setting_key = ?", "user_disabled_" + user.getId());
+            });
+
+            // Delete OTP verification record
+            otpService.deleteOtp(otpVerification);
+            return true;
+        }
+        return false;
     }
 
     @Override
+    @PreAuthorize("permitAll()")
     public boolean requestPasswordReset(String email) {
-        return true; // Stub
+        forgotPassword(email);
+        return true;
     }
 
     @Override
-    public boolean resetPassword(String email, String newPassword) {
-        User user = userRepository.findByEmail(email)
+    @PreAuthorize("permitAll()")
+    public boolean resetPassword(String token, String newPassword) {
+        String hashedToken;
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(token.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            hashedToken = Base64.getUrlEncoder().withoutPadding().encodeToString(hashBytes);
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new AruClinicException("Failed to hash reset token", e);
+        }
+
+        OtpVerification otpVerification = otpService.findByOtpCode(hashedToken)
+                .orElseThrow(() -> new AruClinicException("Invalid or expired password reset token"));
+        
+        if (otpVerification.getExpiresAt().isBefore(LocalDateTime.now())) {
+            otpService.deleteOtp(otpVerification);
+            throw new AruClinicException("Invalid or expired password reset token");
+        }
+
+        User user = userRepository.findByEmail(otpVerification.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
         user.setPassword(bCryptPasswordEncoder.encode(newPassword));
         userRepository.save(user);
+
+        // Delete token after use
+        otpService.deleteOtp(otpVerification);
+        logger.info("Password reset successfully for user: {}", user.getEmail());
         return true;
     }
 
 	@Override
+	@PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
 	public UserDto getUserByEmail(String email) {
 		User user = userRepository.findByEmail(email)
 				.orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
@@ -280,27 +350,58 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@PreAuthorize("permitAll()")
 	public void forgotPassword(String email) {
-		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> new UserNotFoundException("User not found"));
+		Optional<User> userOpt = userRepository.findByEmail(email);
+		if (userOpt.isEmpty()) {
+			logger.warn("Password reset requested for non-existing email: {}", email);
+			return;
+		}
 
-		// Generate and send OTP for password reset
-		String otp = String.valueOf(new Random().nextInt(899999) + 100000);
+		User user = userOpt.get();
+
+		// Generate a secure random 256-bit token for password reset
+		byte[] tokenBytes = new byte[32];
+		secureRandom.nextBytes(tokenBytes);
+		String rawToken = Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
+
+		// Hash the token using SHA-256
+		String hashedToken;
+		try {
+			java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+			byte[] hashBytes = digest.digest(rawToken.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+			hashedToken = Base64.getUrlEncoder().withoutPadding().encodeToString(hashBytes);
+		} catch (java.security.NoSuchAlgorithmException e) {
+			throw new AruClinicException("Failed to hash reset token", e);
+		}
+
+		// Clean up existing reset/OTP token for user to enforce single-use behavior
+		Optional<OtpVerification> existing = otpService.findByEmailAndMobileNumber(user.getEmail(), user.getMobileNumber());
+		existing.ifPresent(otpService::deleteOtp);
 
 		OtpVerification otpVerification = new OtpVerification();
 		otpVerification.setEmail(user.getEmail());
 		otpVerification.setMobileNumber(user.getMobileNumber());
-		otpVerification.setOtpCode(otp);
-		otpVerification.setExpiresAt(LocalDateTime.now().plusMinutes(10));
+		otpVerification.setOtpCode(hashedToken);
+		otpVerification.setExpiresAt(LocalDateTime.now().plusMinutes(15)); // 15 mins expiry
 		otpVerification.setVerified(false);
 
 		otpService.saveOtp(otpVerification);
 
-		logger.info("Password reset OTP for {}: {}", email, otp);
-		emailUtil.sendEmail(user.getEmail(), "Password Reset", "Your password reset OTP is: " + otp);
+		logger.info("Password reset token generated and hashed successfully for {}", email);
+
+		String resetLink = "http://localhost:8080/auth/reset-password?token=" + rawToken;
+		emailUtil.sendEmail(user.getEmail(), "Password Reset Request", 
+				"Dear " + user.getFirstName() + ",\n\n" +
+				"To reset your AruClinic account password, please click the link below (valid for 15 minutes):\n" +
+				resetLink + "\n\n" +
+				"If you did not request this, please ignore this email.\n\n" +
+				"Best regards,\n" +
+				"AruClinic Team");
 	}
 
 	@Override
+	@PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
 	public void changePassword(String oldPassword, String newPassword) {
 		// Get current user from security context
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -316,11 +417,13 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 	public User getUserEntityByEmail(String email) {
 		return userRepository.findByEmail(email).orElse(null);
 	}
 
 	@Override
+	@PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 	public User getUserEntityById(Long id) {
 		return userRepository.findById(id).orElse(null);
 	}

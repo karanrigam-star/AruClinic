@@ -16,6 +16,7 @@ import com.aruclinic.repository.NotificationRepository;
 import com.aruclinic.service.PrescriptionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN', 'SUPER_ADMIN')")
     public PrescriptionDto createPrescription(PrescriptionDto dto) {
         Patient patient = patientRepository.findById(dto.getPatientId())
                 .orElseThrow(() -> new AruClinicException("Patient not found with ID: " + dto.getPatientId()));
@@ -122,6 +124,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public PrescriptionDto getPrescriptionById(Long id) {
         Prescription prescription = prescriptionRepository.findById(id)
                 .orElseThrow(() -> new AruClinicException("Prescription not found with ID: " + id));
@@ -130,6 +133,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN', 'SUPER_ADMIN')")
     public PrescriptionDto updatePrescription(Long id, PrescriptionDto dto) {
         Prescription prescription = prescriptionRepository.findById(id)
                 .orElseThrow(() -> new AruClinicException("Prescription not found with ID: " + id));
@@ -167,6 +171,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN', 'SUPER_ADMIN')")
     public void deletePrescription(Long id) {
         Prescription prescription = prescriptionRepository.findById(id)
                 .orElseThrow(() -> new AruClinicException("Prescription not found with ID: " + id));
@@ -220,6 +225,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN', 'SUPER_ADMIN')")
     public void deletePrescriptionReal(Long id) {
         Prescription prescription = prescriptionRepository.findById(id)
                 .orElseThrow(() -> new AruClinicException("Prescription not found with ID: " + id));
@@ -228,6 +234,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public List<PrescriptionDto> getAllPrescriptions() {
         return prescriptionRepository.findAll().stream()
                 .filter(p -> !"DELETED_BY_DOCTOR".equalsIgnoreCase(p.getStatus()))
@@ -237,14 +244,38 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public List<PrescriptionDto> getPrescriptionsByPatientId(Long patientId) {
+        boolean isOnlyPatient = false;
+        try {
+            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null) {
+                isOnlyPatient = auth.getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_PATIENT")) &&
+                        auth.getAuthorities().stream().noneMatch(a -> 
+                            a.getAuthority().equals("ROLE_DOCTOR") || 
+                            a.getAuthority().equals("ROLE_RECEPTIONIST") || 
+                            a.getAuthority().equals("ROLE_ADMIN") || 
+                            a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+            }
+        } catch (Exception e) {}
+
+        final boolean filterDrafts = isOnlyPatient;
+
         return prescriptionRepository.findByPatientId(patientId).stream()
+                .filter(p -> {
+                    if (filterDrafts) {
+                        return !"DRAFT".equalsIgnoreCase(p.getStatus()) && !"DELETED_BY_DOCTOR".equalsIgnoreCase(p.getStatus());
+                    }
+                    return !"DELETED_BY_DOCTOR".equalsIgnoreCase(p.getStatus());
+                })
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public List<PrescriptionDto> getPrescriptionsByDoctorId(Long doctorId) {
         return prescriptionRepository.findByDoctorId(doctorId).stream()
                 .filter(p -> !"DELETED_BY_DOCTOR".equalsIgnoreCase(p.getStatus()))
@@ -254,6 +285,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public List<PrescriptionDto> getActivePrescriptionsByPatientId(Long patientId) {
         return prescriptionRepository.findByPatientId(patientId).stream()
                 .filter(p -> "ACTIVE".equalsIgnoreCase(p.getStatus()))
@@ -263,6 +295,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public List<PrescriptionDto> searchPrescriptions(String query) {
         if (query == null || query.trim().isEmpty()) {
             return getAllPrescriptions();
@@ -317,24 +350,84 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public List<Prescription> getPrescriptionEntitiesByPatientId(Long patientId) {
-        return prescriptionRepository.findByPatientId(patientId);
+        boolean isOnlyPatient = false;
+        try {
+            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null) {
+                isOnlyPatient = auth.getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_PATIENT")) &&
+                        auth.getAuthorities().stream().noneMatch(a -> 
+                            a.getAuthority().equals("ROLE_DOCTOR") || 
+                            a.getAuthority().equals("ROLE_RECEPTIONIST") || 
+                            a.getAuthority().equals("ROLE_ADMIN") || 
+                            a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+            }
+        } catch (Exception e) {}
+
+        final boolean filterDrafts = isOnlyPatient;
+
+        return prescriptionRepository.findByPatientId(patientId).stream()
+                .filter(p -> {
+                    if (filterDrafts) {
+                        return !"DRAFT".equalsIgnoreCase(p.getStatus()) && !"DELETED_BY_DOCTOR".equalsIgnoreCase(p.getStatus());
+                    }
+                    return !"DELETED_BY_DOCTOR".equalsIgnoreCase(p.getStatus());
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'SUPER_ADMIN')")
     public Prescription getPrescriptionEntityById(Long id) {
-        return prescriptionRepository.findById(id).orElse(null);
+        Prescription p = prescriptionRepository.findById(id).orElse(null);
+        if (p == null) return null;
+
+        // Security check for PATIENT role
+        try {
+            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null) {
+                boolean isPatient = auth.getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_PATIENT"));
+                boolean isStaff = auth.getAuthorities().stream().anyMatch(a -> 
+                        a.getAuthority().equals("ROLE_DOCTOR") || 
+                        a.getAuthority().equals("ROLE_RECEPTIONIST") || 
+                        a.getAuthority().equals("ROLE_ADMIN") || 
+                        a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+                
+                if (isPatient && !isStaff) {
+                    // Check if prescription belongs to another patient
+                    if (p.getPatient() != null) {
+                        String email = auth.getName();
+                        if (!email.equalsIgnoreCase(p.getPatient().getEmail())) {
+                            throw new org.springframework.security.access.AccessDeniedException("Access Denied: Not your prescription");
+                        }
+                    }
+                    // Check if draft
+                    if ("DRAFT".equalsIgnoreCase(p.getStatus()) || "DELETED_BY_DOCTOR".equalsIgnoreCase(p.getStatus())) {
+                        throw new org.springframework.security.access.AccessDeniedException("Access Denied: Prescription not published yet");
+                    }
+                }
+            }
+        } catch (org.springframework.security.access.AccessDeniedException ade) {
+            throw ade;
+        } catch (Exception e) {}
+
+        return p;
     }
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public List<Prescription> getAllPrescriptionEntities() {
         return prescriptionRepository.findAll();
     }
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST')")
     public List<Long> findPatientIdsByDoctorId(Long doctorId) {
         return prescriptionRepository.findPatientIdsByDoctorId(doctorId);
     }

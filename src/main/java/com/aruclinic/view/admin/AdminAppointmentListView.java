@@ -144,13 +144,21 @@ public class AdminAppointmentListView extends VerticalLayout {
             refreshGrid();
         });
 
-        boolean isCompletedOrCancelled = appt.getStatus() == AppointmentStatus.COMPLETED || appt.getStatus() == AppointmentStatus.CANCELLED;
+        // Disable and hide delete button for receptionist role
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_RECEPTIONIST"))) {
+            binBtn.setEnabled(false);
+            binBtn.setVisible(false);
+        } else {
+            boolean isCompletedOrCancelled = appt.getStatus() == AppointmentStatus.COMPLETED || appt.getStatus() == AppointmentStatus.CANCELLED;
+            binBtn.setVisible(isCompletedOrCancelled);
+        }
 
+        boolean isCompletedOrCancelled = appt.getStatus() == AppointmentStatus.COMPLETED || appt.getStatus() == AppointmentStatus.CANCELLED;
         acceptBtn.setVisible(!isCompletedOrCancelled);
         confirmBtn.setVisible(!isCompletedOrCancelled);
         rescheduleBtn.setVisible(!isCompletedOrCancelled);
         cancelBtn.setVisible(!isCompletedOrCancelled);
-        binBtn.setVisible(isCompletedOrCancelled);
 
         actions.add(viewBtn, statusSelect, acceptBtn, confirmBtn, rescheduleBtn, cancelBtn, binBtn);
         return actions;
@@ -177,6 +185,7 @@ public class AdminAppointmentListView extends VerticalLayout {
         HorizontalLayout bar = new HorizontalLayout();
         bar.setWidthFull();
         bar.setAlignItems(FlexComponent.Alignment.CENTER);
+        bar.addClassName("aruclinic-appointment-filter");
         bar.getStyle().set("margin-top", "var(--aruclinic-spacing-md)");
 
         dateFilter.setPlaceholder("Filter by Date");
@@ -194,9 +203,11 @@ public class AdminAppointmentListView extends VerticalLayout {
     private void openBookDialog() {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Book New Appointment");
-        dialog.setWidth("450px");
+        dialog.setWidth("90%");
+        dialog.setMaxWidth("450px");
 
         FormLayout form = new FormLayout();
+        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
         Select<Patient> patientSelect = new Select<>();
         patientSelect.setLabel("Patient");
         patientSelect.setItems(adminService.getAllPatients());
