@@ -1,4 +1,5 @@
 # Multi-stage Dockerfile for AruClinic Healthcare System (Spring Boot + Vaadin + Java 21)
+# Production build timestamp: 2026-07-25
 
 # Stage 1: Build Application using Official Maven + Java 21 Image
 FROM maven:3.9.9-eclipse-temurin-21-alpine AS build
