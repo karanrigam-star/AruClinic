@@ -10,8 +10,8 @@ import java.util.Properties;
 
 /**
  * Production Mail Configuration for Gmail SMTP.
- * Automatically sanitizes inputs (stripping spaces from Gmail App Passwords)
- * to ensure 100% successful SMTP authentication on Render and Railway.
+ * Dynamically resolves environment variables (GMAIL_USERNAME, GMAIL_PASSWORD)
+ * and sanitizes credentials to ensure 100% successful SMTP authentication on Render/Railway.
  */
 @Configuration
 public class MailConfig {
@@ -22,10 +22,10 @@ public class MailConfig {
     @Value("${spring.mail.port:587}")
     private int port;
 
-    @Value("${GMAIL_USERNAME:}")
+    @Value("${spring.mail.username:${GMAIL_USERNAME:}}")
     private String username;
 
-    @Value("${GMAIL_PASSWORD:}")
+    @Value("${spring.mail.password:${GMAIL_PASSWORD:}}")
     private String password;
 
     @Bean
@@ -34,9 +34,16 @@ public class MailConfig {
         mailSender.setHost(host);
         mailSender.setPort(port);
 
-        String cleanUsername = (username != null) ? username.trim() : "";
+        String cleanUsername = (username != null && !username.trim().isEmpty()) 
+            ? username.trim() 
+            : System.getenv().getOrDefault("GMAIL_USERNAME", "").trim();
+
+        String rawPassword = (password != null && !password.trim().isEmpty()) 
+            ? password 
+            : System.getenv().getOrDefault("GMAIL_PASSWORD", "");
+
         // Strip all whitespace/spaces from Gmail App Password (e.g. "abcd efgh ijkl mnop" -> "abcdefghijklmnop")
-        String cleanPassword = (password != null) ? password.replaceAll("\\s+", "") : "";
+        String cleanPassword = rawPassword.replaceAll("\\s+", "");
 
         if (!cleanUsername.isEmpty()) {
             mailSender.setUsername(cleanUsername);
@@ -47,13 +54,15 @@ public class MailConfig {
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", (!cleanUsername.isEmpty() && !cleanPassword.isEmpty()) ? "true" : "false");
+        props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.starttls.required", "true");
         props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
         props.put("mail.smtp.connectiontimeout", "30000");
         props.put("mail.smtp.timeout", "30000");
         props.put("mail.smtp.writetimeout", "30000");
+
+        System.out.println("Initialized JavaMailSender for Gmail SMTP (User: " + (cleanUsername.isEmpty() ? "NOT_SET" : cleanUsername) + ")");
 
         return mailSender;
     }
