@@ -1,16 +1,13 @@
 # Multi-stage Dockerfile for AruClinic Healthcare System (Spring Boot + Vaadin + Java 21)
 
-# Stage 1: Build Application
-FROM eclipse-temurin:21-jdk-alpine AS build
+# Stage 1: Build Application using Official Maven + Java 21 Image
+FROM maven:3.9.9-eclipse-temurin-21-alpine AS build
 WORKDIR /workspace
 
-# Install Maven
-RUN apk add --no-cache maven
-
-# Copy complete repository (excluding .dockerignore paths)
+# Copy project repository
 COPY . .
 
-# Install dependencies and build production JAR
+# Build production JAR with Vaadin production mode enabled
 RUN mvn clean package -DskipTests -Dvaadin.productionMode=true
 
 # Stage 2: Minimal Runtime Image
