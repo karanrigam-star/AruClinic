@@ -19,13 +19,21 @@ public class EmailUtil {
         this.mailSender = mailSender;
     }
 
+    private String getFromAddress() {
+        String username = System.getenv("GMAIL_USERNAME");
+        if (username != null && !username.trim().isEmpty()) {
+            return username.trim();
+        }
+        return "no-reply@aruclinic.com";
+    }
+
     /**
      * Send a simple plain text email.
      */
     public void sendEmail(String to, String subject, String body) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("no-reply@aruclinic.com");
+            message.setFrom(getFromAddress());
             message.setTo(to);
             message.setSubject(subject);
             message.setText(body);
@@ -44,7 +52,7 @@ public class EmailUtil {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            helper.setFrom("no-reply@aruclinic.com");
+            helper.setFrom(getFromAddress());
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
