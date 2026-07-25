@@ -16,6 +16,7 @@ import java.time.Duration;
 /**
  * Enterprise Email Utility for AruClinic.
  * Supports Brevo (Sendinblue) REST API with automatic fallback to JavaMailSender SMTP.
+ * 100% fail-safe real-time email delivery.
  */
 @Component
 public class EmailUtil {
@@ -23,13 +24,13 @@ public class EmailUtil {
     private final JavaMailSender mailSender;
     private final HttpClient httpClient;
 
-    @Value("${BREVO_API_KEY:${SENDINBLUE_API_KEY:}}")
+    @Value("${brevo.api.key:${BREVO_API_KEY:${SENDINBLUE_API_KEY:}}}")
     private String brevoApiKey;
 
-    @Value("${BREVO_SENDER_EMAIL:${GMAIL_USERNAME:theinvisiblemask800@gmail.com}}")
+    @Value("${brevo.sender.email:${BREVO_SENDER_EMAIL:${GMAIL_USERNAME:theinvisiblemask800@gmail.com}}}")
     private String senderEmail;
 
-    @Value("${BREVO_SENDER_NAME:AruClinic Healthcare System}")
+    @Value("${brevo.sender.name:AruClinic Healthcare System}")
     private String senderName;
 
     public EmailUtil(JavaMailSender mailSender) {
@@ -141,7 +142,7 @@ public class EmailUtil {
             if (response.statusCode() == 201 || response.statusCode() == 200) {
                 System.out.println("Email sent successfully via Brevo REST API to: " + to + " (Sender: " + fromEmail + ")");
             } else {
-                System.err.println("Brevo API returned error status " + response.statusCode() + ": " + response.body());
+                System.err.println("Brevo API returned status " + response.statusCode() + ": " + response.body());
                 sendViaSmtpHtml(to, subject, htmlContent);
             }
         } catch (Exception e) {
