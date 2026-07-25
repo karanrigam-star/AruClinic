@@ -470,6 +470,7 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
                 sideNav.addItem(new SideNavItem("Receptionists", "admin/receptionists"));
                 sideNav.addItem(new SideNavItem("Patients", "admin/patients"));
                 sideNav.addItem(new SideNavItem("Appointments", "admin/appointments"));
+                sideNav.addItem(new SideNavItem("Prescriptions", "admin/prescriptions"));
                 sideNav.addItem(new SideNavItem("Billing", "admin/billing"));
                 sideNav.addItem(new SideNavItem("Reports", "admin/reports"));
                 sideNav.addItem(new SideNavItem("Audit Logs", "admin/audit"));
@@ -479,6 +480,7 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
             case "DOCTOR":
                 sideNav.addItem(new SideNavItem("Doctor Dashboard", "doctor"));
                 sideNav.addItem(new SideNavItem("My Schedule", "doctor/schedule"));
+                sideNav.addItem(new SideNavItem("Calendar", "appointment/calendar"));
                 sideNav.addItem(new SideNavItem("Appointments", "doctor/appointments"));
                 sideNav.addItem(new SideNavItem("Patients", "doctor/patients"));
                 sideNav.addItem(new SideNavItem("Prescriptions", "doctor/prescriptions"));
@@ -488,6 +490,8 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
 
             case "RECEPTIONIST":
                 sideNav.addItem(new SideNavItem("Receptionist Dashboard", "receptionist"));
+                sideNav.addItem(new SideNavItem("Patients List", "receptionist/patients"));
+                sideNav.addItem(new SideNavItem("Check-in Desk", "receptionist/checkin"));
                 sideNav.addItem(new SideNavItem("Patient Registration", "receptionist/patient-registration"));
                 sideNav.addItem(new SideNavItem("Appointments", "receptionist/appointments"));
                 sideNav.addItem(new SideNavItem("Billing", "receptionist/billing"));

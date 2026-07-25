@@ -33,42 +33,7 @@ public class AruClinicApplication {
                                   BCryptPasswordEncoder passwordEncoder) {
 
         return args -> {
-            // Alter user_id columns to be nullable so JPA inserts do not fail on missing back-references
-            try {
-                jdbcTemplate.execute("ALTER TABLE doctors MODIFY user_id BIGINT NULL");
-                jdbcTemplate.execute("ALTER TABLE patients MODIFY user_id BIGINT NULL");
-                jdbcTemplate.execute("ALTER TABLE receptionists MODIFY user_id BIGINT NULL");
-            } catch (Exception e) {
-                // Ignore if migration has not run or database is in memory testing state
-            }
-
-            try {
-                jdbcTemplate.execute("ALTER TABLE appointments MODIFY appointment_date_time DATETIME NULL");
-            } catch (Exception e) {
-                // Ignore if column does not exist
-            }
-
-            // Sync prescriptions table schema columns with JPA Prescription entity model
-            try {
-                jdbcTemplate.execute("ALTER TABLE prescriptions ADD COLUMN symptoms TEXT NULL");
-            } catch (Exception e) {}
-            try {
-                jdbcTemplate.execute("ALTER TABLE prescriptions ADD COLUMN diagnosis TEXT NULL");
-            } catch (Exception e) {}
-            try {
-                jdbcTemplate.execute("ALTER TABLE prescriptions ADD COLUMN advice TEXT NULL");
-            } catch (Exception e) {}
-            try {
-                jdbcTemplate.execute("ALTER TABLE prescriptions ADD COLUMN follow_up_date DATE NULL");
-            } catch (Exception e) {}
-
-            // Sync prescription_items table schema columns with JPA PrescriptionItem entity model
-            try {
-                jdbcTemplate.execute("ALTER TABLE prescription_items ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
-            } catch (Exception e) {}
-            try {
-                jdbcTemplate.execute("ALTER TABLE prescription_items ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
-            } catch (Exception e) {}
+            // Database schema migrations are handled by Flyway (src/main/resources/db/migration)
 
             // Create roles
             for (RoleName roleName : RoleName.values()) {

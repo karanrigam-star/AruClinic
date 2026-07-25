@@ -47,8 +47,8 @@ public class AdminDashboard extends VerticalLayout {
     @Override
     protected void onAttach(com.vaadin.flow.component.AttachEvent attachEvent) {
         super.onAttach(attachEvent);
-        // Enable polling every 3 seconds for real-time updates
-        attachEvent.getUI().setPollInterval(3000);
+        // Enable polling every 15 seconds for real-time updates without overloading DB
+        attachEvent.getUI().setPollInterval(15000);
         
         // Add a poll listener to refresh stats, activity logs, and display new notifications
         attachEvent.getUI().addPollListener(e -> {

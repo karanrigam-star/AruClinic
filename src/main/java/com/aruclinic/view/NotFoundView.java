@@ -11,9 +11,13 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.ErrorParameter;
+import com.vaadin.flow.router.HasErrorParameter;
+import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouteAlias;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Not Found view (404) displayed when a page is not found.
@@ -21,11 +25,16 @@ import com.vaadin.flow.router.RouteAlias;
 @PageTitle("Page Not Found | AruClinic")
 @Route("404")
 @CssImport("./themes/aruclinic/common.css")
-public class NotFoundView extends VerticalLayout {
+public class NotFoundView extends VerticalLayout implements HasErrorParameter<NotFoundException> {
 
     private static final long serialVersionUID = 1L;
 
-	public NotFoundView() {
+    @Override
+    public int setErrorParameter(BeforeEnterEvent event, ErrorParameter<NotFoundException> parameter) {
+        return HttpServletResponse.SC_NOT_FOUND;
+    }
+
+    public NotFoundView() {
         setSizeFull();
         setPadding(false);
         setSpacing(false);

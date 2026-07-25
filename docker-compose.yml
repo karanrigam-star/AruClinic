@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # MySQL Database Service
+  db:
+    image: mysql:8.0
+    container_name: aruclinic-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: aruclinicdb
+      MYSQL_USER: aruclinic_app
+      MYSQL_PASSWORD: AppSecurePassword@123
+      MYSQL_ROOT_PASSWORD: RootSecurePassword@123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # AruClinic Web Application Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aruclinic-web
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:mysql://db:3306/aruclinicdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: aruclinic_app
+      DB_PASSWORD: AppSecurePassword@123
+      VAADIN_PRODUCTION_MODE: "true"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: "validate"
+      APP_DATA_SEED: "false"
+    depends_on:
+      - db
+
+volumes:
+  mysql_data:

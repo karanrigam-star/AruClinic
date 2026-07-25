@@ -1,0 +1,35 @@
+services:
+  # Web Service for AruClinic Spring Boot App
+  - type: web
+    name: aruclinic-app
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    region: oregon
+    envVars:
+      - key: VAADIN_PRODUCTION_MODE
+        value: "true"
+      - key: APP_DATA_SEED
+        value: "false"
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: "validate"
+      - key: DB_URL
+        fromDatabase:
+          name: aruclinic-db
+          property: connectionString
+      - key: DB_USERNAME
+        fromDatabase:
+          name: aruclinic-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: aruclinic-db
+          property: password
+
+databases:
+  # Managed MySQL Database instance on Render
+  - name: aruclinic-db
+    databaseName: aruclinicdb
+    user: aruclinic_user
+    plan: free
+    region: oregon

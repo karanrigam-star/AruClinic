@@ -45,8 +45,21 @@ public class AppointmentService {
         this.notificationRepository = notificationRepository;
     }
 
+    @org.springframework.transaction.annotation.Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST', 'PATIENT', 'DOCTOR')")
     public Appointment createAppointment(Appointment appointment) {
+        if (appointment.getDoctor() != null && appointment.getAppointmentDate() != null && appointment.getAppointmentTime() != null) {
+            List<Appointment> collisions = appointmentRepository.findActiveAppointmentsWithLock(
+                appointment.getDoctor().getId(),
+                appointment.getAppointmentDate(),
+                appointment.getAppointmentTime(),
+                AppointmentStatus.CANCELLED
+            );
+            if (!collisions.isEmpty()) {
+                throw new IllegalStateException("Selected doctor already has an active appointment at this date and time slot.");
+            }
+        }
+
         appointment.setStatus(AppointmentStatus.SCHEDULED);
         appointment.setCreatedAt(LocalDateTime.now());
         Appointment saved = appointmentRepository.save(appointment);
@@ -90,6 +103,7 @@ public class AppointmentService {
         return saved;
     }
 
+    @org.springframework.transaction.annotation.Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST', 'PATIENT', 'DOCTOR')")
     public AppointmentDto createAppointment(AppointmentDto dto) {
         Appointment appointment = appointmentMapper.toAppointment(dto);
@@ -107,6 +121,18 @@ public class AppointmentService {
             appointment.setAppointmentDateTime(dto.getAppointmentDateTime());
         }
         
+        if (appointment.getDoctor() != null && appointment.getAppointmentDate() != null && appointment.getAppointmentTime() != null) {
+            List<Appointment> collisions = appointmentRepository.findActiveAppointmentsWithLock(
+                appointment.getDoctor().getId(),
+                appointment.getAppointmentDate(),
+                appointment.getAppointmentTime(),
+                AppointmentStatus.CANCELLED
+            );
+            if (!collisions.isEmpty()) {
+                throw new IllegalStateException("Selected doctor already has an active appointment at this date and time slot.");
+            }
+        }
+
         appointment.setStatus(AppointmentStatus.SCHEDULED);
         appointment.setCreatedAt(LocalDateTime.now());
         
