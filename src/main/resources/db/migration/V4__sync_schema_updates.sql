@@ -5,7 +5,7 @@ ALTER TABLE doctors MODIFY user_id BIGINT NULL;
 ALTER TABLE patients MODIFY user_id BIGINT NULL;
 ALTER TABLE receptionists MODIFY user_id BIGINT NULL;
 
-ALTER TABLE appointments MODIFY appointment_date_time DATETIME NULL;
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS appointment_date_time DATETIME NULL;
 
 ALTER TABLE prescriptions ADD COLUMN IF NOT EXISTS symptoms TEXT NULL;
 ALTER TABLE prescriptions ADD COLUMN IF NOT EXISTS diagnosis TEXT NULL;
