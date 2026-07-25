@@ -15,8 +15,8 @@ RUN mvn clean package -DskipTests -Dvaadin.productionMode=true
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Copy JAR artifact from build stage
-COPY --from=build /workspace/target/*.jar app.jar
+# Copy executable Spring Boot JAR artifact from build stage
+COPY --from=build /workspace/target/AruClinic-1.0.0.jar app.jar
 
 # Expose standard application port
 EXPOSE 8080
