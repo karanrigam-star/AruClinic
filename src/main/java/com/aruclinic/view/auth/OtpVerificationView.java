@@ -279,23 +279,17 @@ public class OtpVerificationView extends VerticalLayout {
         }
 
         try {
-            // Call the service to resend OTP
-            com.aruclinic.entity.OtpVerification otpVerification = otpService.generateOtp(emailValue, mobileValue);
-
-            // Send OTP email using SMTP
-            emailUtil.sendEmail(emailValue, "Your AruClinic Verification OTP (Resent)", 
-                "Hello,\n\n" +
-                "You requested a new OTP. Your AruClinic Verification OTP is: " + otpVerification.getRawOtpCode() + "\n" +
-                "This code is valid for 5 minutes.\n\n" +
-                "Best regards,\n" +
-                "AruClinic Team");
+            // Generate OTP (enforces 60s cooldown rate-limiting & triggers HTML email delivery)
+            otpService.generateOtp(emailValue, mobileValue);
 
             Notification.show(
-                "New OTP has been sent to your email. Please check.",
+                "A new 6-digit OTP code has been sent to your Gmail address.",
                 5000,
                 Notification.Position.TOP_CENTER
             ).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 
+        } catch (IllegalStateException e) {
+            showError(e.getMessage());
         } catch (Exception e) {
             showError("Failed to resend OTP: " + e.getMessage());
         }

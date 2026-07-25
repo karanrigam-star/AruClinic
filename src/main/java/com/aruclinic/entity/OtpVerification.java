@@ -94,6 +94,14 @@ public class OtpVerification {
 		this.createdAt = createdAt;
 	}
 
+	public int getAttempts() {
+		return attempts;
+	}
+
+	public void setAttempts(int attempts) {
+		this.attempts = attempts;
+	}
+
 	@Column(name = "mobile_number", nullable = false, length = 20)
     private String mobileNumber;
 
@@ -106,6 +114,10 @@ public class OtpVerification {
     @Column(name = "verified", nullable = false)
     @Builder.Default
     private boolean verified = false;
+
+    @Column(name = "attempts", nullable = false)
+    @Builder.Default
+    private int attempts = 0;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

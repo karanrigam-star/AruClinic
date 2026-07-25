@@ -269,8 +269,29 @@ public class UserServiceImpl implements UserService {
     @PreAuthorize("permitAll()")
     public boolean verifyOtp(String email, String mobileNumber, String otpCode) {
         Optional<OtpVerification> otpOpt = otpService.findByEmailAndMobileNumber(email, mobileNumber);
-        
-        // Hash the user-inputted OTP code using SHA-256 for comparison with secure stored hash
+        if (otpOpt.isEmpty()) {
+            return false;
+        }
+
+        OtpVerification otpVerification = otpOpt.get();
+
+        // 1. Check Expiry
+        if (otpVerification.getExpiresAt().isBefore(LocalDateTime.now()) || otpVerification.isVerified()) {
+            return false;
+        }
+
+        // 2. Check Maximum Verification Attempts (Max 5)
+        if (otpVerification.getAttempts() >= 5) {
+            otpVerification.setExpiresAt(LocalDateTime.now().minusMinutes(1));
+            otpService.saveOtp(otpVerification);
+            throw new IllegalStateException("Maximum verification attempts exceeded (5/5). Please request a new OTP.");
+        }
+
+        // 3. Increment Attempts Counter
+        int currentAttempts = otpVerification.getAttempts() + 1;
+        otpVerification.setAttempts(currentAttempts);
+
+        // 4. Hash user input using SHA-256
         String hashedOtpInput;
         try {
             java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
@@ -286,21 +307,29 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Failed to hash user input OTP", e);
         }
 
-        if (otpOpt.isPresent() && otpOpt.get().getOtpCode().equals(hashedOtpInput) && otpOpt.get().getExpiresAt().isAfter(LocalDateTime.now())) {
-            OtpVerification otpVerification = otpOpt.get();
+        // 5. Compare Hashes
+        if (otpVerification.getOtpCode().equals(hashedOtpInput)) {
+            // Single-Use Enforcement: Mark verified and delete OTP record immediately
             otpVerification.setVerified(true);
             otpService.saveOtp(otpVerification);
 
-            // Enable the user
+            // Enable user if applicable
             userRepository.findByEmail(email).ifPresent(user -> {
                 jdbcTemplate.update("DELETE FROM clinic_settings WHERE setting_key = ?", "user_disabled_" + user.getId());
             });
 
-            // Delete OTP verification record
+            // Delete OTP record immediately to enforce single-use
             otpService.deleteOtp(otpVerification);
+
+            // Secure Log Output (Zero sensitive OTP value logging)
+            System.out.println("OTP verified successfully for email: " + email);
             return true;
+        } else {
+            // Failed Attempt: Save updated attempt counter
+            otpService.saveOtp(otpVerification);
+            System.out.println("OTP verification failed for email: " + email + " (Attempt " + currentAttempts + "/5)");
+            return false;
         }
-        return false;
     }
 
     @Override
