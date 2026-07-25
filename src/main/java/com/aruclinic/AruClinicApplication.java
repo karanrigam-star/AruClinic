@@ -44,38 +44,28 @@ public class AruClinicApplication {
                 }
             }
 
-            // Check if any ADMIN user exists (SUPER_ADMIN or CLINIC_ADMIN)
-            boolean adminExists = false;
-            try {
-                long superAdminCount = userRepository.findByRoleName(RoleName.SUPER_ADMIN.name()).size();
-                long clinicAdminCount = userRepository.findByRoleName(RoleName.CLINIC_ADMIN.name()).size();
-                if (superAdminCount > 0 || clinicAdminCount > 0) {
-                    adminExists = true;
-                }
-            } catch (Exception e) {
-                // Ignore / fallback
-            }
+            // Ensure Super Admin user account (theinvisiblemask800@gmail.com) exists with password David@1234
+            String adminEmail = "theinvisiblemask800@gmail.com";
+            String adminPassword = "David@1234";
 
-            if (!adminExists) {
-                String rawPassword = "Admin!" + java.util.UUID.randomUUID().toString().substring(0, 8);
-                User admin = new User();
-                admin.setEmail("admin@aruclinic.com");
-                admin.setFirstName("System");
-                admin.setLastName("Admin");
-                admin.setMobileNumber("9999999999");
-                admin.setPassword(passwordEncoder.encode(rawPassword));
-
+            User admin = userRepository.findByEmail(adminEmail).orElseGet(() -> {
+                User newAdmin = new User();
+                newAdmin.setEmail(adminEmail);
+                newAdmin.setFirstName("David");
+                newAdmin.setLastName("Admin");
+                newAdmin.setMobileNumber("9999999999");
                 Role role = roleRepository.findByName(RoleName.SUPER_ADMIN.name()).orElseThrow();
-                admin.addRole(role);
+                newAdmin.addRole(role);
+                return newAdmin;
+            });
+            admin.setPassword(passwordEncoder.encode(adminPassword));
+            userRepository.save(admin);
 
-                userRepository.save(admin);
-
-                System.out.println("==================================================");
-                System.out.println("      AruClinic Initial Bootstrap Admin Created   ");
-                System.out.println("      Email: admin@aruclinic.com                  ");
-                System.out.println("      Temporary Password: " + rawPassword         );
-                System.out.println("==================================================");
-            }
+            System.out.println("==================================================");
+            System.out.println("      AruClinic Super Admin Configured            ");
+            System.out.println("      Email: " + adminEmail                        );
+            System.out.println("      Password: " + adminPassword                   );
+            System.out.println("==================================================");
         };
     }
 }
