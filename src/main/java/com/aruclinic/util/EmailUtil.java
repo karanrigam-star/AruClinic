@@ -1,72 +1,93 @@
 package com.aruclinic.util;
 
 import jakarta.mail.internet.MimeMessage;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+
 /**
- * Utility class for sending HTML and plain-text emails using Gmail SMTP / JavaMailSender.
- * Production-ready email delivery system.
+ * Enterprise Email Utility for AruClinic.
+ * Supports Brevo (Sendinblue) REST API with automatic fallback to JavaMailSender SMTP.
  */
 @Component
 public class EmailUtil {
 
     private final JavaMailSender mailSender;
+    private final HttpClient httpClient;
+
+    @Value("${BREVO_API_KEY:${SENDINBLUE_API_KEY:}}")
+    private String brevoApiKey;
+
+    @Value("${BREVO_SENDER_EMAIL:${GMAIL_USERNAME:theinvisiblemask800@gmail.com}}")
+    private String senderEmail;
+
+    @Value("${BREVO_SENDER_NAME:AruClinic Healthcare System}")
+    private String senderName;
 
     public EmailUtil(JavaMailSender mailSender) {
         this.mailSender = mailSender;
+        this.httpClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
     }
 
-    private String getFromAddress() {
-        String username = System.getenv("GMAIL_USERNAME");
-        if (username != null && !username.trim().isEmpty()) {
-            return username.trim();
+    private String getEffectiveSenderEmail() {
+        if (senderEmail != null && !senderEmail.trim().isEmpty()) {
+            return senderEmail.trim();
         }
-        return "no-reply@aruclinic.com";
+        return "theinvisiblemask800@gmail.com";
+    }
+
+    private String getEffectiveApiKey() {
+        if (brevoApiKey != null && !brevoApiKey.trim().isEmpty()) {
+            return brevoApiKey.trim();
+        }
+        String envKey = System.getenv("BREVO_API_KEY");
+        if (envKey != null && !envKey.trim().isEmpty()) {
+            return envKey.trim();
+        }
+        String sibKey = System.getenv("SENDINBLUE_API_KEY");
+        if (sibKey != null && !sibKey.trim().isEmpty()) {
+            return sibKey.trim();
+        }
+        return "";
     }
 
     /**
-     * Send a simple plain text email.
+     * Send plain text email via Brevo REST API or fallback to SMTP.
      */
     public void sendEmail(String to, String subject, String body) {
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(getFromAddress());
-            message.setTo(to);
-            message.setSubject(subject);
-            message.setText(body);
-            mailSender.send(message);
-            System.out.println("Email sent successfully to: " + to);
-        } catch (Exception e) {
-            System.err.println("Gmail SMTP failed to send email to " + to + ": " + e.getMessage());
-            System.out.println("[FALLBACK LOG] Email sent to: " + to + " | Subject: " + subject);
+        String apiKey = getEffectiveApiKey();
+        if (!apiKey.isEmpty()) {
+            sendViaBrevoApi(to, subject, "<p>" + body.replace("\n", "<br/>") + "</p>");
+        } else {
+            sendViaSmtp(to, subject, body);
         }
     }
 
     /**
-     * Send an HTML formatted email.
+     * Send HTML email via Brevo REST API or fallback to SMTP.
      */
     public void sendHtmlEmail(String to, String subject, String htmlContent) {
-        try {
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            helper.setFrom(getFromAddress());
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
-            mailSender.send(mimeMessage);
-            System.out.println("HTML email sent successfully to: " + to);
-        } catch (Exception e) {
-            System.err.println("Gmail SMTP HTML mail failed for " + to + ": " + e.getMessage());
-            System.out.println("[FALLBACK LOG] HTML Email sent to: " + to + " | Subject: " + subject);
+        String apiKey = getEffectiveApiKey();
+        if (!apiKey.isEmpty()) {
+            sendViaBrevoApi(to, subject, htmlContent);
+        } else {
+            sendViaSmtpHtml(to, subject, htmlContent);
         }
     }
 
     /**
-     * Send a branded, responsive HTML OTP email.
-     * Note: OTP code is transmitted to recipient via SMTP but NEVER logged to stdout/stderr.
+     * Send branded, responsive HTML OTP email.
+     * Note: OTP code is transmitted to recipient via API/SMTP but NEVER logged to stdout/stderr.
      */
     public void sendOtpEmail(String to, String rawOtpCode, int expiryMinutes) {
         String subject = "AruClinic - Verification OTP Code";
@@ -90,5 +111,84 @@ public class EmailUtil {
                 "</div></body></html>";
 
         sendHtmlEmail(to, subject, htmlContent);
+    }
+
+    private void sendViaBrevoApi(String to, String subject, String htmlContent) {
+        try {
+            String apiKey = getEffectiveApiKey();
+            String fromEmail = getEffectiveSenderEmail();
+
+            String jsonPayload = String.format(
+                "{\"sender\":{\"name\":\"%s\",\"email\":\"%s\"},\"to\":[{\"email\":\"%s\"}],\"subject\":\"%s\",\"htmlContent\":\"%s\"}",
+                escapeJson(senderName),
+                escapeJson(fromEmail),
+                escapeJson(to),
+                escapeJson(subject),
+                escapeJson(htmlContent)
+            );
+
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.brevo.com/v3/smtp/email"))
+                .header("api-key", apiKey)
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
+                .timeout(Duration.ofSeconds(15))
+                .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 201 || response.statusCode() == 200) {
+                System.out.println("Email sent successfully via Brevo REST API to: " + to + " (Sender: " + fromEmail + ")");
+            } else {
+                System.err.println("Brevo API returned error status " + response.statusCode() + ": " + response.body());
+                sendViaSmtpHtml(to, subject, htmlContent);
+            }
+        } catch (Exception e) {
+            System.err.println("Brevo REST API call failed for " + to + ": " + e.getMessage());
+            sendViaSmtpHtml(to, subject, htmlContent);
+        }
+    }
+
+    private String escapeJson(String input) {
+        if (input == null) return "";
+        return input.replace("\\", "\\\\")
+                    .replace("\"", "\\\"")
+                    .replace("\b", "\\b")
+                    .replace("\f", "\\f")
+                    .replace("\n", "\\n")
+                    .replace("\r", "\\r")
+                    .replace("\t", "\\t");
+    }
+
+    private void sendViaSmtp(String to, String subject, String body) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(getEffectiveSenderEmail());
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(body);
+            mailSender.send(message);
+            System.out.println("Email sent successfully via SMTP to: " + to);
+        } catch (Exception e) {
+            System.err.println("SMTP failed to send email to " + to + ": " + e.getMessage());
+            System.out.println("[FALLBACK LOG] Email sent to: " + to + " | Subject: " + subject);
+        }
+    }
+
+    private void sendViaSmtpHtml(String to, String subject, String htmlContent) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setFrom(getEffectiveSenderEmail());
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+            mailSender.send(mimeMessage);
+            System.out.println("HTML email sent successfully via SMTP to: " + to);
+        } catch (Exception e) {
+            System.err.println("SMTP HTML mail failed for " + to + ": " + e.getMessage());
+            System.out.println("[FALLBACK LOG] HTML Email sent to: " + to + " | Subject: " + subject);
+        }
     }
 }
