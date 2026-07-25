@@ -8,12 +8,12 @@ CREATE TABLE users (
     mobile_number VARCHAR(20),
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 CREATE TABLE roles (
     id          BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name        VARCHAR(50) NOT NULL UNIQUE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 CREATE TABLE user_roles (
     user_id     BIGINT NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE user_roles (
     PRIMARY KEY (user_id, role_id),
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (role_id) REFERENCES roles (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 CREATE TABLE patients (
     id          BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -33,7 +33,7 @@ CREATE TABLE patients (
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 CREATE TABLE doctors (
     id          BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -44,7 +44,7 @@ CREATE TABLE doctors (
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 CREATE TABLE receptionists (
     id          BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -53,7 +53,7 @@ CREATE TABLE receptionists (
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 CREATE TABLE appointments (
     id              BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -65,7 +65,7 @@ CREATE TABLE appointments (
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (patient_id) REFERENCES patients (id),
     FOREIGN KEY (doctor_id)  REFERENCES doctors (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 CREATE TABLE prescriptions (
     id              BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -76,7 +76,7 @@ CREATE TABLE prescriptions (
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (patient_id) REFERENCES patients (id),
     FOREIGN KEY (doctor_id)  REFERENCES doctors (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 CREATE TABLE prescription_items (
     id              BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -85,7 +85,7 @@ CREATE TABLE prescription_items (
     dosage          VARCHAR(100),
     duration_days   INT,
     FOREIGN KEY (prescription_id) REFERENCES prescriptions (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 CREATE TABLE bills (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -100,7 +100,7 @@ CREATE TABLE bills (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (patient_id) REFERENCES patients(id),
     FOREIGN KEY (doctor_id) REFERENCES doctors(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 CREATE TABLE bill_items (
     id              BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -108,7 +108,7 @@ CREATE TABLE bill_items (
     description     VARCHAR(200),
     amount          DECIMAL(12,2),
     FOREIGN KEY (bill_id) REFERENCES bills (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 CREATE TABLE otp_verifications (
     id              BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -121,7 +121,7 @@ CREATE TABLE otp_verifications (
     INDEX (email),
     INDEX (mobile_number),
     INDEX (otp_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 CREATE TABLE notifications (
     id              BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -129,7 +129,7 @@ CREATE TABLE notifications (
     message         TEXT,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
 
 CREATE TABLE audit_logs (
     id              BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -140,4 +140,4 @@ CREATE TABLE audit_logs (
     performed_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     details         TEXT,
     FOREIGN KEY (performed_by) REFERENCES users (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+);
