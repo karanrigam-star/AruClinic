@@ -4,17 +4,14 @@
 FROM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /workspace
 
-# Copy configuration files
-COPY pom.xml .
-COPY package.json .
-COPY tsconfig.json .
-COPY vite.config.ts .
-COPY src ./src
-COPY frontend ./frontend
+# Install Maven
+RUN apk add --no-cache maven
 
-# Install Maven dependencies and build production JAR
-RUN apk add --no-gradable --no-cache maven \
-    && mvn clean package -DskipTests -Dvaadin.productionMode=true
+# Copy complete repository (excluding .dockerignore paths)
+COPY . .
+
+# Install dependencies and build production JAR
+RUN mvn clean package -DskipTests -Dvaadin.productionMode=true
 
 # Stage 2: Minimal Runtime Image
 FROM eclipse-temurin:21-jre-alpine
